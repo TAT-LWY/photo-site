@@ -76,6 +76,8 @@
             mask-image: linear-gradient(to bottom, #000 75%, transparent);
   }
   .fan-stage.dragging { cursor: grabbing; }
+  .fan-stage, .fan-info { transition: opacity .45s ease, filter .45s ease; }
+  .fan-stage.switching, .fan-info.switching { opacity: 0; filter: blur(8px); }
   .fan-card {
     position: absolute; left: 50%; top: 80px;
     width: 300px; height: 420px; margin-left: -150px;
@@ -152,7 +154,7 @@
     <div class="nav-links">
       <a href="#gallery">Work</a>
       <a href="#contact">Contact</a>
-      <button id="themeBtn" title="Toggle dark / light mode">◐</button>
+      <button id="themeBtn" title="Switch to night">☀</button>
     </div>
   </div>
 </nav>
@@ -199,36 +201,37 @@
    📷 照片列表 —— 在这里添加/修改你的照片
    每张照片有两个版本：photos/thumb/（扇子上的小图）和 photos/full/（点开的大图）
    file 填文件名；place（地点）可以留空 ""，留空就不显示
+   mood: "day" = 白天模式显示（偏正面情绪），"night" = 黑夜模式显示（偏负面情绪）
    所有照片都以同样大小的竖版卡片展示（会自动裁剪填满卡片）
    ========================================================== */
 const PHOTOS = [
-  { file: "DSC0211.jpg",   title: "Garden Path",           category: "Landscape",     place: "", date: "Feb 3, 2026" },
-  { file: "DSC0249.jpg",   title: "Lone Bird",             category: "Animals",       place: "", date: "Feb 6, 2026" },
-  { file: "DSC0981.jpg",   title: "Paper Umbrellas",       category: "Architecture",  place: "", date: "Feb 7, 2026" },
-  { file: "DSC_0049.jpg",  title: "Vine Bridge",           category: "Landscape",     place: "", date: "Feb 28, 2026" },
-  { file: "DSC_0056.jpg",  title: "Rooster",               category: "Animals",       place: "", date: "Feb 28, 2026" },
-  { file: "DSC_0085.jpg",  title: "Rooftop Statue",        category: "Architecture",  place: "", date: "Mar 29, 2026" },
-  { file: "DSC_0091.jpg",  title: "Quiet Street",          category: "Architecture",  place: "", date: "Mar 29, 2026" },
-  { file: "DSC_0135.jpg",  title: "Glacier",               category: "Landscape",     place: "", date: "Apr 6, 2026" },
-  { file: "DSC_0137.jpg",  title: "Crow on the Rail",      category: "Animals",       place: "", date: "Apr 6, 2026" },
-  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",        category: "Animals",       place: "", date: "Apr 6, 2026" },
-  { file: "DSC_0141.jpg",  title: "Taking Off",            category: "Animals",       place: "", date: "Apr 6, 2026" },
-  { file: "DSC_0143.jpg",  title: "Sailboat",              category: "Landscape",     place: "", date: "Apr 8, 2026" },
-  { file: "DSC_0149.jpg",  title: "Castle in the Trees",   category: "Landscape",     place: "", date: "Apr 8, 2026" },
-  { file: "DSC_0153.jpg",  title: "Misty Peaks",           category: "Landscape",     place: "", date: "Apr 8, 2026" },
-  { file: "DSC_0181.jpg",  title: "Lake & Mountains",      category: "Landscape",     place: "", date: "Apr 8, 2026" },
-  { file: "DSC_0182.jpg",  title: "On Deck",               category: "People",        place: "", date: "Apr 8, 2026" },
-  { file: "DSC_0184.jpg",  title: "Traveler",              category: "People",        place: "", date: "Apr 8, 2026" },
-  { file: "DSC_0191.jpg",  title: "By the Lake",           category: "People",        place: "", date: "Apr 8, 2026" },
-  { file: "DSC_0358.jpg",  title: "Monitor Lizard",        category: "Animals",       place: "", date: "May 28, 2026" },
-  { file: "DSC_0439.jpg",  title: "Golden Eaves",          category: "Architecture",  place: "", date: "Jun 28, 2026" },
-  { file: "DSC_0444.jpg",  title: "Incense",               category: "People",        place: "", date: "Jun 28, 2026" },
-  { file: "DSC_0456.jpg",  title: "Lone Boat",             category: "Landscape",     place: "", date: "Jul 1, 2026" },
-  { file: "DSC_0468.jpg",  title: "Afternoon Nap",         category: "Animals",       place: "", date: "Jul 1, 2026" },
-  { file: "DSC_0499.jpg",  title: "Panda",                 category: "Animals",       place: "", date: "Jul 7, 2026" },
-  { file: "DSC_0520.jpg",  title: "Up a Tree",             category: "Animals",       place: "", date: "Jul 7, 2026" },
-  { file: "DSC_1239.jpg",  title: "Wing Stretch",          category: "Animals",       place: "", date: "Jul 25, 2026" },
-  { file: "DSC_1269.jpg",  title: "Black Swan",            category: "Animals",       place: "", date: "Jul 25, 2026" },
+  { file: "DSC0211.jpg",   title: "Garden Path",           category: "Landscape",     place: "", date: "Feb 3, 2026", mood: "day"   },
+  { file: "DSC0249.jpg",   title: "Lone Bird",             category: "Animals",       place: "", date: "Feb 6, 2026", mood: "night" },
+  { file: "DSC0981.jpg",   title: "Paper Umbrellas",       category: "Architecture",  place: "", date: "Feb 7, 2026", mood: "day"   },
+  { file: "DSC_0049.jpg",  title: "Vine Bridge",           category: "Landscape",     place: "", date: "Feb 28, 2026", mood: "day"   },
+  { file: "DSC_0056.jpg",  title: "Rooster",               category: "Animals",       place: "", date: "Feb 28, 2026", mood: "day"   },
+  { file: "DSC_0085.jpg",  title: "Rooftop Statue",        category: "Architecture",  place: "", date: "Mar 29, 2026", mood: "day"   },
+  { file: "DSC_0091.jpg",  title: "Quiet Street",          category: "Architecture",  place: "", date: "Mar 29, 2026", mood: "night" },
+  { file: "DSC_0135.jpg",  title: "Glacier",               category: "Landscape",     place: "", date: "Apr 6, 2026", mood: "day"   },
+  { file: "DSC_0137.jpg",  title: "Crow on the Rail",      category: "Animals",       place: "", date: "Apr 6, 2026", mood: "night" },
+  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",        category: "Animals",       place: "", date: "Apr 6, 2026", mood: "night" },
+  { file: "DSC_0141.jpg",  title: "Taking Off",            category: "Animals",       place: "", date: "Apr 6, 2026", mood: "day"   },
+  { file: "DSC_0143.jpg",  title: "Sailboat",              category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "day"   },
+  { file: "DSC_0149.jpg",  title: "Castle in the Trees",   category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "day"   },
+  { file: "DSC_0153.jpg",  title: "Misty Peaks",           category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "night" },
+  { file: "DSC_0181.jpg",  title: "Lake & Mountains",      category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "day"   },
+  { file: "DSC_0182.jpg",  title: "On Deck",               category: "People",        place: "", date: "Apr 8, 2026", mood: "day"   },
+  { file: "DSC_0184.jpg",  title: "Traveler",              category: "People",        place: "", date: "Apr 8, 2026", mood: "night" },
+  { file: "DSC_0191.jpg",  title: "By the Lake",           category: "People",        place: "", date: "Apr 8, 2026", mood: "night" },
+  { file: "DSC_0358.jpg",  title: "Monitor Lizard",        category: "Animals",       place: "", date: "May 28, 2026", mood: "night" },
+  { file: "DSC_0439.jpg",  title: "Golden Eaves",          category: "Architecture",  place: "", date: "Jun 28, 2026", mood: "day"   },
+  { file: "DSC_0444.jpg",  title: "Incense",               category: "People",        place: "", date: "Jun 28, 2026", mood: "night" },
+  { file: "DSC_0456.jpg",  title: "Lone Boat",             category: "Landscape",     place: "", date: "Jul 1, 2026", mood: "night" },
+  { file: "DSC_0468.jpg",  title: "Afternoon Nap",         category: "Animals",       place: "", date: "Jul 1, 2026", mood: "day"   },
+  { file: "DSC_0499.jpg",  title: "Panda",                 category: "Animals",       place: "", date: "Jul 7, 2026", mood: "day"   },
+  { file: "DSC_0520.jpg",  title: "Up a Tree",             category: "Animals",       place: "", date: "Jul 7, 2026", mood: "day"   },
+  { file: "DSC_1239.jpg",  title: "Wing Stretch",          category: "Animals",       place: "", date: "Jul 25, 2026", mood: "day"   },
+  { file: "DSC_1269.jpg",  title: "Black Swan",            category: "Animals",       place: "", date: "Jul 25, 2026", mood: "night" },
 ];
 
 const fan = document.getElementById("fan");
@@ -237,19 +240,31 @@ let current = "All";
 let visible = [];
 let lbIndex = 0;
 
-// 分类按钮
-const cats = ["All", ...new Set(PHOTOS.map(p => p.category))];
-cats.forEach(c => {
-  const b = document.createElement("button");
-  b.textContent = c;
-  if (c === current) b.classList.add("active");
-  b.onclick = () => {
-    current = c;
-    filtersEl.querySelectorAll("button").forEach(x => x.classList.toggle("active", x === b));
-    render();
-  };
-  filtersEl.appendChild(b);
-});
+// 白天 / 黑夜模式
+const isDark = () => document.documentElement.dataset.theme
+  ? document.documentElement.dataset.theme === "dark"
+  : matchMedia("(prefers-color-scheme: dark)").matches;
+const mood = () => isDark() ? "night" : "day";
+
+// 分类按钮（只显示当前模式下有照片的分类）
+function buildFilters() {
+  const order = ["Landscape", "Animals", "Architecture", "People"];
+  const have = new Set(PHOTOS.filter(p => p.mood === mood()).map(p => p.category));
+  const cats = ["All", ...order.filter(c => have.has(c)), ...[...have].filter(c => !order.includes(c))];
+  if (!cats.includes(current)) current = "All";
+  filtersEl.innerHTML = "";
+  cats.forEach(c => {
+    const b = document.createElement("button");
+    b.textContent = c;
+    if (c === current) b.classList.add("active");
+    b.onclick = () => {
+      current = c;
+      filtersEl.querySelectorAll("button").forEach(x => x.classList.toggle("active", x === b));
+      render();
+    };
+    filtersEl.appendChild(b);
+  });
+}
 
 // ===================== 扇形展示 =====================
 const STEP = 9;            // 相邻两张照片之间的角度（度）
@@ -262,13 +277,15 @@ let total = 0;             // 扇子上卡片的总数（照片少时会重复�
 let autoOn = true;         // 一打开就自动转
 let resumeAt = 0;
 let drag = null;
+let shownIndex = -1;
 
 const mod = (a, n) => ((a % n) + n) % n;
 const frontCard = () => Math.round(pos);
 const photoIndex = k => mod(k, visible.length);
 
 function render() {
-  visible = current === "All" ? PHOTOS : PHOTOS.filter(p => p.category === current);
+  visible = PHOTOS.filter(p => p.mood === mood() && (current === "All" || p.category === current));
+  shownIndex = -1;
   const n = visible.length;
   const copies = n > 1 && n < 9 ? Math.ceil(9 / n) : 1;
   total = n * copies;
@@ -288,7 +305,6 @@ function render() {
   layout();
 }
 
-let shownIndex = -1;
 function layout() {
   [...fan.children].forEach((card, k) => {
     // 这张卡离正中间差几格（首尾相接，取最近的方向）
@@ -421,13 +437,41 @@ lb.addEventListener("touchend", e => {
 });
 
 // 深色/浅色切换
-document.getElementById("themeBtn").onclick = () => {
-  const dark = document.documentElement.dataset.theme
-    ? document.documentElement.dataset.theme === "dark"
-    : matchMedia("(prefers-color-scheme: dark)").matches;
-  document.documentElement.dataset.theme = dark ? "light" : "dark";
+// 切换模式时：旧的扇子转走并淡出，换成另一组照片，再从另一边转进来
+const themeBtn = document.getElementById("themeBtn");
+const fanInfo = document.querySelector(".fan-info");
+function updateThemeBtn() {
+  themeBtn.textContent = isDark() ? "☾" : "☀";
+  themeBtn.title = isDark() ? "Switch to day" : "Switch to night";
+}
+let switching = false;
+function switchMood() {
+  updateThemeBtn();
+  if (switching) return;
+  switching = true;
+  fan.classList.add("switching");
+  fanInfo.classList.add("switching");
+  target = pos + 4;                  // 转走
+  setTimeout(() => {
+    buildFilters();
+    render();
+    pos = -4;                        // 从另一边转进来
+    fan.classList.remove("switching");
+    fanInfo.classList.remove("switching");
+    switching = false;
+  }, 450);
+}
+themeBtn.onclick = () => {
+  document.documentElement.dataset.theme = isDark() ? "light" : "dark";
+  switchMood();
 };
+// 没手动切换过时，跟随电脑系统的深色/浅色设置
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  if (!document.documentElement.dataset.theme) switchMood();
+});
+updateThemeBtn();
 
+buildFilters();
 render();
 requestAnimationFrame(tick);
 </script>
