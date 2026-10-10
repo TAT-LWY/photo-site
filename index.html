@@ -74,24 +74,45 @@
   .filters button:hover { color: var(--text); }
   .filters button.active { background: var(--text); color: var(--bg); border-color: var(--text); }
 
-  /* ===================== 照片墙（瀑布流） ===================== */
-  .gallery { columns: 4; column-gap: 20px; padding-bottom: 80px; }
-  .photo {
-    break-inside: avoid; margin-bottom: 20px; position: relative; overflow: hidden;
-    border-radius: 10px; cursor: zoom-in; background: var(--line);
-    animation: fadeIn .5s ease both;
+  /* ===================== 扇形照片展示 ===================== */
+  .fan-stage {
+    position: relative; height: 640px; overflow: hidden;
+    cursor: grab; user-select: none; touch-action: pan-y;
+    background: radial-gradient(ellipse 45% 55% at 50% 40%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent);
+            mask-image: linear-gradient(to bottom, #000 75%, transparent);
   }
-  .photo img { width: 100%; display: block; transition: transform .5s ease; }
-  .photo:hover img { transform: scale(1.04); }
-  .photo .cap {
-    position: absolute; inset: auto 0 0 0; padding: 40px 16px 14px;
-    background: linear-gradient(transparent, rgba(0,0,0,.65)); color: #fff;
-    opacity: 0; transform: translateY(8px); transition: all .3s;
+  .fan-stage.dragging { cursor: grabbing; }
+  .fan-card {
+    position: absolute; left: 50%; top: 80px;
+    width: 300px; height: 420px; margin-left: -150px;
+    transform-origin: 50% 1300px; /* 扇形的转轴在卡片下方很远的地方 */
+    transition: transform .7s cubic-bezier(.22, 1, .36, 1), opacity .5s;
+    will-change: transform;
   }
-  .photo:hover .cap { opacity: 1; transform: none; }
-  .cap h3 { font-size: 15px; font-weight: 500; }
-  .cap small { font-size: 12px; opacity: .8; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } }
+  .fan-stage.dragging .fan-card { transition: none; }
+  .fan-card .inner {
+    width: 100%; height: 100%; border-radius: 14px; overflow: hidden;
+    background: var(--surface); box-shadow: 0 12px 30px rgba(0,0,0,.12);
+    transition: transform .5s cubic-bezier(.22, 1, .36, 1), box-shadow .5s;
+  }
+  .fan-card:not(.active):hover .inner { transform: translateY(-12px); }
+  .fan-card.active .inner { transform: translateY(-28px) scale(1.06); box-shadow: 0 30px 60px rgba(0,0,0,.28); cursor: zoom-in; }
+  .fan-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+  .fan-card .placeholder { height: 100%; border-radius: 14px; }
+
+  .fan-info { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: -60px; position: relative; }
+  .fan-info .text { text-align: center; min-width: 280px; }
+  .fan-info h3 { font-family: "Noto Serif SC", serif; font-size: 26px; font-weight: 700; }
+  .fan-info .meta { color: var(--muted); font-size: 14px; }
+  .fan-info .count { color: var(--accent); font-size: 13px; letter-spacing: .15em; margin-top: 6px; }
+  .fan-btn {
+    width: 52px; height: 52px; border-radius: 50%; font-size: 22px; cursor: pointer;
+    background: var(--surface); color: var(--text); border: 1px solid var(--line); transition: all .2s;
+  }
+  .fan-btn:hover { background: var(--text); color: var(--bg); }
+  .fan-btn:disabled { opacity: .3; pointer-events: none; }
+  .fan-hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 18px; padding-bottom: 80px; }
 
   .placeholder {
     display: flex; align-items: center; justify-content: center;
@@ -164,7 +185,17 @@
   <section id="gallery">
     <h2 class="section-title">Portfolio</h2>
     <div class="filters" id="filters"></div>
-    <div class="gallery" id="grid"></div>
+    <div class="fan-stage" id="fan"></div>
+    <div class="fan-info">
+      <button class="fan-btn" id="fanPrev" title="Previous">‹</button>
+      <div class="text">
+        <h3 id="fanTitle"></h3>
+        <div class="meta" id="fanMeta"></div>
+        <div class="count" id="fanCount"></div>
+      </div>
+      <button class="fan-btn" id="fanNext" title="Next">›</button>
+    </div>
+    <p class="fan-hint">Drag, swipe sideways, or press ← → to turn the fan · Click the front photo to enlarge</p>
   </section>
 
   <section class="about" id="about">
@@ -197,24 +228,25 @@
 /* ==========================================================
    📷 照片列表 —— 在这里添加/修改你的照片
    把照片放进 photos 文件夹，然后把 src 改成 "photos/filename.jpg"
-   src 留空 "" 时显示空白占位框，ratio 是占位框的高宽比（有照片后可删掉）
+   src 留空 "" 时显示空白占位框
+   所有照片都以同样大小的竖版卡片展示（会自动裁剪填满卡片）
    ========================================================== */
 const PHOTOS = [
-  { src: "", title: "Photo 1", category: "Landscape", place: "Location", date: "Date", ratio: 1.25 },
-  { src: "", title: "Photo 2", category: "People", place: "Location", date: "Date", ratio: 0.7 },
-  { src: "", title: "Photo 3", category: "City", place: "Location", date: "Date", ratio: 1.35 },
-  { src: "", title: "Photo 4", category: "Daily", place: "Location", date: "Date", ratio: 0.75 },
-  { src: "", title: "Photo 5", category: "Landscape", place: "Location", date: "Date", ratio: 1.1 },
-  { src: "", title: "Photo 6", category: "People", place: "Location", date: "Date", ratio: 0.7 },
-  { src: "", title: "Photo 7", category: "City", place: "Location", date: "Date", ratio: 1.3 },
-  { src: "", title: "Photo 8", category: "Daily", place: "Location", date: "Date", ratio: 0.85 },
-  { src: "", title: "Photo 9", category: "Landscape", place: "Location", date: "Date", ratio: 1.25 },
-  { src: "", title: "Photo 10", category: "People", place: "Location", date: "Date", ratio: 0.7 },
-  { src: "", title: "Photo 11", category: "City", place: "Location", date: "Date", ratio: 1.1 },
-  { src: "", title: "Photo 12", category: "Daily", place: "Location", date: "Date", ratio: 0.8 },
+  { src: "", title: "Photo 1", category: "Landscape", place: "Location", date: "Date" },
+  { src: "", title: "Photo 2", category: "People", place: "Location", date: "Date" },
+  { src: "", title: "Photo 3", category: "City", place: "Location", date: "Date" },
+  { src: "", title: "Photo 4", category: "Daily", place: "Location", date: "Date" },
+  { src: "", title: "Photo 5", category: "Landscape", place: "Location", date: "Date" },
+  { src: "", title: "Photo 6", category: "People", place: "Location", date: "Date" },
+  { src: "", title: "Photo 7", category: "City", place: "Location", date: "Date" },
+  { src: "", title: "Photo 8", category: "Daily", place: "Location", date: "Date" },
+  { src: "", title: "Photo 9", category: "Landscape", place: "Location", date: "Date" },
+  { src: "", title: "Photo 10", category: "People", place: "Location", date: "Date" },
+  { src: "", title: "Photo 11", category: "City", place: "Location", date: "Date" },
+  { src: "", title: "Photo 12", category: "Daily", place: "Location", date: "Date" },
 ];
 
-const grid = document.getElementById("grid");
+const fan = document.getElementById("fan");
 const filtersEl = document.getElementById("filters");
 let current = "All";
 let visible = [];
@@ -236,27 +268,97 @@ cats.forEach(c => {
   filtersEl.appendChild(b);
 });
 
+// ===================== 扇形展示 =====================
+const STEP = 9;      // 相邻两张照片之间的角度（度）
+let pos = 0;         // 当前转到第几张（拖动时可以是小数）
+
 function render() {
   visible = current === "All" ? PHOTOS : PHOTOS.filter(p => p.category === current);
-  grid.innerHTML = "";
+  fan.innerHTML = "";
   visible.forEach((p, i) => {
-    const el = document.createElement("div");
-    el.className = "photo";
-    el.style.animationDelay = (i * 0.05) + "s";
+    const card = document.createElement("div");
+    card.className = "fan-card";
+    card.dataset.i = i;
     const media = p.src
-      ? `<img src="${p.src}" alt="${p.title}" loading="lazy">`
-      : `<div class="placeholder" style="aspect-ratio:1/${p.ratio || 1}">${p.title}</div>`;
-    el.innerHTML = `${media}
-      <div class="cap"><h3>${p.title}</h3><small>${p.place} · ${p.date}</small></div>`;
-    el.onclick = () => openLb(i);
-    grid.appendChild(el);
+      ? `<img src="${p.src}" alt="${p.title}" draggable="false">`
+      : `<div class="placeholder">${p.title}</div>`;
+    card.innerHTML = `<div class="inner">${media}</div>`;
+    fan.appendChild(card);
   });
+  pos = Math.floor((visible.length - 1) / 2); // 从中间那张开始
+  layout();
 }
+
+function layout() {
+  [...fan.children].forEach((card, i) => {
+    const off = i - pos, a = Math.abs(off);
+    card.style.transform = `rotate(${off * STEP}deg)`;
+    card.style.opacity = a > 4.5 ? 0 : 1 - Math.max(0, a - 2.5) * 0.4;
+    card.style.zIndex = 100 - Math.round(a * 10);
+    card.style.pointerEvents = a > 4.5 ? "none" : "";
+    card.classList.toggle("active", i === Math.round(pos));
+  });
+  const idx = Math.max(0, Math.min(visible.length - 1, Math.round(pos)));
+  const p = visible[idx];
+  document.getElementById("fanTitle").textContent = p.title;
+  document.getElementById("fanMeta").textContent = `${p.place} · ${p.date}`;
+  document.getElementById("fanCount").textContent =
+    `${String(idx + 1).padStart(2, "0")} / ${String(visible.length).padStart(2, "0")}`;
+  document.getElementById("fanPrev").disabled = idx === 0;
+  document.getElementById("fanNext").disabled = idx === visible.length - 1;
+}
+
+function goTo(i) {
+  pos = Math.max(0, Math.min(visible.length - 1, i));
+  layout();
+}
+
+document.getElementById("fanPrev").onclick = () => goTo(Math.round(pos) - 1);
+document.getElementById("fanNext").onclick = () => goTo(Math.round(pos) + 1);
+
+// 触控板左右滑动 / Shift+滚轮 转动（上下滚动仍然正常滚动页面）
+let wheelLock = 0;
+fan.addEventListener("wheel", e => {
+  const d = e.shiftKey ? (e.deltaX || e.deltaY) : e.deltaX;
+  if (Math.abs(d) < 4 || Math.abs(e.deltaY) > Math.abs(e.deltaX) && !e.shiftKey) return;
+  e.preventDefault();
+  if (Date.now() < wheelLock) return;
+  goTo(Math.round(pos) + (d > 0 ? 1 : -1));
+  wheelLock = Date.now() + 260;
+}, { passive: false });
+
+// 拖动转动 / 点击
+let drag = null;
+fan.addEventListener("pointerdown", e => {
+  drag = { x: e.clientX, start: pos, moved: false, card: e.target.closest(".fan-card") };
+  fan.setPointerCapture(e.pointerId);
+});
+fan.addEventListener("pointermove", e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x;
+  if (!drag.moved && Math.abs(dx) > 5) { drag.moved = true; fan.classList.add("dragging"); }
+  if (drag.moved) {
+    pos = Math.max(-0.4, Math.min(visible.length - 0.6, drag.start - dx / 180));
+    layout();
+  }
+});
+function endDrag() {
+  if (!drag) return;
+  fan.classList.remove("dragging");
+  if (drag.moved) goTo(Math.round(pos));
+  else if (drag.card) {
+    const i = +drag.card.dataset.i;
+    i === Math.round(pos) ? openLb(i) : goTo(i); // 点前面那张放大，点旁边的转过去
+  }
+  drag = null;
+}
+fan.addEventListener("pointerup", endDrag);
+fan.addEventListener("pointercancel", endDrag);
 
 // 大图查看
 const lb = document.getElementById("lightbox");
 function openLb(i) { lbIndex = i; showLb(); lb.classList.add("open"); document.body.style.overflow = "hidden"; }
-function closeLb() { lb.classList.remove("open"); document.body.style.overflow = ""; }
+function closeLb() { lb.classList.remove("open"); document.body.style.overflow = ""; goTo(lbIndex); }
 function showLb() {
   const p = visible[lbIndex];
   const img = document.getElementById("lbImg");
@@ -272,7 +374,11 @@ document.getElementById("lbPrev").onclick = e => { e.stopPropagation(); step(-1)
 document.getElementById("lbNext").onclick = e => { e.stopPropagation(); step(1); };
 lb.onclick = e => { if (e.target === lb) closeLb(); };
 document.addEventListener("keydown", e => {
-  if (!lb.classList.contains("open")) return;
+  if (!lb.classList.contains("open")) {
+    if (e.key === "ArrowLeft") goTo(Math.round(pos) - 1);
+    if (e.key === "ArrowRight") goTo(Math.round(pos) + 1);
+    return;
+  }
   if (e.key === "Escape") closeLb();
   if (e.key === "ArrowLeft") step(-1);
   if (e.key === "ArrowRight") step(1);
