@@ -87,17 +87,14 @@
     position: absolute; left: 50%; top: 80px;
     width: 300px; height: 420px; margin-left: -150px;
     transform-origin: 50% 1300px; /* 扇形的转轴在卡片下方很远的地方 */
-    transition: transform .7s cubic-bezier(.22, 1, .36, 1), opacity .5s;
-    will-change: transform;
+    will-change: transform, opacity;
   }
-  .fan-stage.dragging .fan-card { transition: none; }
   .fan-card .inner {
     width: 100%; height: 100%; border-radius: 14px; overflow: hidden;
     background: var(--surface); box-shadow: 0 12px 30px rgba(0,0,0,.12);
-    transition: transform .5s cubic-bezier(.22, 1, .36, 1), box-shadow .5s;
+    transition: box-shadow .5s;
   }
-  .fan-card:not(.active):hover .inner { transform: translateY(-12px); }
-  .fan-card.active .inner { transform: translateY(-28px) scale(1.06); box-shadow: 0 30px 60px rgba(0,0,0,.28); cursor: zoom-in; }
+  .fan-card.active .inner { box-shadow: 0 30px 60px rgba(0,0,0,.28); cursor: zoom-in; }
   .fan-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
   .fan-card .placeholder { height: 100%; border-radius: 14px; }
 
@@ -111,7 +108,11 @@
     background: var(--surface); color: var(--text); border: 1px solid var(--line); transition: all .2s;
   }
   .fan-btn:hover { background: var(--text); color: var(--bg); }
-  .fan-btn:disabled { opacity: .3; pointer-events: none; }
+  .fan-auto {
+    margin-top: 12px; padding: 5px 14px; border-radius: 999px; font-size: 12px; cursor: pointer;
+    background: none; color: var(--muted); border: 1px solid var(--line); transition: all .2s;
+  }
+  .fan-auto:hover { color: var(--text); border-color: var(--text); }
   .fan-hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 18px; padding-bottom: 80px; }
 
   .placeholder {
@@ -192,10 +193,11 @@
         <h3 id="fanTitle"></h3>
         <div class="meta" id="fanMeta"></div>
         <div class="count" id="fanCount"></div>
+        <button class="fan-auto" id="fanAuto">❚❚ Pause</button>
       </div>
       <button class="fan-btn" id="fanNext" title="Next">›</button>
     </div>
-    <p class="fan-hint">Drag, swipe sideways, or press ← → to turn the fan · Click the front photo to enlarge</p>
+    <p class="fan-hint">The fan turns on its own · Drag, swipe sideways, or press ← → to take over · Click the front photo to enlarge</p>
   </section>
 
   <section class="about" id="about">
@@ -269,52 +271,98 @@ cats.forEach(c => {
 });
 
 // ===================== 扇形展示 =====================
-const STEP = 9;      // 相邻两张照片之间的角度（度）
-let pos = 0;         // 当前转到第几张（拖动时可以是小数）
+const STEP = 9;            // 相邻两张照片之间的角度（度）
+const AUTO_SPEED = 1 / 3500; // 自动转动速度：每 3.5 秒转过一张
+const RESUME_AFTER = 3000; // 手动操作后，停多久（毫秒）再继续自动转
+
+let pos = 0;               // 现在画面上转到的位置（可以是小数）
+let target = 0;            // 要转到的位置，pos 会平滑地追上它
+let total = 0;             // 扇子上卡片的总数（照片少时会重复几轮，方便首尾相接）
+let autoOn = true;         // 一打开就自动转
+let resumeAt = 0;
+let drag = null;
+
+const mod = (a, n) => ((a % n) + n) % n;
+const frontCard = () => Math.round(pos);
+const photoIndex = k => mod(k, visible.length);
 
 function render() {
   visible = current === "All" ? PHOTOS : PHOTOS.filter(p => p.category === current);
+  const n = visible.length;
+  const copies = n > 1 && n < 9 ? Math.ceil(9 / n) : 1;
+  total = n * copies;
   fan.innerHTML = "";
-  visible.forEach((p, i) => {
+  for (let k = 0; k < total; k++) {
+    const p = visible[k % n];
     const card = document.createElement("div");
     card.className = "fan-card";
-    card.dataset.i = i;
+    card.dataset.k = k;
     const media = p.src
       ? `<img src="${p.src}" alt="${p.title}" draggable="false">`
       : `<div class="placeholder">${p.title}</div>`;
     card.innerHTML = `<div class="inner">${media}</div>`;
     fan.appendChild(card);
-  });
-  pos = Math.floor((visible.length - 1) / 2); // 从中间那张开始
+  }
+  pos = target = 0;
   layout();
 }
 
+let shownIndex = -1;
 function layout() {
-  [...fan.children].forEach((card, i) => {
-    const off = i - pos, a = Math.abs(off);
+  [...fan.children].forEach((card, k) => {
+    // 这张卡离正中间差几格（首尾相接，取最近的方向）
+    const off = total > 1 ? mod(k - pos + total / 2, total) - total / 2 : 0;
+    const a = Math.abs(off);
+    const lift = Math.max(0, 1 - a); // 越靠近正中间，抬得越高、放得越大
     card.style.transform = `rotate(${off * STEP}deg)`;
     card.style.opacity = a > 4.5 ? 0 : 1 - Math.max(0, a - 2.5) * 0.4;
     card.style.zIndex = 100 - Math.round(a * 10);
     card.style.pointerEvents = a > 4.5 ? "none" : "";
-    card.classList.toggle("active", i === Math.round(pos));
+    card.firstChild.style.transform = `translateY(${-28 * lift}px) scale(${1 + 0.06 * lift})`;
+    card.classList.toggle("active", a < 0.5);
   });
-  const idx = Math.max(0, Math.min(visible.length - 1, Math.round(pos)));
+  const idx = photoIndex(frontCard());
+  if (idx === shownIndex) return;
+  shownIndex = idx;
   const p = visible[idx];
   document.getElementById("fanTitle").textContent = p.title;
   document.getElementById("fanMeta").textContent = `${p.place} · ${p.date}`;
   document.getElementById("fanCount").textContent =
     `${String(idx + 1).padStart(2, "0")} / ${String(visible.length).padStart(2, "0")}`;
-  document.getElementById("fanPrev").disabled = idx === 0;
-  document.getElementById("fanNext").disabled = idx === visible.length - 1;
 }
 
-function goTo(i) {
-  pos = Math.max(0, Math.min(visible.length - 1, i));
+// 每一帧：自动转动 + 平滑地追上目标位置
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(now - last, 100);
+  last = now;
+  const lbOpen = lb.classList.contains("open");
+  if (autoOn && !drag && !lbOpen && now > resumeAt && total > 1) target += dt * AUTO_SPEED;
+  if (!drag) pos += (target - pos) * (1 - Math.exp(-dt / 140));
   layout();
+  requestAnimationFrame(tick);
 }
 
-document.getElementById("fanPrev").onclick = () => goTo(Math.round(pos) - 1);
-document.getElementById("fanNext").onclick = () => goTo(Math.round(pos) + 1);
+// 手动操作：暂停自动转动一会儿
+function manual() { resumeAt = performance.now() + RESUME_AFTER; }
+function turn(d) { manual(); target = Math.round(target) + d; }
+
+// 转到某一张照片（选最近的方向）
+function turnToPhoto(i) {
+  const n = visible.length, k0 = frontCard();
+  let d = mod(i - photoIndex(k0), n);
+  if (d > n / 2) d -= n;
+  manual();
+  target = k0 + d;
+}
+
+document.getElementById("fanPrev").onclick = () => turn(-1);
+document.getElementById("fanNext").onclick = () => turn(1);
+
+const autoBtn = document.getElementById("fanAuto");
+function updateAutoBtn() { autoBtn.textContent = autoOn ? "❚❚ Pause" : "▶ Auto-rotate"; }
+autoBtn.onclick = () => { autoOn = !autoOn; resumeAt = 0; if (!autoOn) target = Math.round(pos); updateAutoBtn(); };
+updateAutoBtn();
 
 // 触控板左右滑动 / Shift+滚轮 转动（上下滚动仍然正常滚动页面）
 let wheelLock = 0;
@@ -323,12 +371,11 @@ fan.addEventListener("wheel", e => {
   if (Math.abs(d) < 4 || Math.abs(e.deltaY) > Math.abs(e.deltaX) && !e.shiftKey) return;
   e.preventDefault();
   if (Date.now() < wheelLock) return;
-  goTo(Math.round(pos) + (d > 0 ? 1 : -1));
+  turn(d > 0 ? 1 : -1);
   wheelLock = Date.now() + 260;
 }, { passive: false });
 
 // 拖动转动 / 点击
-let drag = null;
 fan.addEventListener("pointerdown", e => {
   drag = { x: e.clientX, start: pos, moved: false, card: e.target.closest(".fan-card") };
   fan.setPointerCapture(e.pointerId);
@@ -337,18 +384,18 @@ fan.addEventListener("pointermove", e => {
   if (!drag) return;
   const dx = e.clientX - drag.x;
   if (!drag.moved && Math.abs(dx) > 5) { drag.moved = true; fan.classList.add("dragging"); }
-  if (drag.moved) {
-    pos = Math.max(-0.4, Math.min(visible.length - 0.6, drag.start - dx / 180));
-    layout();
-  }
+  if (drag.moved) pos = target = drag.start - dx / 180;
 });
 function endDrag() {
   if (!drag) return;
   fan.classList.remove("dragging");
-  if (drag.moved) goTo(Math.round(pos));
+  manual();
+  if (drag.moved) target = Math.round(pos);
   else if (drag.card) {
-    const i = +drag.card.dataset.i;
-    i === Math.round(pos) ? openLb(i) : goTo(i); // 点前面那张放大，点旁边的转过去
+    const k = +drag.card.dataset.k;
+    const off = mod(k - pos + total / 2, total) - total / 2;
+    if (Math.abs(off) < 0.5) openLb(photoIndex(k));    // 点正中间那张：放大
+    else target = Math.round(pos + off);                // 点旁边的：转过去
   }
   drag = null;
 }
@@ -358,7 +405,7 @@ fan.addEventListener("pointercancel", endDrag);
 // 大图查看
 const lb = document.getElementById("lightbox");
 function openLb(i) { lbIndex = i; showLb(); lb.classList.add("open"); document.body.style.overflow = "hidden"; }
-function closeLb() { lb.classList.remove("open"); document.body.style.overflow = ""; goTo(lbIndex); }
+function closeLb() { lb.classList.remove("open"); document.body.style.overflow = ""; turnToPhoto(lbIndex); }
 function showLb() {
   const p = visible[lbIndex];
   const img = document.getElementById("lbImg");
@@ -375,8 +422,8 @@ document.getElementById("lbNext").onclick = e => { e.stopPropagation(); step(1);
 lb.onclick = e => { if (e.target === lb) closeLb(); };
 document.addEventListener("keydown", e => {
   if (!lb.classList.contains("open")) {
-    if (e.key === "ArrowLeft") goTo(Math.round(pos) - 1);
-    if (e.key === "ArrowRight") goTo(Math.round(pos) + 1);
+    if (e.key === "ArrowLeft") turn(-1);
+    if (e.key === "ArrowRight") turn(1);
     return;
   }
   if (e.key === "Escape") closeLb();
@@ -402,6 +449,7 @@ document.getElementById("themeBtn").onclick = () => {
 };
 
 render();
+requestAnimationFrame(tick);
 </script>
 </body>
 </html>
