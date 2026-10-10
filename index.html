@@ -28,6 +28,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
   html { scroll-behavior: smooth; }
   body {
     background: var(--bg); color: var(--text);
@@ -196,23 +197,38 @@
 <script>
 /* ==========================================================
    📷 照片列表 —— 在这里添加/修改你的照片
-   把照片放进 photos 文件夹，然后把 src 改成 "photos/filename.jpg"
-   src 留空 "" 时显示空白占位框
+   每张照片有两个版本：photos/thumb/（扇子上的小图）和 photos/full/（点开的大图）
+   file 填文件名；place（地点）可以留空 ""，留空就不显示
    所有照片都以同样大小的竖版卡片展示（会自动裁剪填满卡片）
    ========================================================== */
 const PHOTOS = [
-  { src: "", title: "Photo 1", category: "Landscape", place: "Location", date: "Date" },
-  { src: "", title: "Photo 2", category: "People", place: "Location", date: "Date" },
-  { src: "", title: "Photo 3", category: "City", place: "Location", date: "Date" },
-  { src: "", title: "Photo 4", category: "Daily", place: "Location", date: "Date" },
-  { src: "", title: "Photo 5", category: "Landscape", place: "Location", date: "Date" },
-  { src: "", title: "Photo 6", category: "People", place: "Location", date: "Date" },
-  { src: "", title: "Photo 7", category: "City", place: "Location", date: "Date" },
-  { src: "", title: "Photo 8", category: "Daily", place: "Location", date: "Date" },
-  { src: "", title: "Photo 9", category: "Landscape", place: "Location", date: "Date" },
-  { src: "", title: "Photo 10", category: "People", place: "Location", date: "Date" },
-  { src: "", title: "Photo 11", category: "City", place: "Location", date: "Date" },
-  { src: "", title: "Photo 12", category: "Daily", place: "Location", date: "Date" },
+  { file: "DSC0211.jpg",   title: "Garden Path",           category: "Landscape",     place: "", date: "Feb 3, 2026" },
+  { file: "DSC0249.jpg",   title: "Lone Bird",             category: "Animals",       place: "", date: "Feb 6, 2026" },
+  { file: "DSC0981.jpg",   title: "Paper Umbrellas",       category: "Architecture",  place: "", date: "Feb 7, 2026" },
+  { file: "DSC_0049.jpg",  title: "Vine Bridge",           category: "Landscape",     place: "", date: "Feb 28, 2026" },
+  { file: "DSC_0056.jpg",  title: "Rooster",               category: "Animals",       place: "", date: "Feb 28, 2026" },
+  { file: "DSC_0085.jpg",  title: "Rooftop Statue",        category: "Architecture",  place: "", date: "Mar 29, 2026" },
+  { file: "DSC_0091.jpg",  title: "Quiet Street",          category: "Architecture",  place: "", date: "Mar 29, 2026" },
+  { file: "DSC_0135.jpg",  title: "Glacier",               category: "Landscape",     place: "", date: "Apr 6, 2026" },
+  { file: "DSC_0137.jpg",  title: "Crow on the Rail",      category: "Animals",       place: "", date: "Apr 6, 2026" },
+  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",        category: "Animals",       place: "", date: "Apr 6, 2026" },
+  { file: "DSC_0141.jpg",  title: "Taking Off",            category: "Animals",       place: "", date: "Apr 6, 2026" },
+  { file: "DSC_0143.jpg",  title: "Sailboat",              category: "Landscape",     place: "", date: "Apr 8, 2026" },
+  { file: "DSC_0149.jpg",  title: "Castle in the Trees",   category: "Landscape",     place: "", date: "Apr 8, 2026" },
+  { file: "DSC_0153.jpg",  title: "Misty Peaks",           category: "Landscape",     place: "", date: "Apr 8, 2026" },
+  { file: "DSC_0181.jpg",  title: "Lake & Mountains",      category: "Landscape",     place: "", date: "Apr 8, 2026" },
+  { file: "DSC_0182.jpg",  title: "On Deck",               category: "People",        place: "", date: "Apr 8, 2026" },
+  { file: "DSC_0184.jpg",  title: "Traveler",              category: "People",        place: "", date: "Apr 8, 2026" },
+  { file: "DSC_0191.jpg",  title: "By the Lake",           category: "People",        place: "", date: "Apr 8, 2026" },
+  { file: "DSC_0358.jpg",  title: "Monitor Lizard",        category: "Animals",       place: "", date: "May 28, 2026" },
+  { file: "DSC_0439.jpg",  title: "Golden Eaves",          category: "Architecture",  place: "", date: "Jun 28, 2026" },
+  { file: "DSC_0444.jpg",  title: "Incense",               category: "People",        place: "", date: "Jun 28, 2026" },
+  { file: "DSC_0456.jpg",  title: "Lone Boat",             category: "Landscape",     place: "", date: "Jul 1, 2026" },
+  { file: "DSC_0468.jpg",  title: "Afternoon Nap",         category: "Animals",       place: "", date: "Jul 1, 2026" },
+  { file: "DSC_0499.jpg",  title: "Panda",                 category: "Animals",       place: "", date: "Jul 7, 2026" },
+  { file: "DSC_0520.jpg",  title: "Up a Tree",             category: "Animals",       place: "", date: "Jul 7, 2026" },
+  { file: "DSC_1239.jpg",  title: "Wing Stretch",          category: "Animals",       place: "", date: "Jul 25, 2026" },
+  { file: "DSC_1269.jpg",  title: "Black Swan",            category: "Animals",       place: "", date: "Jul 25, 2026" },
 ];
 
 const fan = document.getElementById("fan");
@@ -262,8 +278,8 @@ function render() {
     const card = document.createElement("div");
     card.className = "fan-card";
     card.dataset.k = k;
-    const media = p.src
-      ? `<img src="${p.src}" alt="${p.title}" draggable="false">`
+    const media = p.file
+      ? `<img src="photos/thumb/${p.file}" alt="${p.title}" draggable="false">`
       : `<div class="placeholder">${p.title}</div>`;
     card.innerHTML = `<div class="inner">${media}</div>`;
     fan.appendChild(card);
@@ -373,11 +389,11 @@ function closeLb() { lb.classList.remove("open"); document.body.style.overflow =
 function showLb() {
   const p = visible[lbIndex];
   const img = document.getElementById("lbImg");
-  img.hidden = !p.src;
-  if (p.src) img.src = p.src;
-  document.getElementById("lbBlank").hidden = !!p.src;
+  img.hidden = !p.file;
+  if (p.file) img.src = `photos/full/${p.file}`;
+  document.getElementById("lbBlank").hidden = !!p.file;
   document.getElementById("lbTitle").textContent = p.title;
-  document.getElementById("lbMeta").textContent = `${p.place} · ${p.date} · ${lbIndex + 1}/${visible.length}`;
+  document.getElementById("lbMeta").textContent = [p.place, p.date, `${lbIndex + 1}/${visible.length}`].filter(Boolean).join(" · ");
 }
 function step(d) { lbIndex = (lbIndex + d + visible.length) % visible.length; showLb(); }
 document.getElementById("lbClose").onclick = closeLb;
