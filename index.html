@@ -93,7 +93,6 @@
   .fan-info { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: -60px; padding-bottom: 80px; position: relative; }
   .fan-info .text { text-align: center; min-width: 280px; }
   .fan-info h3 { font-family: "Noto Serif SC", serif; font-size: 26px; font-weight: 700; }
-  .fan-info .meta { color: var(--muted); font-size: 14px; }
   .fan-info .count { color: var(--accent); font-size: 13px; letter-spacing: .15em; margin-top: 6px; }
   .fan-btn {
     width: 52px; height: 52px; border-radius: 50%; font-size: 22px; cursor: pointer;
@@ -166,7 +165,6 @@
       <button class="fan-btn" id="fanPrev" title="Previous">‹</button>
       <div class="text">
         <h3 id="fanTitle"></h3>
-        <div class="meta" id="fanMeta"></div>
         <div class="count" id="fanCount"></div>
         <button class="fan-auto" id="fanAuto">❚❚ Pause</button>
       </div>
@@ -293,7 +291,6 @@ function layout() {
   shownIndex = idx;
   const p = visible[idx];
   document.getElementById("fanTitle").textContent = p.title;
-  document.getElementById("fanMeta").textContent = `${p.place} · ${p.date}`;
   document.getElementById("fanCount").textContent =
     `${String(idx + 1).padStart(2, "0")} / ${String(visible.length).padStart(2, "0")}`;
 }
