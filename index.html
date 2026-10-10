@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>David 的影像集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ===================== 配色 ===================== */
+  :root {
+    --bg: #f6f4ef;
+    --surface: #ffffff;
+    --text: #1d1c1a;
+    --muted: #77736b;
+    --line: #e3dfd6;
+    --accent: #b5562f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --surface: #1d1c1a; --text: #efece5;
+      --muted: #9a958b; --line: #2e2c29; --accent: #e08a5f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --surface: #1d1c1a; --text: #efece5;
+    --muted: #9a958b; --line: #2e2c29; --accent: #e08a5f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.7; transition: background .3s, color .3s;
+    min-width: 1280px; /* 固定为电脑横屏布局 */
+  }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 48px; }
+
+  /* ===================== 导航 ===================== */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { font-family: "Noto Serif SC", serif; font-weight: 700; font-size: 18px; color: var(--text); text-decoration: none; }
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; }
+  .nav-links a:hover { color: var(--text); }
+  #themeBtn {
+    background: none; border: 1px solid var(--line); color: var(--text);
+    width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 15px;
+  }
+
+  /* ===================== 个人介绍 ===================== */
+  .hero { padding: 100px 0 80px; display: grid; grid-template-columns: 260px 1fr; gap: 72px; align-items: center; }
+  .avatar { width: 260px; height: 260px; border-radius: 50%; object-fit: cover; border: 4px solid var(--surface); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  .hero h1 { font-family: "Noto Serif SC", serif; font-size: clamp(32px, 5vw, 52px); line-height: 1.2; margin-bottom: 12px; }
+  .hero .tagline { color: var(--accent); font-size: 15px; letter-spacing: .1em; margin-bottom: 18px; }
+  .hero p.bio { color: var(--muted); max-width: 680px; font-size: 16px; }
+  .stats { display: flex; gap: 36px; margin-top: 28px; }
+  .stats b { display: block; font-size: 26px; font-family: "Noto Serif SC", serif; }
+  .stats span { font-size: 13px; color: var(--muted); }
+
+  /* ===================== 分类筛选 ===================== */
+  .section-title { font-family: "Noto Serif SC", serif; font-size: 28px; margin-bottom: 20px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+  .filters button {
+    background: var(--surface); color: var(--muted); border: 1px solid var(--line);
+    padding: 7px 18px; border-radius: 999px; cursor: pointer; font-size: 14px; transition: all .2s;
+  }
+  .filters button:hover { color: var(--text); }
+  .filters button.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  /* ===================== 照片墙（瀑布流） ===================== */
+  .gallery { columns: 4; column-gap: 20px; padding-bottom: 80px; }
+  .photo {
+    break-inside: avoid; margin-bottom: 20px; position: relative; overflow: hidden;
+    border-radius: 10px; cursor: zoom-in; background: var(--line);
+    animation: fadeIn .5s ease both;
+  }
+  .photo img { width: 100%; display: block; transition: transform .5s ease; }
+  .photo:hover img { transform: scale(1.04); }
+  .photo .cap {
+    position: absolute; inset: auto 0 0 0; padding: 40px 16px 14px;
+    background: linear-gradient(transparent, rgba(0,0,0,.65)); color: #fff;
+    opacity: 0; transform: translateY(8px); transition: all .3s;
+  }
+  .photo:hover .cap { opacity: 1; transform: none; }
+  .cap h3 { font-size: 15px; font-weight: 500; }
+  .cap small { font-size: 12px; opacity: .8; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } }
+
+  .placeholder {
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface); color: var(--muted); font-size: 14px;
+    border: 2px dashed var(--line); border-radius: 10px; width: 100%;
+  }
+  .avatar.placeholder { border-radius: 50%; border-style: dashed; box-shadow: none; }
+  .lb-blank { width: min(70vw, 600px); aspect-ratio: 4/3; background: #1d1c1a; border-color: #444; color: #888; }
+
+  /* ===================== 大图查看 ===================== */
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(10,10,10,.94); z-index: 100;
+    display: none; align-items: center; justify-content: center; flex-direction: column;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 90vw; max-height: 80vh; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .lb-info { color: #eee; text-align: center; margin-top: 16px; }
+  .lb-info small { color: #999; }
+  .lb-btn {
+    position: absolute; background: rgba(255,255,255,.1); border: none; color: #fff;
+    width: 48px; height: 48px; border-radius: 50%; font-size: 22px; cursor: pointer;
+  }
+  .lb-btn:hover { background: rgba(255,255,255,.2); }
+  .lb-close { top: 20px; right: 20px; }
+  .lb-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+  .lb-next { right: 20px; top: 50%; transform: translateY(-50%); }
+
+  /* ===================== 关于 & 联系 ===================== */
+  .about { border-top: 1px solid var(--line); padding: 70px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .about p { color: var(--muted); margin-bottom: 12px; }
+  .contact a {
+    display: flex; justify-content: space-between; padding: 14px 0;
+    border-bottom: 1px solid var(--line); color: var(--text); text-decoration: none;
+  }
+  .contact a:hover { color: var(--accent); }
+  .contact a span { color: var(--muted); }
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0 40px; }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#" class="logo">David · 影像</a>
+    <div class="nav-links">
+      <a href="#gallery">作品</a>
+      <a href="#about">关于</a>
+      <button id="themeBtn" title="切换深色/浅色">◐</button>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- ========== 个人介绍：改这里的文字和头像 ========== -->
+  <section class="hero">
+    <div class="avatar placeholder">头像</div>
+    <div>
+      <div class="tagline">PHOTOGRAPHY · 记录生活</div>
+      <h1>你好，我是 David</h1>
+      <p class="bio">喜欢用镜头记录路上的风景、城市的光影和身边的人。这里收藏了我拍下的一些瞬间，希望你也能在其中找到一点共鸣。</p>
+      <div class="stats">
+        <div><b id="photoCount">0</b><span>张照片</span></div>
+        <div><b>12</b><span>座城市</span></div>
+        <div><b>2026</b><span>持续更新</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <h2 class="section-title">作品集</h2>
+    <div class="filters" id="filters"></div>
+    <div class="gallery" id="grid"></div>
+  </section>
+
+  <section class="about" id="about">
+    <div>
+      <h2 class="section-title">关于我</h2>
+      <p>我是一名业余摄影爱好者，常用的器材是一台手机和一台旧相机。比起技术参数，我更在意照片里的情绪和故事。</p>
+      <p>如果你喜欢我的照片，或者想一起去拍照，欢迎联系我！</p>
+    </div>
+    <div class="contact">
+      <h2 class="section-title">联系方式</h2>
+      <a href="mailto:you@example.com">邮箱 <span>you@example.com →</span></a>
+      <a href="#">小红书 <span>@你的账号 →</span></a>
+      <a href="#">Instagram <span>@your_id →</span></a>
+    </div>
+  </section>
+</main>
+
+<footer>© 2026 David · 用镜头记录生活</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-btn lb-close" id="lbClose">✕</button>
+  <button class="lb-btn lb-prev" id="lbPrev">‹</button>
+  <img id="lbImg" alt="">
+  <div id="lbBlank" class="placeholder lb-blank" hidden>暂无照片</div>
+  <div class="lb-info"><div id="lbTitle"></div><small id="lbMeta"></small></div>
+  <button class="lb-btn lb-next" id="lbNext">›</button>
+</div>
+
+<script>
+/* ==========================================================
+   📷 照片列表 —— 在这里添加/修改你的照片
+   把照片放进 photos 文件夹，然后把 src 改成 "photos/文件名.jpg"
+   src 留空 "" 时显示空白占位框，ratio 是占位框的高宽比（有照片后可删掉）
+   ========================================================== */
+const PHOTOS = [
+  { src: "", title: "照片 1", category: "风景", place: "地点", date: "日期", ratio: 1.25 },
+  { src: "", title: "照片 2", category: "人物", place: "地点", date: "日期", ratio: 0.7 },
+  { src: "", title: "照片 3", category: "城市", place: "地点", date: "日期", ratio: 1.35 },
+  { src: "", title: "照片 4", category: "日常", place: "地点", date: "日期", ratio: 0.75 },
+  { src: "", title: "照片 5", category: "风景", place: "地点", date: "日期", ratio: 1.1 },
+  { src: "", title: "照片 6", category: "人物", place: "地点", date: "日期", ratio: 0.7 },
+  { src: "", title: "照片 7", category: "城市", place: "地点", date: "日期", ratio: 1.3 },
+  { src: "", title: "照片 8", category: "日常", place: "地点", date: "日期", ratio: 0.85 },
+  { src: "", title: "照片 9", category: "风景", place: "地点", date: "日期", ratio: 1.25 },
+  { src: "", title: "照片 10", category: "人物", place: "地点", date: "日期", ratio: 0.7 },
+  { src: "", title: "照片 11", category: "城市", place: "地点", date: "日期", ratio: 1.1 },
+  { src: "", title: "照片 12", category: "日常", place: "地点", date: "日期", ratio: 0.8 },
+];
+
+const grid = document.getElementById("grid");
+const filtersEl = document.getElementById("filters");
+let current = "全部";
+let visible = [];
+let lbIndex = 0;
+
+document.getElementById("photoCount").textContent = PHOTOS.length;
+
+// 分类按钮
+const cats = ["全部", ...new Set(PHOTOS.map(p => p.category))];
+cats.forEach(c => {
+  const b = document.createElement("button");
+  b.textContent = c;
+  if (c === current) b.classList.add("active");
+  b.onclick = () => {
+    current = c;
+    filtersEl.querySelectorAll("button").forEach(x => x.classList.toggle("active", x === b));
+    render();
+  };
+  filtersEl.appendChild(b);
+});
+
+function render() {
+  visible = current === "全部" ? PHOTOS : PHOTOS.filter(p => p.category === current);
+  grid.innerHTML = "";
+  visible.forEach((p, i) => {
+    const el = document.createElement("div");
+    el.className = "photo";
+    el.style.animationDelay = (i * 0.05) + "s";
+    const media = p.src
+      ? `<img src="${p.src}" alt="${p.title}" loading="lazy">`
+      : `<div class="placeholder" style="aspect-ratio:1/${p.ratio || 1}">${p.title}</div>`;
+    el.innerHTML = `${media}
+      <div class="cap"><h3>${p.title}</h3><small>${p.place} · ${p.date}</small></div>`;
+    el.onclick = () => openLb(i);
+    grid.appendChild(el);
+  });
+}
+
+// 大图查看
+const lb = document.getElementById("lightbox");
+function openLb(i) { lbIndex = i; showLb(); lb.classList.add("open"); document.body.style.overflow = "hidden"; }
+function closeLb() { lb.classList.remove("open"); document.body.style.overflow = ""; }
+function showLb() {
+  const p = visible[lbIndex];
+  const img = document.getElementById("lbImg");
+  img.hidden = !p.src;
+  if (p.src) img.src = p.src;
+  document.getElementById("lbBlank").hidden = !!p.src;
+  document.getElementById("lbTitle").textContent = p.title;
+  document.getElementById("lbMeta").textContent = `${p.place} · ${p.date} · ${lbIndex + 1}/${visible.length}`;
+}
+function step(d) { lbIndex = (lbIndex + d + visible.length) % visible.length; showLb(); }
+document.getElementById("lbClose").onclick = closeLb;
+document.getElementById("lbPrev").onclick = e => { e.stopPropagation(); step(-1); };
+document.getElementById("lbNext").onclick = e => { e.stopPropagation(); step(1); };
+lb.onclick = e => { if (e.target === lb) closeLb(); };
+document.addEventListener("keydown", e => {
+  if (!lb.classList.contains("open")) return;
+  if (e.key === "Escape") closeLb();
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+// 手机左右滑动
+let touchX = null;
+lb.addEventListener("touchstart", e => touchX = e.touches[0].clientX);
+lb.addEventListener("touchend", e => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+  touchX = null;
+});
+
+// 深色/浅色切换
+document.getElementById("themeBtn").onclick = () => {
+  const dark = document.documentElement.dataset.theme
+    ? document.documentElement.dataset.theme === "dark"
+    : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.dataset.theme = dark ? "light" : "dark";
+};
+
+render();
+</script>
+</body>
+</html>
