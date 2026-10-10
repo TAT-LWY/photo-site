@@ -131,9 +131,9 @@
   .lb-prev { left: 20px; top: 50%; transform: translateY(-50%); }
   .lb-next { right: 20px; top: 50%; transform: translateY(-50%); }
 
-  /* ===================== 关于 & 联系 ===================== */
-  .about { border-top: 1px solid var(--line); padding: 70px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
-  .about p { color: var(--muted); margin-bottom: 12px; }
+  /* ===================== 联系方式 ===================== */
+  .contact-section { border-top: 1px solid var(--line); padding: 70px 0; }
+  .contact { max-width: 620px; }
   .contact a {
     display: flex; justify-content: space-between; padding: 14px 0;
     border-bottom: 1px solid var(--line); color: var(--text); text-decoration: none;
@@ -151,7 +151,7 @@
     <a href="#" class="logo">Weiyu · Photography · Personal Project</a>
     <div class="nav-links">
       <a href="#gallery">Work</a>
-      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
       <button id="themeBtn" title="Toggle dark / light mode">◐</button>
     </div>
   </div>
@@ -174,12 +174,7 @@
     </div>
   </section>
 
-  <section class="about" id="about">
-    <div>
-      <h2 class="section-title">About Me</h2>
-      <p>I'm an amateur photographer who usually shoots with a phone and an old camera. I care less about technical specs and more about the mood and the story inside each photo.</p>
-      <p>If you like my work or want to go on a photo walk together, feel free to reach out!</p>
-    </div>
+  <section class="contact-section" id="contact">
     <div class="contact">
       <h2 class="section-title">Contact</h2>
       <a href="mailto:you@example.com">Email <span>you@example.com →</span></a>
