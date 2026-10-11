@@ -55,17 +55,9 @@
     width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 15px;
   }
 
-  #gallery { padding-top: 60px; }
+  #gallery { padding-top: 28px; }
 
-  /* ===================== 分类筛选 ===================== */
   .section-title { font-family: "Noto Serif SC", serif; font-size: 28px; margin-bottom: 20px; }
-  .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
-  .filters button {
-    background: var(--surface); color: var(--muted); border: 1px solid var(--line);
-    padding: 7px 18px; border-radius: 999px; cursor: pointer; font-size: 14px; transition: all .2s;
-  }
-  .filters button:hover { color: var(--text); }
-  .filters button.active { background: var(--text); color: var(--bg); border-color: var(--text); }
 
   /* ===================== 扇形照片展示 ===================== */
   .fan-stage {
@@ -199,7 +191,6 @@
 <main class="wrap">
   <section id="gallery">
     <h2 class="section-title">Portfolio</h2>
-    <div class="filters" id="filters"></div>
     <div class="fan-stage" id="fan"></div>
     <div class="fan-info">
       <button class="fan-btn" id="fanPrev" title="Previous">‹</button>
@@ -249,53 +240,47 @@
    所有照片都以同样大小的竖版卡片展示（会自动裁剪填满卡片）
    ========================================================== */
 const PHOTOS = [
-  { file: "DSC0211.jpg",   title: "Garden Path",           category: "Landscape",     place: "", date: "Feb 3, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 6400, focal: "120mm" },
-  { file: "DSC0249.jpg",   title: "Lone Bird",             category: "Animals",       place: "", date: "Feb 6, 2026", mood: "night",   aperture: "f/22",  shutter: "1/13000s",iso: 65535,focal: "120mm" },
-  { file: "DSC0981.jpg",   title: "Paper Umbrellas",       category: "Architecture",  place: "", date: "Feb 7, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 64,   focal: "59mm" },
-  { file: "DSC_0049.jpg",  title: "Vine Bridge",           category: "Landscape",     place: "", date: "Feb 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/160s",  iso: 250,  focal: "51mm" },
-  { file: "DSC_0056.jpg",  title: "Rooster",               category: "Animals",       place: "", date: "Feb 28, 2026", mood: "day",     aperture: "f/4",   shutter: "1/160s",  iso: 250,  focal: "120mm" },
-  { file: "DSC_0085.jpg",  title: "Rooftop Statue",        category: "Architecture",  place: "", date: "Mar 29, 2026", mood: "day",     aperture: "f/8",   shutter: "1/1000s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0091.jpg",  title: "Quiet Street",          category: "Architecture",  place: "", date: "Mar 29, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 250,  focal: "44mm" },
-  { file: "DSC_0135.jpg",  title: "Glacier",               category: "Landscape",     place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/10",  shutter: "1/1600s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0137.jpg",  title: "Crow on the Rail",      category: "Animals",       place: "", date: "Apr 6, 2026", mood: "night",   aperture: "f/11",  shutter: "1/2000s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",        category: "Animals",       place: "", date: "Apr 6, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0141.jpg",  title: "Taking Off",            category: "Animals",       place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0143.jpg",  title: "Sailboat",              category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 250,  focal: "120mm" },
-  { file: "DSC_0149.jpg",  title: "Castle in the Trees",   category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },
-  { file: "DSC_0153.jpg",  title: "Misty Peaks",           category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0181.jpg",  title: "Lake & Mountains",      category: "Landscape",     place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "46mm" },
-  { file: "DSC_0182.jpg",  title: "On Deck",               category: "People",        place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/11",  shutter: "1/500s",  iso: 320,  focal: "46mm" },
-  { file: "DSC_0184.jpg",  title: "Traveler",              category: "People",        place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/7.1", shutter: "1/800s",  iso: 320,  focal: "58mm" },
-  { file: "DSC_0191.jpg",  title: "By the Lake",           category: "People",        place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "24mm" },
-  { file: "DSC_0358.jpg",  title: "Monitor Lizard",        category: "Animals",       place: "", date: "May 28, 2026", mood: "night",   aperture: "f/4",   shutter: "1/100s",  iso: 200,  focal: "120mm" },
-  { file: "DSC_0397.jpg",  title: "Fallen Leaves",         category: "Landscape",     place: "", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },
-  { file: "DSC_0439.jpg",  title: "Golden Eaves",          category: "Architecture",  place: "", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },
-  { file: "DSC_0444.jpg",  title: "Incense",               category: "People",        place: "", date: "Jun 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 250,  focal: "120mm" },
-  { file: "DSC_0456.jpg",  title: "Lone Boat",             category: "Landscape",     place: "", date: "Jul 1, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0468.jpg",  title: "Afternoon Nap",         category: "Animals",       place: "", date: "Jul 1, 2026", mood: "day",     aperture: "f/4",   shutter: "1/25s",   iso: 400,  focal: "120mm" },
-  { file: "DSC_0499.jpg",  title: "Panda",                 category: "Animals",       place: "", date: "Jul 7, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 400,  focal: "120mm" },
-  { file: "DSC_0520.jpg",  title: "Up a Tree",             category: "Animals",       place: "", date: "Jul 7, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 400,  focal: "120mm" },
-  { file: "DSC_1239.jpg",  title: "Wing Stretch",          category: "Animals",       place: "", date: "Jul 25, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 400,  focal: "120mm" },
-  { file: "DSC_1269.jpg",  title: "Black Swan",            category: "Animals",       place: "", date: "Jul 25, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 400,  focal: "120mm" },
-  { file: "DSC_1522.jpg",  title: "Night Road",            category: "Architecture",  place: "", date: "Sep 1, 2026", mood: "night",   aperture: "f/4",   shutter: "1/5s",    iso: 2000, focal: "120mm" },
-  { file: "DSC_1538.jpg",  title: "Through the Ring",      category: "Architecture",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },
-  { file: "DSC_1541.jpg",  title: "Two Faces",             category: "Architecture",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },
-  { file: "DSC_1544.jpg",  title: "Garden Walk",           category: "Landscape",     place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/160s",  iso: 64,   focal: "24mm" },
-  { file: "DSC_1546.jpg",  title: "Laughing Buddha",       category: "Architecture",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 100,  focal: "120mm" },
-  { file: "DSC_1552.jpg",  title: "Supertree",             category: "Architecture",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },
-  { file: "DSC_1558.jpg",  title: "Mother Hen",            category: "Animals",       place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/200s",  iso: 64,   focal: "120mm" },
-  { file: "DSC_1564.jpg",  title: "Foraging",              category: "Animals",       place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/200s",  iso: 64,   focal: "120mm" },
-  { file: "DSC_1567.jpg",  title: "Silhouette",            category: "People",        place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 64,   focal: "59mm" },
-  { file: "DSC_1573.jpg",  title: "In the Frame",          category: "People",        place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },
-  { file: "DSC_1577.jpg",  title: "Resting in the Circle", category: "People",        place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },
-  { file: "DSC_1584.jpg",  title: "Fading Wheel",          category: "Architecture",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },
-  { file: "DSC_1586.jpg",  title: "Waiting",               category: "People",        place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/250s",  iso: 64,   focal: "81mm" },
-  { file: "DSC_1587.jpg",  title: "Down the Steps",        category: "Landscape",     place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/160s",  iso: 64,   focal: "24mm" },
+  { file: "DSC0211.jpg",   title: "Garden Path",           place: "", date: "Feb 3, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 6400, focal: "120mm" },
+  { file: "DSC0249.jpg",   title: "Lone Bird",             place: "", date: "Feb 6, 2026", mood: "night",   aperture: "f/22",  shutter: "1/13000s",iso: 65535,focal: "120mm" },
+  { file: "DSC0981.jpg",   title: "Paper Umbrellas",       place: "", date: "Feb 7, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 64,   focal: "59mm" },
+  { file: "DSC_0049.jpg",  title: "Vine Bridge",           place: "", date: "Feb 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/160s",  iso: 250,  focal: "51mm" },
+  { file: "DSC_0085.jpg",  title: "Rooftop Statue",        place: "", date: "Mar 29, 2026", mood: "day",     aperture: "f/8",   shutter: "1/1000s", iso: 250,  focal: "120mm" },
+  { file: "DSC_0091.jpg",  title: "Quiet Street",          place: "", date: "Mar 29, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 250,  focal: "44mm" },
+  { file: "DSC_0135.jpg",  title: "Glacier",               place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/10",  shutter: "1/1600s", iso: 250,  focal: "120mm" },
+  { file: "DSC_0137.jpg",  title: "Crow on the Rail",      place: "", date: "Apr 6, 2026", mood: "night",   aperture: "f/11",  shutter: "1/2000s", iso: 250,  focal: "120mm" },
+  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",        place: "", date: "Apr 6, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
+  { file: "DSC_0141.jpg",  title: "Taking Off",            place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
+  { file: "DSC_0143.jpg",  title: "Sailboat",              place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 250,  focal: "120mm" },
+  { file: "DSC_0153.jpg",  title: "Misty Peaks",           place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
+  { file: "DSC_0181.jpg",  title: "Lake & Mountains",      place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "46mm" },
+  { file: "DSC_0182.jpg",  title: "On Deck",               place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/11",  shutter: "1/500s",  iso: 320,  focal: "46mm" },
+  { file: "DSC_0184.jpg",  title: "Traveler",              place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/7.1", shutter: "1/800s",  iso: 320,  focal: "58mm" },
+  { file: "DSC_0191.jpg",  title: "By the Lake",           place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "24mm" },
+  { file: "DSC_0397.jpg",  title: "Fallen Leaves",         place: "", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },
+  { file: "DSC_0439.jpg",  title: "Golden Eaves",          place: "", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },
+  { file: "DSC_0444.jpg",  title: "Incense",               place: "", date: "Jun 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 250,  focal: "120mm" },
+  { file: "DSC_0456.jpg",  title: "Lone Boat",             place: "", date: "Jul 1, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
+  { file: "DSC_0468.jpg",  title: "Afternoon Nap",         place: "", date: "Jul 1, 2026", mood: "day",     aperture: "f/4",   shutter: "1/25s",   iso: 400,  focal: "120mm" },
+  { file: "DSC_0499.jpg",  title: "Panda",                 place: "", date: "Jul 7, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 400,  focal: "120mm" },
+  { file: "DSC_0520.jpg",  title: "Up a Tree",             place: "", date: "Jul 7, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 400,  focal: "120mm" },
+  { file: "DSC_1239.jpg",  title: "Wing Stretch",          place: "", date: "Jul 25, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 400,  focal: "120mm" },
+  { file: "DSC_1269.jpg",  title: "Black Swan",            place: "", date: "Jul 25, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 400,  focal: "120mm" },
+  { file: "DSC_1522.jpg",  title: "Night Road",            place: "", date: "Sep 1, 2026", mood: "night",   aperture: "f/4",   shutter: "1/5s",    iso: 2000, focal: "120mm" },
+  { file: "DSC_1538.jpg",  title: "Through the Ring",      place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },
+  { file: "DSC_1541.jpg",  title: "Two Faces",             place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },
+  { file: "DSC_1544.jpg",  title: "Garden Walk",           place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/160s",  iso: 64,   focal: "24mm" },
+  { file: "DSC_1546.jpg",  title: "Laughing Buddha",       place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 100,  focal: "120mm" },
+  { file: "DSC_1552.jpg",  title: "Supertree",             place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },
+  { file: "DSC_1558.jpg",  title: "Mother Hen",            place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/200s",  iso: 64,   focal: "120mm" },
+  { file: "DSC_1567.jpg",  title: "Silhouette",            place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 64,   focal: "59mm" },
+  { file: "DSC_1573.jpg",  title: "In the Frame",          place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },
+  { file: "DSC_1577.jpg",  title: "Resting in the Circle", place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },
+  { file: "DSC_1584.jpg",  title: "Fading Wheel",          place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },
+  { file: "DSC_1586.jpg",  title: "Waiting",               place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/250s",  iso: 64,   focal: "81mm" },
+  { file: "DSC_1587.jpg",  title: "Down the Steps",        place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/160s",  iso: 64,   focal: "24mm" },
 ];
 
 const fan = document.getElementById("fan");
-const filtersEl = document.getElementById("filters");
-let current = "All";
 let visible = [];
 let lbIndex = 0;
 
@@ -344,26 +329,6 @@ const isDark = () => document.documentElement.dataset.theme
   : matchMedia("(prefers-color-scheme: dark)").matches;
 const mood = () => isDark() ? "night" : "day";
 
-// 分类按钮（只显示当前模式下有照片的分类）
-function buildFilters() {
-  const order = ["Landscape", "Animals", "Architecture", "People"];
-  const have = new Set(PHOTOS.filter(p => p.mood === mood()).map(p => p.category));
-  const cats = ["All", ...order.filter(c => have.has(c)), ...[...have].filter(c => !order.includes(c))];
-  if (!cats.includes(current)) current = "All";
-  filtersEl.innerHTML = "";
-  cats.forEach(c => {
-    const b = document.createElement("button");
-    b.textContent = c;
-    if (c === current) b.classList.add("active");
-    b.onclick = () => {
-      current = c;
-      filtersEl.querySelectorAll("button").forEach(x => x.classList.toggle("active", x === b));
-      render();
-    };
-    filtersEl.appendChild(b);
-  });
-}
-
 // ===================== 扇形展示 =====================
 const STEP = 9;            // 相邻两张照片之间的角度（度）
 const AUTO_SPEED = 1 / 3500; // 自动转动速度：每 3.5 秒转过一张
@@ -382,7 +347,7 @@ const frontCard = () => Math.round(pos);
 const photoIndex = k => mod(k, visible.length);
 
 function render() {
-  visible = PHOTOS.filter(p => p.mood === mood() && (current === "All" || p.category === current));
+  visible = PHOTOS.filter(p => p.mood === mood());
   shownIndex = -1;
   const n = visible.length;
   const copies = n > 1 && n < 9 ? Math.ceil(9 / n) : 1;
@@ -558,7 +523,6 @@ function switchMood() {
   fanInfo.classList.add("switching");
   target = pos + 4;                  // 转走
   setTimeout(() => {
-    buildFilters();
     render();
     pos = -4;                        // 从另一边转进来
     fan.classList.remove("switching");
@@ -576,7 +540,6 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
 });
 updateThemeBtn();
 
-buildFilters();
 render();
 renderPairs();
 requestAnimationFrame(tick);
