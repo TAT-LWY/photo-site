@@ -105,7 +105,6 @@
     background: var(--surface); color: var(--muted); font-size: 14px;
     border: 2px dashed var(--line); border-radius: 10px; width: 100%;
   }
-  .lb-blank { width: min(70vw, 600px); aspect-ratio: 4/3; background: #1d1c1a; border-color: #444; color: #888; }
 
   /* ===================== 大图查看 ===================== */
   .lightbox {
@@ -152,7 +151,7 @@
   .pair-table td { width: 40%; }
   .pair-table td:last-child { text-align: right; }
   .pair-table th { font-weight: 400; color: var(--muted); text-align: center; font-size: 13px; }
-  .pair-table th em { font-style: normal; font-size: 11px; margin-left: 6px; opacity: .7; }
+  .pair-table th em { font-style: normal; font-size: 11px; margin-left: 2px; opacity: .7; }
   .pair-table tr.diff td { font-weight: 600; color: var(--accent); }
   .pair-table tr.same td { color: var(--muted); }
   .pair-analysis { margin-top: 22px; line-height: 1.8; }
@@ -225,7 +224,6 @@
   <button class="lb-btn lb-close" id="lbClose">✕</button>
   <button class="lb-btn lb-prev" id="lbPrev">‹</button>
   <img id="lbImg" alt="">
-  <div id="lbBlank" class="placeholder lb-blank" hidden>No photo yet</div>
   <div class="lb-info"><div id="lbTitle"></div><small id="lbMeta"></small><div class="lb-exif" id="lbExif"></div></div>
   <button class="lb-btn lb-next" id="lbNext">›</button>
 </div>
@@ -303,7 +301,7 @@ function renderPairs() {
     const rows = [["Aperture", "aperture"], ["Shutter", "shutter"], ["ISO", "iso"], ["Focal length", "focal"]]
       .map(([label, k]) => {
         const same = String(A[k]) === String(B[k]);
-        return `<tr class="${same ? "same" : "diff"}"><td>${A[k]}</td><th>${label}${same ? "<em>same</em>" : ""}</th><td>${B[k]}</td></tr>`;
+        return `<tr class="${same ? "same" : "diff"}"><td>${A[k]}</td><th>${label}${same ? " <em>(same)</em>" : ""}</th><td>${B[k]}</td></tr>`;
       }).join("");
     const fig = (p, j) => `<figure data-pair="${n}" data-side="${j}">
         <span class="mood-tag ${p.mood}">${p.mood === "day" ? "☀ Positive" : "☾ Negative"}</span>
@@ -474,7 +472,6 @@ function showLb() {
   const img = document.getElementById("lbImg");
   img.hidden = !p.file;
   if (p.file) img.src = `photos/full/${p.file}`;
-  document.getElementById("lbBlank").hidden = !!p.file;
   document.getElementById("lbTitle").textContent = p.title;
   document.getElementById("lbExif").innerHTML = p.aperture ? [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
