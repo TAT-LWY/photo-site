@@ -126,7 +126,7 @@
   .lightbox.instant #lbImg { transition: none; }
 
   .lb-panel {
-    position: fixed; top: 48px; bottom: 200px; left: var(--panel-left, 55vw); right: 56px;
+    position: fixed; top: 48px; bottom: 215px; left: var(--panel-left, 55vw); right: 56px;
     overflow-y: auto; padding-right: 8px;
     opacity: 0; transform: translateX(40px); pointer-events: none;
     transition: opacity .6s ease .45s, transform .7s var(--ease) .35s, left .9s var(--ease);
@@ -177,6 +177,8 @@
   .vote-btn:hover:not(:disabled) { transform: translateY(-2px); }
   .vote-btn.mine { background: var(--c); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
   .vote-btn:disabled { cursor: default; }
+  .vote-btn.unsure { min-width: 120px; padding: 5px 14px; font-size: 13px; border-width: 1.5px; }
+  .vote-unsure { margin-top: 10px; }
   .vote-btn:disabled:not(.mine) { opacity: .45; }
   .vote-bar { flex: 1; display: flex; height: 34px; border-radius: 999px; overflow: hidden; position: relative; background: var(--line); }
   .vote-seg {
@@ -739,6 +741,7 @@ const COLORS = {                           // 每个选项在进度条上的颜�
   positive_high_0: "#ef9a2e", positive_high_1: "#d4652a", positive_high_2: "#a9411d",
   negative_low_0: "#8a9dc7", negative_low_1: "#6479a8", negative_low_2: "#45578a",
   negative_high_0: "#5a6b96", negative_high_1: "#3b4970", negative_high_2: "#222b48",
+  unsure: "#a39e95",
 };
 const FIREBASE_CONFIG = {                   // Firebase 项目 weiyu-photo-votes（数据库在新加坡）
   projectId: "weiyu-photo-votes",
@@ -758,7 +761,9 @@ const store = {
 // 这个浏览器对某张照片的投票路径，例如 { v: "positive", a: "low", e: "calm" }
 const myPath = file => { try { return JSON.parse(store.get("path:" + file)) || {}; } catch { return {}; } };
 const savePath = (file, path) => store.set("path:" + file, JSON.stringify(path));
-const currentStep = path => !path.v ? 1 : !path.a ? 2 : !path.e ? 3 : 4;   // 4 = 三步都投完了
+const UNSURE = "unsure";                    // "I'm not sure"：选了就在这一步结束投票
+const currentStep = p => p.e || [p.v, p.a].includes(UNSURE) ? 4 : !p.v ? 1 : !p.a ? 2 : 3;   // 4 = 投完了
+const lastStep = p => p.e ? 3 : p.a ? 2 : 1;   // 最后投到了第几步
 
 const votesReady = (async () => {
   if (!FIREBASE_CONFIG) return;
@@ -772,10 +777,12 @@ const votesReady = (async () => {
 
 // 某一步有哪些选项
 function stepOptions(step, path) {
+  const unsure = key => ({ id: UNSURE, label: "I'm not sure", key, color: COLORS.unsure });
   if (step === 1) return {
     q: "Does this photo express a positive or negative emotion?",
     opts: [
       { id: "positive", label: "☀ Positive", key: "positive" },
+      unsure("unsure"),
       { id: "negative", label: "Negative ☾", key: "negative" },
     ],
   };
@@ -783,13 +790,17 @@ function stepOptions(step, path) {
     q: `How intense is this ${path.v} emotion?`,
     opts: [
       { id: "low", label: "Low arousal", sub: "calm, quiet", key: `${path.v}_low` },
+      unsure(`${path.v}_unsure`),
       { id: "high", label: "High arousal", sub: "intense, energetic", key: `${path.v}_high` },
     ],
   };
   const quad = `${path.v}_${path.a}`;
   return {
     q: "Which word fits best?",
-    opts: EMOTIONS[quad].map((w, i) => ({ id: w.toLowerCase(), label: w, key: `${quad}_${w.toLowerCase()}`, color: COLORS[`${quad}_${i}`] })),
+    opts: [
+      ...EMOTIONS[quad].map((w, i) => ({ id: w.toLowerCase(), label: w, key: `${quad}_${w.toLowerCase()}`, color: COLORS[`${quad}_${i}`] })),
+      unsure(`${quad}_unsure`),
+    ],
   };
 }
 
@@ -806,22 +817,24 @@ function renderVote() {
   const total = nums.reduce((x, y) => x + y, 0);
   const pcts = nums.map(n => total ? Math.round(n / total * 100) : Math.round(100 / opts.length));
   const color = o => o.color || COLORS[o.key];
-  const btn = o => `<button class="vote-btn${o.id === chosen ? " mine" : ""}" data-id="${o.id}" style="--c:${color(o)}"
+  const btn = o => `<button class="vote-btn${o.id === chosen ? " mine" : ""}${o.id === UNSURE ? " unsure" : ""}" data-id="${o.id}" style="--c:${color(o)}"
       ${chosen ? "disabled" : ""}>${o.label}${o.sub ? `<small>${o.sub}</small>` : ""}</button>`;
   const bar = `<div class="vote-bar${show && total ? "" : " hidden-results"}">
       ${opts.map((o, i) => `<div class="vote-seg" style="flex-basis:${show && total ? pcts[i] : 100 / opts.length}%;--c:${color(o)}">
-        ${show && total && pcts[i] >= 8 ? (opts.length > 2 ? `${o.label} ${pcts[i]}%` : `${pcts[i]}%`) : ""}</div>`).join("")}
+        ${show && total && pcts[i] >= 6 ? segText(o, pcts[i], step) : ""}</div>`).join("")}
       ${!show ? `<span class="vote-hint">Vote to see results</span>` : !total ? `<span class="vote-hint">No votes yet</span>` : ""}
     </div>`;
-  const row = opts.length === 2
-    ? `<div class="vote-row">${btn(opts[0])}${bar}${btn(opts[1])}</div>`
+  const row = step < 3   // 第 1、2 步：两边 PK，"I'm not sure" 在进度条下面
+    ? `<div class="vote-row">${btn(opts[0])}${bar}${btn(opts[2])}</div><div class="vote-unsure">${btn(opts[1])}</div>`
     : `<div class="vote-btns">${opts.map(btn).join("")}</div><div class="vote-row">${bar}</div>`;
 
   // 底部：你的投票路径（可以点回去看前面每一步的结果）+ 票数 + 重新投票
   const crumbs = [];
-  if (path.v) crumbs.push([1, path.v === "positive" ? "☀ Positive" : "☾ Negative"]);
-  if (path.a) crumbs.push([2, path.a === "low" ? "Low arousal" : "High arousal"]);
-  if (path.e) crumbs.push([3, path.e[0].toUpperCase() + path.e.slice(1)]);
+  const name = id => ({ positive: "☀ Positive", negative: "☾ Negative", low: "Low arousal", high: "High arousal", unsure: "Not sure" })[id]
+    || id[0].toUpperCase() + id.slice(1);
+  if (path.v) crumbs.push([1, name(path.v)]);
+  if (path.a) crumbs.push([2, name(path.a)]);
+  if (path.e) crumbs.push([3, name(path.e)]);
   const foot = [
     crumbs.length ? "Your vote: " + crumbs.map(([n, t]) =>
       `<button class="crumb${n === step ? " current" : ""}" data-step="${n}">${t}</button>`).join(" › ") : "",
@@ -834,6 +847,12 @@ function renderVote() {
   box.querySelectorAll(".vote-btn:not(:disabled)").forEach(b => b.onclick = e => { e.stopPropagation(); castVote(step, b.dataset.id); });
   box.querySelectorAll(".crumb").forEach(b => b.onclick = e => { e.stopPropagation(); goStep(+b.dataset.step); });
   box.querySelector(".redo")?.addEventListener("click", e => { e.stopPropagation(); resetVote(); });
+}
+
+// 进度条每一段上的文字（太窄时只显示百分比）
+function segText(o, pct, step) {
+  const label = o.id === UNSURE ? "Not sure" : step === 3 ? o.label : "";
+  return label && pct >= 15 ? `${label} ${pct}%` : `${pct}%`;
 }
 
 // 切换显示第几步（带淡入淡出）
@@ -851,7 +870,8 @@ async function watchVotes(file) {
   clearTimeout(advanceTimer);
   voteFile = file;
   counts = {};
-  viewStep = Math.min(currentStep(myPath(file)), 3);
+  const p = myPath(file);
+  viewStep = currentStep(p) === 4 ? lastStep(p) : currentStep(p);
   renderVote();
   await votesReady;
   if (voteFile !== file) return;
@@ -887,7 +907,7 @@ function castVote(step, id) {
   savePath(file, path);
   renderVote();                                   // 先显示这一步的结果
   applyVotes(file, { [opt.key]: 1 });
-  if (step < 3) advanceTimer = setTimeout(() => { if (voteFile === file) goStep(step + 1); }, STEP_PAUSE);
+  if (step < 3 && id !== UNSURE) advanceTimer = setTimeout(() => { if (voteFile === file) goStep(step + 1); }, STEP_PAUSE);
 }
 
 // 重新投票：把之前三步的票都撤回，从第 1 步开始
