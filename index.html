@@ -315,7 +315,7 @@ function renderPairs() {
   const el = document.getElementById("pairs");
   el.innerHTML = COMPARISONS.map((c, n) => {
     const A = byFile[c.a], B = byFile[c.b];
-    const rows = [["Aperture", "aperture"], ["Shutter", "shutter"], ["ISO", "iso"], ["Focal length", "focal"], ["Date", "date"]]
+    const rows = [["Aperture", "aperture"], ["Shutter", "shutter"], ["ISO", "iso"], ["Focal length", "focal"]]
       .map(([label, k]) => {
         const same = String(A[k]) === String(B[k]);
         return `<tr class="${same ? "same" : "diff"}"><td>${A[k]}</td><th>${label}${same ? "<em>same</em>" : ""}</th><td>${B[k]}</td></tr>`;
