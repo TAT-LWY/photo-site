@@ -144,6 +144,10 @@
   .lb-exif { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
   .lb-exif .chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; font-size: 13px; }
   .lb-exif .chip b { color: var(--muted); font-weight: 400; margin-right: 6px; }
+  .lb-intended { margin-top: 26px; }
+  .lb-label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .lb-intended-value { font-family: "Noto Serif SC", serif; font-size: 22px; color: var(--accent); margin-top: 4px; }
+  .lb-intended-value.empty { font-family: inherit; font-size: 14px; color: var(--muted); font-style: italic; }
   .lb-heading {
     font-family: "Noto Serif SC", serif; font-size: 20px;
     margin-top: 32px; padding-top: 24px; margin-bottom: 14px; border-top: 1px solid var(--line);
@@ -295,6 +299,10 @@
     <h2 id="lbTitle"></h2>
     <div class="lb-meta" id="lbMeta"></div>
     <div class="lb-exif" id="lbExif"></div>
+    <div class="lb-intended">
+      <div class="lb-label">Intended emotion</div>
+      <div class="lb-intended-value" id="lbIntended"></div>
+    </div>
     <h3 class="lb-heading">Analysis</h3>
     <div class="lb-analysis" id="lbAnalysis"></div>
   </aside>
@@ -367,47 +375,49 @@ const PHOTOS = [
 ];
 
 /* ==========================================================
-   ✍️ 每张照片的分析 —— 点开照片后显示在右边
-   写在两个 ` 之间；空一行 = 分段；留空 `` 会显示 "Analysis coming soon"
+   ✍️ 每张照片的说明 —— 点开照片后显示在右边
+   intended：你拍这张照片时想表达的情绪（写在 "" 里）
+   analysis：分析，写在两个 ` 之间；空一行 = 分段
+   留空时会显示 "To be added" / "Analysis coming soon"
    ========================================================== */
 const ANALYSIS = {
-  "DSC0211.jpg":    ``,   // Garden Path
-  "DSC0249.jpg":    ``,   // Lone Bird
-  "DSC0981.jpg":    ``,   // Paper Umbrellas
-  "DSC_0049.jpg":   ``,   // Vine Bridge
-  "DSC_0085.jpg":   ``,   // Rooftop Statue
-  "DSC_0091.jpg":   ``,   // Quiet Street
-  "DSC_0135.jpg":   ``,   // Glacier
-  "DSC_0137.jpg":   ``,   // Crow on the Rail
-  "DSC_0141.jpg":   ``,   // Taking Off
-  "DSC_0143.jpg":   ``,   // Sailboat
-  "DSC_0153.jpg":   ``,   // Misty Peaks
-  "DSC_0181.jpg":   ``,   // Lake & Mountains
-  "DSC_0182.jpg":   ``,   // On Deck
-  "DSC_0184.jpg":   ``,   // Traveler
-  "DSC_0191.jpg":   ``,   // By the Lake
-  "DSC_0397.jpg":   ``,   // Fallen Leaves
-  "DSC_0439.jpg":   ``,   // Golden Eaves
-  "DSC_0444.jpg":   ``,   // Incense
-  "DSC_0456.jpg":   ``,   // Lone Boat
-  "DSC_0468.jpg":   ``,   // Afternoon Nap
-  "DSC_0499.jpg":   ``,   // Panda
-  "DSC_0520.jpg":   ``,   // Up a Tree
-  "DSC_1239.jpg":   ``,   // Wing Stretch
-  "DSC_1269.jpg":   ``,   // Black Swan
-  "DSC_1522.jpg":   ``,   // Night Road
-  "DSC_1538.jpg":   ``,   // Through the Ring
-  "DSC_1541.jpg":   ``,   // Two Faces
-  "DSC_1544.jpg":   ``,   // Garden Walk
-  "DSC_1546.jpg":   ``,   // Laughing Buddha
-  "DSC_1552.jpg":   ``,   // Supertree
-  "DSC_1558.jpg":   ``,   // Mother Hen
-  "DSC_1567.jpg":   ``,   // Silhouette
-  "DSC_1573.jpg":   ``,   // In the Frame
-  "DSC_1577.jpg":   ``,   // Resting in the Circle
-  "DSC_1584.jpg":   ``,   // Fading Wheel
-  "DSC_1586.jpg":   ``,   // Waiting
-  "DSC_1587.jpg":   ``,   // Down the Steps
+  "DSC0211.jpg":    { intended: "", analysis: `` },   // Garden Path
+  "DSC0249.jpg":    { intended: "", analysis: `` },   // Lone Bird
+  "DSC0981.jpg":    { intended: "", analysis: `` },   // Paper Umbrellas
+  "DSC_0049.jpg":   { intended: "", analysis: `` },   // Vine Bridge
+  "DSC_0085.jpg":   { intended: "", analysis: `` },   // Rooftop Statue
+  "DSC_0091.jpg":   { intended: "", analysis: `` },   // Quiet Street
+  "DSC_0135.jpg":   { intended: "", analysis: `` },   // Glacier
+  "DSC_0137.jpg":   { intended: "", analysis: `` },   // Crow on the Rail
+  "DSC_0141.jpg":   { intended: "", analysis: `` },   // Taking Off
+  "DSC_0143.jpg":   { intended: "", analysis: `` },   // Sailboat
+  "DSC_0153.jpg":   { intended: "", analysis: `` },   // Misty Peaks
+  "DSC_0181.jpg":   { intended: "", analysis: `` },   // Lake & Mountains
+  "DSC_0182.jpg":   { intended: "", analysis: `` },   // On Deck
+  "DSC_0184.jpg":   { intended: "", analysis: `` },   // Traveler
+  "DSC_0191.jpg":   { intended: "", analysis: `` },   // By the Lake
+  "DSC_0397.jpg":   { intended: "", analysis: `` },   // Fallen Leaves
+  "DSC_0439.jpg":   { intended: "", analysis: `` },   // Golden Eaves
+  "DSC_0444.jpg":   { intended: "", analysis: `` },   // Incense
+  "DSC_0456.jpg":   { intended: "", analysis: `` },   // Lone Boat
+  "DSC_0468.jpg":   { intended: "", analysis: `` },   // Afternoon Nap
+  "DSC_0499.jpg":   { intended: "", analysis: `` },   // Panda
+  "DSC_0520.jpg":   { intended: "", analysis: `` },   // Up a Tree
+  "DSC_1239.jpg":   { intended: "", analysis: `` },   // Wing Stretch
+  "DSC_1269.jpg":   { intended: "", analysis: `` },   // Black Swan
+  "DSC_1522.jpg":   { intended: "", analysis: `` },   // Night Road
+  "DSC_1538.jpg":   { intended: "", analysis: `` },   // Through the Ring
+  "DSC_1541.jpg":   { intended: "", analysis: `` },   // Two Faces
+  "DSC_1544.jpg":   { intended: "", analysis: `` },   // Garden Walk
+  "DSC_1546.jpg":   { intended: "", analysis: `` },   // Laughing Buddha
+  "DSC_1552.jpg":   { intended: "", analysis: `` },   // Supertree
+  "DSC_1558.jpg":   { intended: "", analysis: `` },   // Mother Hen
+  "DSC_1567.jpg":   { intended: "", analysis: `` },   // Silhouette
+  "DSC_1573.jpg":   { intended: "", analysis: `` },   // In the Frame
+  "DSC_1577.jpg":   { intended: "", analysis: `` },   // Resting in the Circle
+  "DSC_1584.jpg":   { intended: "", analysis: `` },   // Fading Wheel
+  "DSC_1586.jpg":   { intended: "", analysis: `` },   // Waiting
+  "DSC_1587.jpg":   { intended: "", analysis: `` },   // Down the Steps
 };
 
 const fan = document.getElementById("fan");
@@ -639,7 +649,12 @@ function fillPanel(p) {
   document.getElementById("lbExif").innerHTML = [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
   ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("");
-  const text = (ANALYSIS[p.file] || "").trim();
+  const info = ANALYSIS[p.file] || {};
+  const intended = (info.intended || "").trim();
+  const intendedEl = document.getElementById("lbIntended");
+  intendedEl.classList.toggle("empty", !intended);
+  intendedEl.textContent = intended || "To be added";
+  const text = (info.analysis || "").trim();
   const box = document.getElementById("lbAnalysis");
   box.classList.toggle("empty", !text);
   box.innerHTML = text ? text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("") : "Analysis coming soon";
