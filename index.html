@@ -126,7 +126,7 @@
   .lightbox.instant #lbImg { transition: none; }
 
   .lb-panel {
-    position: fixed; top: 48px; bottom: 170px; left: var(--panel-left, 55vw); right: 56px;
+    position: fixed; top: 48px; bottom: 200px; left: var(--panel-left, 55vw); right: 56px;
     overflow-y: auto; padding-right: 8px;
     opacity: 0; transform: translateX(40px); pointer-events: none;
     transition: opacity .6s ease .45s, transform .7s var(--ease) .35s, left .9s var(--ease);
@@ -155,40 +155,43 @@
   .lb-analysis { font-size: 16px; line-height: 1.85; }
   .lb-analysis p + p { margin-top: 14px; }
   .lb-analysis img { max-width: 100%; border-radius: 8px; margin: 10px 0; display: block; }
-  /* 投票（PK 进度条） */
+  /* 投票（三步：正负 → 唤醒度 → 具体情绪） */
   .lb-vote {
-    position: fixed; left: 48px; right: 56px; bottom: 34px; display: flex; justify-content: center;
+    position: fixed; left: 48px; right: 56px; bottom: 26px; display: flex; justify-content: center;
     opacity: 0; transform: translateY(24px); pointer-events: none;
     transition: opacity .6s ease .55s, transform .7s var(--ease) .45s;
   }
   .lightbox.detail .lb-vote { opacity: 1; transform: none; pointer-events: auto; cursor: auto; }
-  .vote-inner { width: min(980px, 100%); text-align: center; }
-  .vote-q { font-family: "Noto Serif SC", serif; font-size: 17px; margin-bottom: 12px; }
+  .vote-inner { width: min(980px, 100%); text-align: center; transition: opacity .3s; }
+  .vote-inner.fading { opacity: 0; }
+  .vote-step { font-size: 11px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; }
+  .vote-q { font-family: "Noto Serif SC", serif; font-size: 17px; margin: 2px 0 12px; }
   .vote-row { display: flex; align-items: center; gap: 16px; }
+  .vote-btns { display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; }
   .vote-btn {
-    flex: none; width: 140px; padding: 10px 0; border-radius: 999px; font-size: 14px; font-weight: 600;
-    cursor: pointer; border: 2px solid; background: var(--surface); transition: all .2s;
+    flex: none; min-width: 150px; padding: 8px 18px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: 2px solid var(--c); color: var(--c); background: var(--surface); transition: all .2s;
+    line-height: 1.25;
   }
-  .vote-btn.pos { color: #c27a12; border-color: #e9a23b; }
-  .vote-btn.neg { color: #4c5d80; border-color: #6b7fa8; }
-  .vote-btn:hover { transform: translateY(-2px); }
-  .vote-btn.pos.mine { background: #e9a23b; color: #fff; }
-  .vote-btn.neg.mine { background: #5a6d94; color: #fff; }
-  .vote-bar {
-    flex: 1; position: relative; height: 34px; border-radius: 999px; overflow: hidden;
-    background: #5a6d94; transition: background .5s;
+  .vote-btn small { display: block; font-size: 11px; font-weight: 400; opacity: .8; }
+  .vote-btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .vote-btn.mine { background: var(--c); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  .vote-btn:disabled { cursor: default; }
+  .vote-btn:disabled:not(.mine) { opacity: .45; }
+  .vote-bar { flex: 1; display: flex; height: 34px; border-radius: 999px; overflow: hidden; position: relative; background: var(--line); }
+  .vote-seg {
+    position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    color: #fff; font-weight: 700; font-size: 14px; white-space: nowrap; background: var(--c);
+    text-shadow: 0 1px 2px rgba(0,0,0,.35);
+    transition: flex-basis .9s cubic-bezier(.22, 1, .36, 1), background .4s;
   }
-  .vote-fill {
-    position: absolute; inset: 0 auto 0 0; width: 50%; background: #e9a23b;
-    border-right: 3px solid var(--bg); transition: width .9s cubic-bezier(.22, 1, .36, 1), background .5s;
-  }
-  .vote-pct { position: absolute; top: 50%; transform: translateY(-50%); color: #fff; font-weight: 700; font-size: 15px; }
-  .vote-pct.l { left: 16px; } .vote-pct.r { right: 16px; }
-  .vote-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; }
-  .vote-bar.hidden-results { background: var(--line); }
-  .vote-bar.hidden-results .vote-fill { background: var(--line); border-right-color: transparent; }
-  .vote-bar.hidden-results .vote-hint { color: var(--muted); }
-  .vote-total { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  .vote-seg + .vote-seg { border-left: 3px solid var(--bg); }
+  .vote-bar.hidden-results .vote-seg { background: var(--line); color: transparent; text-shadow: none; }
+  .vote-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; pointer-events: none; }
+  .vote-foot { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  .vote-foot button { background: none; border: none; color: inherit; font: inherit; cursor: pointer; text-decoration: underline; padding: 0; }
+  .vote-foot button:hover { color: var(--text); }
+  .vote-foot .crumb.current { color: var(--text); font-weight: 600; text-decoration: none; }
 
   .lb-analysis.empty {
     border: 2px dashed var(--line); border-radius: 12px; padding: 70px 24px;
@@ -307,20 +310,7 @@
     <div class="lb-analysis" id="lbAnalysis"></div>
   </aside>
   <div class="lb-vote">
-    <div class="vote-inner">
-      <div class="vote-q">How does this photo make you feel?</div>
-      <div class="vote-row">
-        <button class="vote-btn pos" id="votePos">☀ Positive</button>
-        <div class="vote-bar" id="voteBar">
-          <div class="vote-fill" id="voteFill"></div>
-          <span class="vote-pct l" id="votePosPct"></span>
-          <span class="vote-pct r" id="voteNegPct"></span>
-          <span class="vote-hint" id="voteHint"></span>
-        </div>
-        <button class="vote-btn neg" id="voteNeg">Negative ☾</button>
-      </div>
-      <div class="vote-total" id="voteTotal"></div>
-    </div>
+    <div class="vote-inner" id="voteBox"></div>
   </div>
   <button class="lb-btn lb-close" id="lbClose" title="Close">✕</button>
 </div>
@@ -685,6 +675,7 @@ function toDetail() {
 function closeLb() {
   clearTimeout(introTimer);
   if (voteUnsub) { voteUnsub(); voteUnsub = null; }
+  clearTimeout(advanceTimer); voteFile = null;
   lb.classList.remove("open", "detail", "showing");
   document.body.style.overflow = "";
   if (lbList === visible) turnToPhoto(lbIndex); // 从扇子打开的：关掉后扇子停在最后看的那张
@@ -728,28 +719,46 @@ lb.addEventListener("touchend", e => {
   touchX = null;
 });
 
-// ===================== 投票（PK 进度条） =====================
-/* 朋友们投票：这张照片让人感觉 Positive 还是 Negative
-   填好 FIREBASE_CONFIG 后，所有人的投票实时同步；
-   没填时是「演示模式」：投票只存在当前浏览器里 */
+// ===================== 投票：正负 → 唤醒度 → 具体情绪 =====================
+/* 基于 Russell 的情绪二维模型（valence 正负 × arousal 唤醒度）
+   第 1 步：Positive / Negative
+   第 2 步：Low arousal（平静）/ High arousal（激动）
+   第 3 步：从这个象限的 3 个情绪词里选一个
+   每一步投完都会显示这一步的投票百分比，然后进入下一步 */
+const EMOTIONS = {                         // 改情绪词时，Firebase 的规则也要一起改
+  positive_low:  ["Calm", "Peaceful", "Content"],
+  positive_high: ["Joy", "Excitement", "Awe"],
+  negative_low:  ["Sadness", "Loneliness", "Melancholy"],
+  negative_high: ["Fear", "Tension", "Anxiety"],
+};
+const COLORS = {                           // 每个选项在进度条上的颜色
+  positive: "#e9a23b", negative: "#5a6d94",
+  positive_low: "#f0bd5e", positive_high: "#d27b1c",
+  negative_low: "#8496bd", negative_high: "#3d4c6e",
+  positive_low_0: "#e8b43c", positive_low_1: "#d98a2b", positive_low_2: "#b9651d",
+  positive_high_0: "#ef9a2e", positive_high_1: "#d4652a", positive_high_2: "#a9411d",
+  negative_low_0: "#8a9dc7", negative_low_1: "#6479a8", negative_low_2: "#45578a",
+  negative_high_0: "#5a6b96", negative_high_1: "#3b4970", negative_high_2: "#222b48",
+};
 const FIREBASE_CONFIG = {                   // Firebase 项目 weiyu-photo-votes（数据库在新加坡）
   projectId: "weiyu-photo-votes",
   databaseURL: "https://weiyu-photo-votes-default-rtdb.asia-southeast1.firebasedatabase.app",
 };
-const SHOW_RESULTS_BEFORE_VOTING = false;   // false = 投完票才能看到结果（避免被别人的选择影响）
+const SHOW_RESULTS_BEFORE_VOTING = false;   // false = 每一步投完才能看到那一步的结果（避免被别人影响）
+const STEP_PAUSE = 1500;                    // 每一步显示结果多久（毫秒）后进入下一步
 
 let db = null, fb = null, voteUnsub = null;
-let counts = { positive: 0, negative: 0 };
+let counts = {};                            // 当前照片所有选项的票数
+let voteFile = null, viewStep = 1, advanceTimer = null;
 const voteKey = file => file.replace(/\./g, "_");   // Firebase 的键名不能有 "."
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
 };
-const myVote = file => store.get("vote:" + file);           // 这个浏览器投过什么
-const localCounts = file => {
-  try { return JSON.parse(store.get("counts:" + file)) || { positive: 0, negative: 0 }; }
-  catch { return { positive: 0, negative: 0 }; }
-};
+// 这个浏览器对某张照片的投票路径，例如 { v: "positive", a: "low", e: "calm" }
+const myPath = file => { try { return JSON.parse(store.get("path:" + file)) || {}; } catch { return {}; } };
+const savePath = (file, path) => store.set("path:" + file, JSON.stringify(path));
+const currentStep = path => !path.v ? 1 : !path.a ? 2 : !path.e ? 3 : 4;   // 4 = 三步都投完了
 
 const votesReady = (async () => {
   if (!FIREBASE_CONFIG) return;
@@ -761,63 +770,139 @@ const votesReady = (async () => {
   fb = dbm;
 })().catch(err => console.error("Firebase:", err));
 
-function renderVote(file) {
-  const mine = myVote(file);
-  const { positive: p, negative: n } = counts;
-  const total = p + n;
-  const show = !!mine || SHOW_RESULTS_BEFORE_VOTING;
-  const pct = total ? Math.round(p / total * 100) : 50;
-  document.getElementById("votePos").classList.toggle("mine", mine === "positive");
-  document.getElementById("voteNeg").classList.toggle("mine", mine === "negative");
-  document.getElementById("voteBar").classList.toggle("hidden-results", !show || !total);
-  document.getElementById("voteFill").style.width = (show && total ? pct : 50) + "%";
-  document.getElementById("votePosPct").textContent = show && total ? pct + "%" : "";
-  document.getElementById("voteNegPct").textContent = show && total ? 100 - pct + "%" : "";
-  document.getElementById("voteHint").textContent = !show ? "Vote to see results" : total ? "" : "No votes yet";
-  document.getElementById("voteTotal").textContent =
-    (show ? `${total} vote${total === 1 ? "" : "s"}` : "Results appear after you vote") +
-    (db ? "" : " · demo mode: votes are only saved in this browser");
+// 某一步有哪些选项
+function stepOptions(step, path) {
+  if (step === 1) return {
+    q: "Does this photo express a positive or negative emotion?",
+    opts: [
+      { id: "positive", label: "☀ Positive", key: "positive" },
+      { id: "negative", label: "Negative ☾", key: "negative" },
+    ],
+  };
+  if (step === 2) return {
+    q: `How intense is this ${path.v} emotion?`,
+    opts: [
+      { id: "low", label: "Low arousal", sub: "calm, quiet", key: `${path.v}_low` },
+      { id: "high", label: "High arousal", sub: "intense, energetic", key: `${path.v}_high` },
+    ],
+  };
+  const quad = `${path.v}_${path.a}`;
+  return {
+    q: "Which word fits best?",
+    opts: EMOTIONS[quad].map((w, i) => ({ id: w.toLowerCase(), label: w, key: `${quad}_${w.toLowerCase()}`, color: COLORS[`${quad}_${i}`] })),
+  };
+}
+
+function renderVote() {
+  const box = document.getElementById("voteBox");
+  const file = voteFile;
+  if (!file) return;
+  const path = myPath(file);
+  const step = Math.min(viewStep, 3);
+  const { q, opts } = stepOptions(step, path);
+  const chosen = [path.v, path.a, path.e][step - 1];
+  const show = !!chosen || SHOW_RESULTS_BEFORE_VOTING;
+  const nums = opts.map(o => counts[o.key] || 0);
+  const total = nums.reduce((x, y) => x + y, 0);
+  const pcts = nums.map(n => total ? Math.round(n / total * 100) : Math.round(100 / opts.length));
+  const color = o => o.color || COLORS[o.key];
+  const btn = o => `<button class="vote-btn${o.id === chosen ? " mine" : ""}" data-id="${o.id}" style="--c:${color(o)}"
+      ${chosen ? "disabled" : ""}>${o.label}${o.sub ? `<small>${o.sub}</small>` : ""}</button>`;
+  const bar = `<div class="vote-bar${show && total ? "" : " hidden-results"}">
+      ${opts.map((o, i) => `<div class="vote-seg" style="flex-basis:${show && total ? pcts[i] : 100 / opts.length}%;--c:${color(o)}">
+        ${show && total && pcts[i] >= 8 ? (opts.length > 2 ? `${o.label} ${pcts[i]}%` : `${pcts[i]}%`) : ""}</div>`).join("")}
+      ${!show ? `<span class="vote-hint">Vote to see results</span>` : !total ? `<span class="vote-hint">No votes yet</span>` : ""}
+    </div>`;
+  const row = opts.length === 2
+    ? `<div class="vote-row">${btn(opts[0])}${bar}${btn(opts[1])}</div>`
+    : `<div class="vote-btns">${opts.map(btn).join("")}</div><div class="vote-row">${bar}</div>`;
+
+  // 底部：你的投票路径（可以点回去看前面每一步的结果）+ 票数 + 重新投票
+  const crumbs = [];
+  if (path.v) crumbs.push([1, path.v === "positive" ? "☀ Positive" : "☾ Negative"]);
+  if (path.a) crumbs.push([2, path.a === "low" ? "Low arousal" : "High arousal"]);
+  if (path.e) crumbs.push([3, path.e[0].toUpperCase() + path.e.slice(1)]);
+  const foot = [
+    crumbs.length ? "Your vote: " + crumbs.map(([n, t]) =>
+      `<button class="crumb${n === step ? " current" : ""}" data-step="${n}">${t}</button>`).join(" › ") : "",
+    show ? `${total} vote${total === 1 ? "" : "s"} in this step` : "Results appear after you vote",
+    crumbs.length ? `<button class="redo">Change vote</button>` : "",
+    db ? "" : "offline: votes are only saved in this browser",
+  ].filter(Boolean).join(" · ");
+
+  box.innerHTML = `<div class="vote-step">Step ${step} of 3</div><div class="vote-q">${q}</div>${row}<div class="vote-foot">${foot}</div>`;
+  box.querySelectorAll(".vote-btn:not(:disabled)").forEach(b => b.onclick = e => { e.stopPropagation(); castVote(step, b.dataset.id); });
+  box.querySelectorAll(".crumb").forEach(b => b.onclick = e => { e.stopPropagation(); goStep(+b.dataset.step); });
+  box.querySelector(".redo")?.addEventListener("click", e => { e.stopPropagation(); resetVote(); });
+}
+
+// 切换显示第几步（带淡入淡出）
+function goStep(n) {
+  clearTimeout(advanceTimer);
+  if (n === viewStep) return;
+  const box = document.getElementById("voteBox");
+  box.classList.add("fading");
+  setTimeout(() => { viewStep = n; renderVote(); box.classList.remove("fading"); }, 300);
 }
 
 // 打开某张照片时：开始实时监听它的票数
 async function watchVotes(file) {
   if (voteUnsub) { voteUnsub(); voteUnsub = null; }
-  counts = { positive: 0, negative: 0 };
-  renderVote(file);
+  clearTimeout(advanceTimer);
+  voteFile = file;
+  counts = {};
+  viewStep = Math.min(currentStep(myPath(file)), 3);
+  renderVote();
   await votesReady;
-  if (lbList[lbIndex]?.file !== file) return;
-  if (!db) { counts = localCounts(file); renderVote(file); return; }
+  if (voteFile !== file) return;
+  if (!db) { counts = JSON.parse(store.get("counts:" + file) || "{}"); renderVote(); return; }
   voteUnsub = fb.onValue(fb.ref(db, "votes/" + voteKey(file)), snap => {
-    const v = snap.val() || {};
-    counts = { positive: v.positive || 0, negative: v.negative || 0 };
-    if (lbList[lbIndex]?.file === file) renderVote(file);
+    if (voteFile !== file) return;
+    counts = snap.val() || {};
+    renderVote();
   });
 }
 
-// 投票（可以改票：旧的那边 -1，新的那边 +1）
-async function castVote(side) {
-  const file = lbList[lbIndex].file;
-  const prev = myVote(file);
-  if (prev === side) return;
-  store.set("vote:" + file, side);
+// 写入票数变化：{ 选项键: +1 或 -1 }
+async function applyVotes(file, changes) {
   await votesReady;
   if (!db) {
-    const c = localCounts(file);
-    c[side]++;
-    if (prev) c[prev] = Math.max(0, c[prev] - 1);
+    const c = JSON.parse(store.get("counts:" + file) || "{}");
+    for (const [k, d] of Object.entries(changes)) c[k] = Math.max(0, (c[k] || 0) + d);
     store.set("counts:" + file, JSON.stringify(c));
-    counts = c;
-    renderVote(file);
+    counts = c; renderVote();
     return;
   }
-  const k = voteKey(file);
-  const updates = { [`votes/${k}/${side}`]: fb.increment(1) };
-  if (prev) updates[`votes/${k}/${prev}`] = fb.increment(-1);
-  renderVote(file);
+  const updates = {};
+  for (const [k, d] of Object.entries(changes)) updates[`votes/${voteKey(file)}/${k}`] = fb.increment(d);
   fb.update(fb.ref(db), updates).catch(err => console.error("Vote failed:", err));
 }
-document.getElementById("votePos").onclick = e => { e.stopPropagation(); castVote("positive"); };
-document.getElementById("voteNeg").onclick = e => { e.stopPropagation(); castVote("negative"); };
+
+function castVote(step, id) {
+  const file = voteFile;
+  const path = myPath(file);
+  if (currentStep(path) !== step) return;
+  const opt = stepOptions(step, path).opts.find(o => o.id === id);
+  path[["v", "a", "e"][step - 1]] = id;
+  savePath(file, path);
+  renderVote();                                   // 先显示这一步的结果
+  applyVotes(file, { [opt.key]: 1 });
+  if (step < 3) advanceTimer = setTimeout(() => { if (voteFile === file) goStep(step + 1); }, STEP_PAUSE);
+}
+
+// 重新投票：把之前三步的票都撤回，从第 1 步开始
+function resetVote() {
+  const file = voteFile;
+  const p = myPath(file);
+  const changes = {};
+  if (p.v) changes[p.v] = -1;
+  if (p.a) changes[`${p.v}_${p.a}`] = -1;
+  if (p.e) changes[`${p.v}_${p.a}_${p.e}`] = -1;
+  savePath(file, {});
+  applyVotes(file, changes);
+  goStep(1);
+  if (viewStep === 1) renderVote();
+}
 
 // 深色/浅色切换
 // 切换模式时：旧的扇子转走并淡出，换成另一组照片，再从另一边转进来
