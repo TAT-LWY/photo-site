@@ -61,7 +61,7 @@
 
   /* ===================== 扇形照片展示 ===================== */
   .fan-stage {
-    position: relative; height: 640px; overflow: hidden;
+    position: relative; height: 604px; margin-top: -14px; overflow: hidden;
     cursor: grab; user-select: none; touch-action: pan-y;
     background: radial-gradient(ellipse 45% 55% at 50% 40%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%);
     -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent);
@@ -71,7 +71,7 @@
   .fan-stage, .fan-info { transition: opacity .45s ease, filter .45s ease; }
   .fan-stage.switching, .fan-info.switching { opacity: 0; filter: blur(8px); }
   .fan-card {
-    position: absolute; left: 50%; top: 80px;
+    position: absolute; left: 50%; top: 44px;
     width: 300px; height: 420px; margin-left: -150px;
     transform-origin: 50% 1300px; /* 扇形的转轴在卡片下方很远的地方 */
     will-change: transform, opacity;
