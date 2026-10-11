@@ -719,7 +719,10 @@ lb.addEventListener("touchend", e => {
 /* 朋友们投票：这张照片让人感觉 Positive 还是 Negative
    填好 FIREBASE_CONFIG 后，所有人的投票实时同步；
    没填时是「演示模式」：投票只存在当前浏览器里 */
-const FIREBASE_CONFIG = null;               // ← 把 Firebase 给你的配置粘贴到这里
+const FIREBASE_CONFIG = {                   // Firebase 项目 weiyu-photo-votes（数据库在新加坡）
+  projectId: "weiyu-photo-votes",
+  databaseURL: "https://weiyu-photo-votes-default-rtdb.asia-southeast1.firebasedatabase.app",
+};
 const SHOW_RESULTS_BEFORE_VOTING = false;   // false = 投完票才能看到结果（避免被别人的选择影响）
 
 let db = null, fb = null, voteUnsub = null;
