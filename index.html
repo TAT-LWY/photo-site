@@ -126,7 +126,7 @@
   .lightbox.instant #lbImg { transition: none; }
 
   .lb-panel {
-    position: fixed; top: 48px; bottom: 48px; left: var(--panel-left, 55vw); right: 56px;
+    position: fixed; top: 48px; bottom: 170px; left: var(--panel-left, 55vw); right: 56px;
     overflow-y: auto; padding-right: 8px;
     opacity: 0; transform: translateX(40px); pointer-events: none;
     transition: opacity .6s ease .45s, transform .7s var(--ease) .35s, left .9s var(--ease);
@@ -151,6 +151,41 @@
   .lb-analysis { font-size: 16px; line-height: 1.85; }
   .lb-analysis p + p { margin-top: 14px; }
   .lb-analysis img { max-width: 100%; border-radius: 8px; margin: 10px 0; display: block; }
+  /* 投票（PK 进度条） */
+  .lb-vote {
+    position: fixed; left: 48px; right: 56px; bottom: 34px; display: flex; justify-content: center;
+    opacity: 0; transform: translateY(24px); pointer-events: none;
+    transition: opacity .6s ease .55s, transform .7s var(--ease) .45s;
+  }
+  .lightbox.detail .lb-vote { opacity: 1; transform: none; pointer-events: auto; cursor: auto; }
+  .vote-inner { width: min(980px, 100%); text-align: center; }
+  .vote-q { font-family: "Noto Serif SC", serif; font-size: 17px; margin-bottom: 12px; }
+  .vote-row { display: flex; align-items: center; gap: 16px; }
+  .vote-btn {
+    flex: none; width: 140px; padding: 10px 0; border-radius: 999px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: 2px solid; background: var(--surface); transition: all .2s;
+  }
+  .vote-btn.pos { color: #c27a12; border-color: #e9a23b; }
+  .vote-btn.neg { color: #4c5d80; border-color: #6b7fa8; }
+  .vote-btn:hover { transform: translateY(-2px); }
+  .vote-btn.pos.mine { background: #e9a23b; color: #fff; }
+  .vote-btn.neg.mine { background: #5a6d94; color: #fff; }
+  .vote-bar {
+    flex: 1; position: relative; height: 34px; border-radius: 999px; overflow: hidden;
+    background: #5a6d94; transition: background .5s;
+  }
+  .vote-fill {
+    position: absolute; inset: 0 auto 0 0; width: 50%; background: #e9a23b;
+    border-right: 3px solid var(--bg); transition: width .9s cubic-bezier(.22, 1, .36, 1), background .5s;
+  }
+  .vote-pct { position: absolute; top: 50%; transform: translateY(-50%); color: #fff; font-weight: 700; font-size: 15px; }
+  .vote-pct.l { left: 16px; } .vote-pct.r { right: 16px; }
+  .vote-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; }
+  .vote-bar.hidden-results { background: var(--line); }
+  .vote-bar.hidden-results .vote-fill { background: var(--line); border-right-color: transparent; }
+  .vote-bar.hidden-results .vote-hint { color: var(--muted); }
+  .vote-total { color: var(--muted); font-size: 12px; margin-top: 10px; }
+
   .lb-analysis.empty {
     border: 2px dashed var(--line); border-radius: 12px; padding: 70px 24px;
     text-align: center; color: var(--muted); font-size: 14px;
@@ -263,6 +298,22 @@
     <h3 class="lb-heading">Analysis</h3>
     <div class="lb-analysis" id="lbAnalysis"></div>
   </aside>
+  <div class="lb-vote">
+    <div class="vote-inner">
+      <div class="vote-q">How does this photo make you feel?</div>
+      <div class="vote-row">
+        <button class="vote-btn pos" id="votePos">☀ Positive</button>
+        <div class="vote-bar" id="voteBar">
+          <div class="vote-fill" id="voteFill"></div>
+          <span class="vote-pct l" id="votePosPct"></span>
+          <span class="vote-pct r" id="voteNegPct"></span>
+          <span class="vote-hint" id="voteHint"></span>
+        </div>
+        <button class="vote-btn neg" id="voteNeg">Negative ☾</button>
+      </div>
+      <div class="vote-total" id="voteTotal"></div>
+    </div>
+  </div>
   <button class="lb-btn lb-close" id="lbClose" title="Close">✕</button>
 </div>
 
@@ -593,6 +644,7 @@ function fillPanel(p) {
   box.classList.toggle("empty", !text);
   box.innerHTML = text ? text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("") : "Analysis coming soon";
   document.querySelector(".lb-panel").scrollTop = 0;
+  watchVotes(p.file);
 }
 
 function openLb(i, list = visible) {
@@ -619,6 +671,7 @@ function toDetail() {
 }
 function closeLb() {
   clearTimeout(introTimer);
+  if (voteUnsub) { voteUnsub(); voteUnsub = null; }
   lb.classList.remove("open", "detail", "showing");
   document.body.style.overflow = "";
   if (lbList === visible) turnToPhoto(lbIndex); // 从扇子打开的：关掉后扇子停在最后看的那张
@@ -661,6 +714,94 @@ lb.addEventListener("touchend", e => {
   if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
   touchX = null;
 });
+
+// ===================== 投票（PK 进度条） =====================
+/* 朋友们投票：这张照片让人感觉 Positive 还是 Negative
+   填好 FIREBASE_CONFIG 后，所有人的投票实时同步；
+   没填时是「演示模式」：投票只存在当前浏览器里 */
+const FIREBASE_CONFIG = null;               // ← 把 Firebase 给你的配置粘贴到这里
+const SHOW_RESULTS_BEFORE_VOTING = false;   // false = 投完票才能看到结果（避免被别人的选择影响）
+
+let db = null, fb = null, voteUnsub = null;
+let counts = { positive: 0, negative: 0 };
+const voteKey = file => file.replace(/\./g, "_");   // Firebase 的键名不能有 "."
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+const myVote = file => store.get("vote:" + file);           // 这个浏览器投过什么
+const localCounts = file => {
+  try { return JSON.parse(store.get("counts:" + file)) || { positive: 0, negative: 0 }; }
+  catch { return { positive: 0, negative: 0 }; }
+};
+
+const votesReady = (async () => {
+  if (!FIREBASE_CONFIG) return;
+  const [app, dbm] = await Promise.all([
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"),
+  ]);
+  db = dbm.getDatabase(app.initializeApp(FIREBASE_CONFIG));
+  fb = dbm;
+})().catch(err => console.error("Firebase:", err));
+
+function renderVote(file) {
+  const mine = myVote(file);
+  const { positive: p, negative: n } = counts;
+  const total = p + n;
+  const show = !!mine || SHOW_RESULTS_BEFORE_VOTING;
+  const pct = total ? Math.round(p / total * 100) : 50;
+  document.getElementById("votePos").classList.toggle("mine", mine === "positive");
+  document.getElementById("voteNeg").classList.toggle("mine", mine === "negative");
+  document.getElementById("voteBar").classList.toggle("hidden-results", !show || !total);
+  document.getElementById("voteFill").style.width = (show && total ? pct : 50) + "%";
+  document.getElementById("votePosPct").textContent = show && total ? pct + "%" : "";
+  document.getElementById("voteNegPct").textContent = show && total ? 100 - pct + "%" : "";
+  document.getElementById("voteHint").textContent = !show ? "Vote to see results" : total ? "" : "No votes yet";
+  document.getElementById("voteTotal").textContent =
+    (show ? `${total} vote${total === 1 ? "" : "s"}` : "Results appear after you vote") +
+    (db ? "" : " · demo mode: votes are only saved in this browser");
+}
+
+// 打开某张照片时：开始实时监听它的票数
+async function watchVotes(file) {
+  if (voteUnsub) { voteUnsub(); voteUnsub = null; }
+  counts = { positive: 0, negative: 0 };
+  renderVote(file);
+  await votesReady;
+  if (lbList[lbIndex]?.file !== file) return;
+  if (!db) { counts = localCounts(file); renderVote(file); return; }
+  voteUnsub = fb.onValue(fb.ref(db, "votes/" + voteKey(file)), snap => {
+    const v = snap.val() || {};
+    counts = { positive: v.positive || 0, negative: v.negative || 0 };
+    if (lbList[lbIndex]?.file === file) renderVote(file);
+  });
+}
+
+// 投票（可以改票：旧的那边 -1，新的那边 +1）
+async function castVote(side) {
+  const file = lbList[lbIndex].file;
+  const prev = myVote(file);
+  if (prev === side) return;
+  store.set("vote:" + file, side);
+  await votesReady;
+  if (!db) {
+    const c = localCounts(file);
+    c[side]++;
+    if (prev) c[prev] = Math.max(0, c[prev] - 1);
+    store.set("counts:" + file, JSON.stringify(c));
+    counts = c;
+    renderVote(file);
+    return;
+  }
+  const k = voteKey(file);
+  const updates = { [`votes/${k}/${side}`]: fb.increment(1) };
+  if (prev) updates[`votes/${k}/${prev}`] = fb.increment(-1);
+  renderVote(file);
+  fb.update(fb.ref(db), updates).catch(err => console.error("Vote failed:", err));
+}
+document.getElementById("votePos").onclick = e => { e.stopPropagation(); castVote("positive"); };
+document.getElementById("voteNeg").onclick = e => { e.stopPropagation(); castVote("negative"); };
 
 // 深色/浅色切换
 // 切换模式时：旧的扇子转走并淡出，换成另一组照片，再从另一边转进来
