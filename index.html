@@ -378,7 +378,6 @@ const PHOTOS = [
   { file: "DSC0211.jpg",   title: "Garden Path",           place: "", date: "Feb 3, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 6400, focal: "120mm" },
   { file: "DSC0249.jpg",   title: "Lone Bird",             place: "", date: "Feb 6, 2026", mood: "night",   aperture: "f/22",  shutter: "1/13000s",iso: 65535,focal: "120mm" },
   { file: "DSC0981.jpg",   title: "Paper Umbrellas",       place: "", date: "Feb 7, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 64,   focal: "59mm" },
-  { file: "DSC_0049.jpg",  title: "Vine Bridge",           place: "", date: "Feb 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/160s",  iso: 250,  focal: "51mm" },
   { file: "DSC_0085.jpg",  title: "Rooftop Statue",        place: "", date: "Mar 29, 2026", mood: "day",     aperture: "f/8",   shutter: "1/1000s", iso: 250,  focal: "120mm" },
   { file: "DSC_0091.jpg",  title: "Quiet Street",          place: "", date: "Mar 29, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 250,  focal: "44mm" },
   { file: "DSC_0135.jpg",  title: "Glacier",               place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/10",  shutter: "1/1600s", iso: 250,  focal: "120mm" },
@@ -423,7 +422,6 @@ const ANALYSIS = {
   "DSC0211.jpg":    { intended: "", analysis: `` },   // Garden Path
   "DSC0249.jpg":    { intended: "", analysis: `` },   // Lone Bird
   "DSC0981.jpg":    { intended: "", analysis: `` },   // Paper Umbrellas
-  "DSC_0049.jpg":   { intended: "", analysis: `` },   // Vine Bridge
   "DSC_0085.jpg":   { intended: "", analysis: `` },   // Rooftop Statue
   "DSC_0091.jpg":   { intended: "", analysis: `` },   // Quiet Street
   "DSC_0135.jpg":   { intended: "", analysis: `` },   // Glacier
@@ -463,6 +461,8 @@ const ANALYSIS = {
    reason：为什么这张照片没有用在研究里（写在两个 ` 之间；空一行 = 分段）
    ========================================================== */
 const EXCLUDED = [
+  { file: "DSC_0049.jpg",  title: "Vine Bridge",           date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",
+    reason: `` },
   { file: "DSC_0056.jpg",  title: "Rooster",              date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",
     reason: `` },
   { file: "DSC_0138.jpg",  title: "Blue Sky Perch",       date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",
