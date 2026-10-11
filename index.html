@@ -136,6 +136,39 @@
   .lb-prev { left: 20px; top: 50%; transform: translateY(-50%); }
   .lb-next { right: 20px; top: 50%; transform: translateY(-50%); }
 
+  /* ===================== 对照组 ===================== */
+  .compare { border-top: 1px solid var(--line); padding: 70px 0 30px; }
+  .compare-intro { color: var(--muted); margin: -8px 0 36px; }
+  .pair {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    padding: 28px 32px 32px; margin-bottom: 40px; position: relative;
+  }
+  .pair-num { font-family: "Noto Serif SC", serif; font-size: 14px; color: var(--accent); letter-spacing: .15em; margin-bottom: 14px; }
+  .pair-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pair figure { cursor: zoom-in; }
+  .pair figure img {
+    width: 100%; height: 460px; object-fit: contain; display: block;
+    background: var(--bg); border-radius: 10px; transition: transform .4s;
+  }
+  .pair figure:hover img { transform: scale(1.015); }
+  .pair figcaption { font-family: "Noto Serif SC", serif; font-size: 20px; font-weight: 700; margin-top: 12px; }
+  .mood-tag { display: inline-block; font-size: 12px; letter-spacing: .08em; padding: 3px 12px; border-radius: 999px; margin-bottom: 10px; }
+  .mood-tag.day { background: #f6e3b4; color: #7a5200; }
+  .mood-tag.night { background: #2b2f3a; color: #c9d1e6; }
+  .pair-table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 14px; }
+  .pair-table td, .pair-table th { padding: 9px 0; border-top: 1px solid var(--line); }
+  .pair-table td { width: 40%; }
+  .pair-table td:last-child { text-align: right; }
+  .pair-table th { font-weight: 400; color: var(--muted); text-align: center; font-size: 13px; }
+  .pair-table th em { font-style: normal; font-size: 11px; margin-left: 6px; opacity: .7; }
+  .pair-table tr.diff td { font-weight: 600; color: var(--accent); }
+  .pair-table tr.same td { color: var(--muted); }
+  .pair-analysis { margin-top: 22px; line-height: 1.8; }
+  .pair-analysis.empty {
+    border: 2px dashed var(--line); border-radius: 10px; padding: 22px;
+    color: var(--muted); text-align: center; font-size: 14px;
+  }
+
   /* ===================== 联系方式 ===================== */
   .contact-section { border-top: 1px solid var(--line); padding: 70px 0; }
   .contact { max-width: 620px; }
@@ -156,6 +189,7 @@
     <a href="#" class="logo">Weiyu · Photography · Personal Project</a>
     <div class="nav-links">
       <a href="#gallery">Work</a>
+      <a href="#compare">Compare</a>
       <a href="#contact">Contact</a>
       <button id="themeBtn" title="Switch to night">☀</button>
     </div>
@@ -176,6 +210,12 @@
       </div>
       <button class="fan-btn" id="fanNext" title="Next">›</button>
     </div>
+  </section>
+
+  <section class="compare" id="compare">
+    <h2 class="section-title">Comparisons</h2>
+    <p class="compare-intro">Pairs of photos taken in similar conditions that express opposite emotions.</p>
+    <div id="pairs"></div>
   </section>
 
   <section class="contact-section" id="contact">
@@ -258,6 +298,45 @@ const filtersEl = document.getElementById("filters");
 let current = "All";
 let visible = [];
 let lbIndex = 0;
+
+/* ==========================================================
+   🔍 对照组 —— 拍摄条件相近、但情绪相反的两张照片
+   a / b 填 PHOTOS 里的文件名；analysis 填你的分析（留空 "" 会显示 "Analysis coming soon"）
+   ========================================================== */
+const COMPARISONS = [
+  { a: "DSC_0141.jpg", b: "DSC_0138.jpg", analysis: "" },  // Taking Off vs Blue Sky Perch
+  { a: "DSC_0143.jpg", b: "DSC_0456.jpg", analysis: "" },  // Sailboat vs Lone Boat
+  { a: "DSC_1577.jpg", b: "DSC_1573.jpg", analysis: "" },  // Resting in the Circle vs In the Frame
+  { a: "DSC_1538.jpg", b: "DSC_1584.jpg", analysis: "" },  // Through the Ring vs Fading Wheel
+];
+
+const byFile = Object.fromEntries(PHOTOS.map(p => [p.file, p]));
+function renderPairs() {
+  const el = document.getElementById("pairs");
+  el.innerHTML = COMPARISONS.map((c, n) => {
+    const A = byFile[c.a], B = byFile[c.b];
+    const rows = [["Aperture", "aperture"], ["Shutter", "shutter"], ["ISO", "iso"], ["Focal length", "focal"], ["Date", "date"]]
+      .map(([label, k]) => {
+        const same = String(A[k]) === String(B[k]);
+        return `<tr class="${same ? "same" : "diff"}"><td>${A[k]}</td><th>${label}${same ? "<em>same</em>" : ""}</th><td>${B[k]}</td></tr>`;
+      }).join("");
+    const fig = (p, j) => `<figure data-pair="${n}" data-side="${j}">
+        <span class="mood-tag ${p.mood}">${p.mood === "day" ? "☀ Positive" : "☾ Negative"}</span>
+        <img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy">
+        <figcaption>${p.title}</figcaption>
+      </figure>`;
+    return `<article class="pair">
+      <div class="pair-num">PAIR ${String(n + 1).padStart(2, "0")}</div>
+      <div class="pair-photos">${fig(A, 0)}${fig(B, 1)}</div>
+      <table class="pair-table">${rows}</table>
+      <div class="pair-analysis${c.analysis ? "" : " empty"}">${c.analysis || "Analysis coming soon"}</div>
+    </article>`;
+  }).join("");
+  el.querySelectorAll("figure").forEach(f => {
+    const c = COMPARISONS[+f.dataset.pair];
+    f.onclick = () => openLb(+f.dataset.side, [byFile[c.a], byFile[c.b]]);
+  });
+}
 
 // 白天 / 黑夜模式
 const isDark = () => document.documentElement.dataset.theme
@@ -419,10 +498,14 @@ fan.addEventListener("pointercancel", endDrag);
 
 // 大图查看
 const lb = document.getElementById("lightbox");
-function openLb(i) { lbIndex = i; showLb(); lb.classList.add("open"); document.body.style.overflow = "hidden"; }
-function closeLb() { lb.classList.remove("open"); document.body.style.overflow = ""; turnToPhoto(lbIndex); }
+let lbList = [];   // 当前大图浏览的照片列表（扇子 或 某一组对照）
+function openLb(i, list = visible) { lbList = list; lbIndex = i; showLb(); lb.classList.add("open"); document.body.style.overflow = "hidden"; }
+function closeLb() {
+  lb.classList.remove("open"); document.body.style.overflow = "";
+  if (lbList === visible) turnToPhoto(lbIndex); // 从扇子打开的：关掉后扇子停在最后看的那张
+}
 function showLb() {
-  const p = visible[lbIndex];
+  const p = lbList[lbIndex];
   const img = document.getElementById("lbImg");
   img.hidden = !p.file;
   if (p.file) img.src = `photos/full/${p.file}`;
@@ -431,9 +514,9 @@ function showLb() {
   document.getElementById("lbExif").innerHTML = p.aperture ? [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
   ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("") : "";
-  document.getElementById("lbMeta").textContent = [p.place, p.date, `${lbIndex + 1}/${visible.length}`].filter(Boolean).join(" · ");
+  document.getElementById("lbMeta").textContent = [p.place, p.date, `${lbIndex + 1}/${lbList.length}`].filter(Boolean).join(" · ");
 }
-function step(d) { lbIndex = (lbIndex + d + visible.length) % visible.length; showLb(); }
+function step(d) { lbIndex = (lbIndex + d + lbList.length) % lbList.length; showLb(); }
 document.getElementById("lbClose").onclick = closeLb;
 document.getElementById("lbPrev").onclick = e => { e.stopPropagation(); step(-1); };
 document.getElementById("lbNext").onclick = e => { e.stopPropagation(); step(1); };
@@ -495,6 +578,7 @@ updateThemeBtn();
 
 buildFilters();
 render();
+renderPairs();
 requestAnimationFrame(tick);
 </script>
 </body>
