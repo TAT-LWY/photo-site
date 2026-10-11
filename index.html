@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
 <title>Weiyu · Photography</title>
+<script>
+  // 记住上次选的白天/黑夜模式（在主页和排除页之间切换时保持一致）
+  try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -56,6 +60,39 @@
   }
 
   #gallery { padding-top: 28px; }
+
+  /* 垃圾桶按钮 & 排除页 */
+  .trash-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); color: var(--muted) !important;
+  }
+  .trash-btn:hover { color: var(--text) !important; border-color: var(--text); }
+  .back-link { display: none; }
+  body.view-excluded .nav-links > a[href^="#"] { display: none; }
+  body.view-excluded .back-link { display: inline; }
+  body.view-excluded .trash-btn { background: var(--text); color: var(--bg) !important; border-color: var(--text); }
+  body.view-excluded #gallery, body.view-excluded #compare, body.view-excluded #contact { display: none; }
+  .excluded { padding: 28px 0 90px; }
+  .excluded-intro { color: var(--muted); margin: -8px 0 36px; max-width: 720px; }
+  .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .ex-card { cursor: zoom-in; }
+  .ex-img { position: relative; border-radius: 12px; overflow: hidden; background: var(--line); }
+  .ex-img img {
+    width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block;
+    filter: grayscale(.75) contrast(.9) brightness(1.05); transition: filter .4s, transform .5s;
+  }
+  .ex-card:hover .ex-img img { filter: none; transform: scale(1.03); }
+  .ex-stamp {
+    position: absolute; top: 16px; left: 16px; transform: rotate(-7deg);
+    border: 2px solid #c0392b; color: #c0392b; background: rgba(255,255,255,.88);
+    font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; padding: 3px 12px; border-radius: 4px;
+  }
+  .ex-card figcaption { margin-top: 12px; }
+  .ex-card figcaption b { font-family: "Noto Serif SC", serif; font-size: 19px; display: block; }
+  .ex-card figcaption span { color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .lightbox.no-vote .lb-vote { display: none; }
+  .lightbox.no-vote .lb-panel { bottom: 48px; }
+  .lightbox.no-vote .lb-intended { display: none; }
   section[id] { scroll-margin-top: 61px; } /* 跳到某个区域时，不被顶部导航栏挡住 */
 
   .section-title { font-family: "Noto Serif SC", serif; font-size: 28px; margin-bottom: 20px; }
@@ -256,6 +293,11 @@
       <a href="#gallery">Work</a>
       <a href="#compare">Compare</a>
       <a href="#contact">Contact</a>
+      <a href="./" class="back-link">← Back to portfolio</a>
+      <a href="?view=excluded" class="trash-btn" id="trashBtn" title="Excluded photos" aria-label="Excluded photos">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>
+      </a>
       <button id="themeBtn" title="Switch to night">☀</button>
     </div>
   </div>
@@ -289,6 +331,11 @@
       <a href="mailto:203283@student.nlcssingapore.sg">School Email <span>203283@student.nlcssingapore.sg →</span></a>
       <a href="#">Instagram <span>@your_id →</span></a>
     </div>
+  </section>
+  <section class="excluded" id="excluded" hidden>
+    <h2 class="section-title">Excluded photos</h2>
+    <p class="excluded-intro">Photos I took but decided not to use in this research, and why. This shows how the photos in the portfolio were selected.</p>
+    <div class="ex-grid" id="exGrid"></div>
   </section>
 </main>
 
@@ -410,6 +457,37 @@ const ANALYSIS = {
   "DSC_1586.jpg":   { intended: "", analysis: `` },   // Waiting
   "DSC_1587.jpg":   { intended: "", analysis: `` },   // Down the Steps
 };
+
+/* ==========================================================
+   🗑 排除的照片 —— 右上角垃圾桶打开的页面
+   reason：为什么这张照片没有用在研究里（写在两个 ` 之间；空一行 = 分段）
+   ========================================================== */
+const EXCLUDED = [
+  { file: "DSC_0056.jpg",  title: "Rooster",              date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",
+    reason: `` },
+  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",       date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",
+    reason: `` },
+  { file: "DSC_0149.jpg",  title: "Castle in the Trees",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",
+    reason: `` },
+  { file: "DSC_0358.jpg",  title: "Monitor Lizard",       date: "May 28, 2026", aperture: "f/4",   shutter: "1/100s",  iso: 200, focal: "120mm",
+    reason: `` },
+  { file: "DSC_0499.jpg",  title: "Panda",                date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",
+    reason: `` },
+  { file: "DSC_1564.jpg",  title: "Foraging",             date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
+    reason: `` },
+];
+
+function renderExcluded() {
+  const grid = document.getElementById("exGrid");
+  grid.innerHTML = EXCLUDED.map((p, i) => {
+    const preview = p.reason.trim().split(/\n\s*\n/)[0] || "Reason coming soon";
+    return `<figure class="ex-card" data-i="${i}">
+      <div class="ex-img"><img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy"><span class="ex-stamp">Excluded</span></div>
+      <figcaption><b>${p.title}</b><span>${preview}</span></figcaption>
+    </figure>`;
+  }).join("");
+  grid.querySelectorAll(".ex-card").forEach(c => c.onclick = () => openLb(+c.dataset.i, EXCLUDED));
+}
 
 const fan = document.getElementById("fan");
 let visible = [];
@@ -640,7 +718,10 @@ function fillPanel(p) {
   document.getElementById("lbExif").innerHTML = [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
   ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("");
-  const info = ANALYSIS[p.file] || {};
+  const isExcluded = "reason" in p;            // 垃圾桶页面里的照片
+  lb.classList.toggle("no-vote", isExcluded);
+  document.querySelector(".lb-heading").textContent = isExcluded ? "Why it was excluded" : "Analysis";
+  const info = isExcluded ? { analysis: p.reason } : ANALYSIS[p.file] || {};
   const intended = (info.intended || "").trim();
   const intendedEl = document.getElementById("lbIntended");
   intendedEl.classList.toggle("empty", !intended);
@@ -648,9 +729,11 @@ function fillPanel(p) {
   const text = (info.analysis || "").trim();
   const box = document.getElementById("lbAnalysis");
   box.classList.toggle("empty", !text);
-  box.innerHTML = text ? text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("") : "Analysis coming soon";
+  box.innerHTML = text ? text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("")
+    : isExcluded ? "Reason coming soon" : "Analysis coming soon";
   document.querySelector(".lb-panel").scrollTop = 0;
-  watchVotes(p.file);
+  if (isExcluded) { if (voteUnsub) { voteUnsub(); voteUnsub = null; } voteFile = null; }
+  else watchVotes(p.file);
 }
 
 function openLb(i, list = visible) {
@@ -955,6 +1038,7 @@ function switchMood() {
 }
 themeBtn.onclick = () => {
   document.documentElement.dataset.theme = isDark() ? "light" : "dark";
+  store.set("theme", document.documentElement.dataset.theme);
   switchMood();
 };
 // 没手动切换过时，跟随电脑系统的深色/浅色设置
@@ -963,9 +1047,18 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
 });
 updateThemeBtn();
 
-render();
-renderPairs();
-requestAnimationFrame(tick);
+// 网址是 ?view=excluded 时显示"排除的照片"页面
+const VIEW_EXCLUDED = new URLSearchParams(location.search).get("view") === "excluded";
+if (VIEW_EXCLUDED) {
+  document.body.classList.add("view-excluded");
+  document.getElementById("excluded").hidden = false;
+  document.title = "Excluded photos · Weiyu";
+  renderExcluded();
+} else {
+  render();
+  renderPairs();
+  requestAnimationFrame(tick);
+}
 
 // 刷新时总是从页面最上面开始（不记住上次滚动的位置）
 history.scrollRestoration = "manual";
