@@ -810,7 +810,8 @@ function renderVote() {
   const file = voteFile;
   if (!file) return;
   const path = myPath(file);
-  const step = Math.min(viewStep, 3);
+  const reached = currentStep(path) === 4 ? lastStep(path) : currentStep(path);
+  const step = Math.min(viewStep, reached);   // 不能显示还没走到的步骤（例如刚点了 Change vote）
   const { q, opts } = stepOptions(step, path);
   const chosen = [path.v, path.a, path.e][step - 1];
   const show = !!chosen || SHOW_RESULTS_BEFORE_VOTING;
@@ -842,12 +843,12 @@ function renderVote() {
   const foot = [
     crumbs.length ? "Your vote: " + crumbs.map(([n, t]) =>
       `<button class="crumb${n === step ? " current" : ""}" data-step="${n}">${t}</button>`).join(" › ") : "",
-    show ? `${total} vote${total === 1 ? "" : "s"} in this step` : "Results appear after you vote",
+    show ? `${total} vote${total === 1 ? "" : "s"} in this step` : "",
     crumbs.length ? `<button class="redo">Change vote</button>` : "",
     db ? "" : "offline: votes are only saved in this browser",
   ].filter(Boolean).join(" · ");
 
-  box.innerHTML = `<div class="vote-step">Step ${step} of 3</div><div class="vote-q">${q}</div>${row}<div class="vote-foot">${foot}</div>`;
+  box.innerHTML = `<div class="vote-step">Step ${step} of 3</div><div class="vote-q">${q}</div>${row}${foot ? `<div class="vote-foot">${foot}</div>` : ""}`;
   box.querySelectorAll(".vote-btn:not(:disabled)").forEach(b => b.onclick = e => { e.stopPropagation(); castVote(step, b.dataset.id); });
   box.querySelectorAll(".crumb").forEach(b => b.onclick = e => { e.stopPropagation(); goStep(+b.dataset.step); });
   box.querySelector(".redo")?.addEventListener("click", e => { e.stopPropagation(); resetVote(); });
