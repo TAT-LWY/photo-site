@@ -89,7 +89,6 @@
   }
   .ex-card figcaption { margin-top: 12px; }
   .ex-card figcaption b { font-family: "Noto Serif SC", serif; font-size: 19px; display: block; }
-  .ex-card figcaption span { color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .lightbox.no-vote .lb-vote { display: none; }
   .lightbox.no-vote .lb-panel { bottom: 48px; }
   .lightbox.no-vote .lb-intended { display: none; }
@@ -479,13 +478,10 @@ const EXCLUDED = [
 
 function renderExcluded() {
   const grid = document.getElementById("exGrid");
-  grid.innerHTML = EXCLUDED.map((p, i) => {
-    const preview = p.reason.trim().split(/\n\s*\n/)[0] || "Reason coming soon";
-    return `<figure class="ex-card" data-i="${i}">
+  grid.innerHTML = EXCLUDED.map((p, i) => `<figure class="ex-card" data-i="${i}">
       <div class="ex-img"><img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy"><span class="ex-stamp">Excluded</span></div>
-      <figcaption><b>${p.title}</b><span>${preview}</span></figcaption>
-    </figure>`;
-  }).join("");
+      <figcaption><b>${p.title}</b></figcaption>
+    </figure>`).join("");
   grid.querySelectorAll(".ex-card").forEach(c => c.onclick = () => openLb(+c.dataset.i, EXCLUDED));
 }
 
