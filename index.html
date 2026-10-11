@@ -107,26 +107,54 @@
     border: 2px dashed var(--line); border-radius: 10px; width: 100%;
   }
 
-  /* ===================== 大图查看 ===================== */
+  /* ===================== 大图查看 + 分析 ===================== */
   .lightbox {
-    position: fixed; inset: 0; background: rgba(10,10,10,.94); z-index: 100;
-    display: none; align-items: center; justify-content: center; flex-direction: column;
+    position: fixed; inset: 0; z-index: 100; display: none;
+    background: var(--bg);
+    --ease: cubic-bezier(.65, 0, .35, 1);
   }
-  .lightbox.open { display: flex; }
-  .lightbox img { max-width: 90vw; max-height: 74vh; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
-  .lb-info { color: #eee; text-align: center; margin-top: 16px; }
-  .lb-info small { color: #999; }
-  .lb-exif { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
-  .lb-exif .chip { background: rgba(255,255,255,.08); border-radius: 999px; padding: 4px 14px; font-size: 13px; color: #eee; }
-  .lb-exif .chip b { color: #8f8f8f; font-weight: 400; margin-right: 6px; }
+  .lightbox.open { display: block; }
+  .lightbox:not(.detail) { cursor: pointer; } /* 大图展示时点一下可以直接跳到分析 */
+  #lbImg {
+    position: fixed; object-fit: cover; border-radius: 10px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.22);
+    opacity: 0; transform: scale(.96);
+    transition: left .9s var(--ease), top .9s var(--ease), width .9s var(--ease), height .9s var(--ease),
+                opacity .45s ease, transform .45s ease;
+  }
+  .lightbox.showing #lbImg { opacity: 1; transform: none; }
+  .lightbox.instant #lbImg { transition: none; }
+
+  .lb-panel {
+    position: fixed; top: 48px; bottom: 48px; left: var(--panel-left, 55vw); right: 56px;
+    overflow-y: auto; padding-right: 8px;
+    opacity: 0; transform: translateX(40px); pointer-events: none;
+    transition: opacity .6s ease .45s, transform .7s var(--ease) .35s, left .9s var(--ease);
+  }
+  .lightbox.detail .lb-panel { opacity: 1; transform: none; pointer-events: auto; cursor: auto; }
+  .lb-nav { display: flex; align-items: center; gap: 14px; color: var(--accent); font-size: 13px; letter-spacing: .15em; margin-bottom: 22px; }
   .lb-btn {
-    position: absolute; background: rgba(255,255,255,.1); border: none; color: #fff;
-    width: 48px; height: 48px; border-radius: 50%; font-size: 22px; cursor: pointer;
+    width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--text); transition: all .2s;
   }
-  .lb-btn:hover { background: rgba(255,255,255,.2); }
-  .lb-close { top: 20px; right: 20px; }
-  .lb-prev { left: 20px; top: 50%; transform: translateY(-50%); }
-  .lb-next { right: 20px; top: 50%; transform: translateY(-50%); }
+  .lb-btn:hover { background: var(--text); color: var(--bg); }
+  .lb-close { position: fixed; top: 20px; right: 20px; z-index: 2; }
+  .lb-panel h2 { font-family: "Noto Serif SC", serif; font-size: 40px; line-height: 1.2; }
+  .lb-meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .lb-exif { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .lb-exif .chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; font-size: 13px; }
+  .lb-exif .chip b { color: var(--muted); font-weight: 400; margin-right: 6px; }
+  .lb-heading {
+    font-family: "Noto Serif SC", serif; font-size: 20px;
+    margin-top: 32px; padding-top: 24px; margin-bottom: 14px; border-top: 1px solid var(--line);
+  }
+  .lb-analysis { font-size: 16px; line-height: 1.85; }
+  .lb-analysis p + p { margin-top: 14px; }
+  .lb-analysis img { max-width: 100%; border-radius: 8px; margin: 10px 0; display: block; }
+  .lb-analysis.empty {
+    border: 2px dashed var(--line); border-radius: 12px; padding: 70px 24px;
+    text-align: center; color: var(--muted); font-size: 14px;
+  }
 
   /* ===================== 对照组 ===================== */
   .compare { border-top: 1px solid var(--line); padding: 70px 0 30px; }
@@ -222,11 +250,20 @@
 <footer>© 2026 Weiyu · Capturing life through the lens</footer>
 
 <div class="lightbox" id="lightbox">
-  <button class="lb-btn lb-close" id="lbClose">✕</button>
-  <button class="lb-btn lb-prev" id="lbPrev">‹</button>
   <img id="lbImg" alt="">
-  <div class="lb-info"><div id="lbTitle"></div><small id="lbMeta"></small><div class="lb-exif" id="lbExif"></div></div>
-  <button class="lb-btn lb-next" id="lbNext">›</button>
+  <aside class="lb-panel">
+    <div class="lb-nav">
+      <button class="lb-btn" id="lbPrev" title="Previous">‹</button>
+      <span id="lbCount"></span>
+      <button class="lb-btn" id="lbNext" title="Next">›</button>
+    </div>
+    <h2 id="lbTitle"></h2>
+    <div class="lb-meta" id="lbMeta"></div>
+    <div class="lb-exif" id="lbExif"></div>
+    <h3 class="lb-heading">Analysis</h3>
+    <div class="lb-analysis" id="lbAnalysis"></div>
+  </aside>
+  <button class="lb-btn lb-close" id="lbClose" title="Close">✕</button>
 </div>
 
 <script>
@@ -277,6 +314,50 @@ const PHOTOS = [
   { file: "DSC_1586.jpg",  title: "Waiting",               place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/250s",  iso: 64,   focal: "81mm" },
   { file: "DSC_1587.jpg",  title: "Down the Steps",        place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/160s",  iso: 64,   focal: "24mm" },
 ];
+
+/* ==========================================================
+   ✍️ 每张照片的分析 —— 点开照片后显示在右边
+   写在两个 ` 之间；空一行 = 分段；留空 `` 会显示 "Analysis coming soon"
+   ========================================================== */
+const ANALYSIS = {
+  "DSC0211.jpg":    ``,   // Garden Path
+  "DSC0249.jpg":    ``,   // Lone Bird
+  "DSC0981.jpg":    ``,   // Paper Umbrellas
+  "DSC_0049.jpg":   ``,   // Vine Bridge
+  "DSC_0085.jpg":   ``,   // Rooftop Statue
+  "DSC_0091.jpg":   ``,   // Quiet Street
+  "DSC_0135.jpg":   ``,   // Glacier
+  "DSC_0137.jpg":   ``,   // Crow on the Rail
+  "DSC_0141.jpg":   ``,   // Taking Off
+  "DSC_0143.jpg":   ``,   // Sailboat
+  "DSC_0153.jpg":   ``,   // Misty Peaks
+  "DSC_0181.jpg":   ``,   // Lake & Mountains
+  "DSC_0182.jpg":   ``,   // On Deck
+  "DSC_0184.jpg":   ``,   // Traveler
+  "DSC_0191.jpg":   ``,   // By the Lake
+  "DSC_0397.jpg":   ``,   // Fallen Leaves
+  "DSC_0439.jpg":   ``,   // Golden Eaves
+  "DSC_0444.jpg":   ``,   // Incense
+  "DSC_0456.jpg":   ``,   // Lone Boat
+  "DSC_0468.jpg":   ``,   // Afternoon Nap
+  "DSC_0499.jpg":   ``,   // Panda
+  "DSC_0520.jpg":   ``,   // Up a Tree
+  "DSC_1239.jpg":   ``,   // Wing Stretch
+  "DSC_1269.jpg":   ``,   // Black Swan
+  "DSC_1522.jpg":   ``,   // Night Road
+  "DSC_1538.jpg":   ``,   // Through the Ring
+  "DSC_1541.jpg":   ``,   // Two Faces
+  "DSC_1544.jpg":   ``,   // Garden Walk
+  "DSC_1546.jpg":   ``,   // Laughing Buddha
+  "DSC_1552.jpg":   ``,   // Supertree
+  "DSC_1558.jpg":   ``,   // Mother Hen
+  "DSC_1567.jpg":   ``,   // Silhouette
+  "DSC_1573.jpg":   ``,   // In the Frame
+  "DSC_1577.jpg":   ``,   // Resting in the Circle
+  "DSC_1584.jpg":   ``,   // Fading Wheel
+  "DSC_1586.jpg":   ``,   // Waiting
+  "DSC_1587.jpg":   ``,   // Down the Steps
+};
 
 const fan = document.getElementById("fan");
 let visible = [];
@@ -459,30 +540,108 @@ function endDrag() {
 fan.addEventListener("pointerup", endDrag);
 fan.addEventListener("pointercancel", endDrag);
 
-// 大图查看
+// ===================== 大图查看 + 分析 =====================
+// 点开照片：先大图展示 1 秒，然后照片缩到左上方，右边出现分析区域
+const INTRO_TIME = 1000;   // 大图展示多久（毫秒）后缩到左上方
 const lb = document.getElementById("lightbox");
-let lbList = [];   // 当前大图浏览的照片列表（扇子 或 某一组对照）
-function openLb(i, list = visible) { lbList = list; lbIndex = i; showLb(); lb.classList.add("open"); document.body.style.overflow = "hidden"; }
+const lbImg = document.getElementById("lbImg");
+let lbList = [];           // 当前浏览的照片列表（扇子 或 某一组对照）
+let lbRatio = 1.5;         // 当前照片的宽高比
+let introTimer = null;
+const isDetail = () => lb.classList.contains("detail");
+
+// 照片的位置和大小：大图展示时居中铺满，分析模式时在左上方
+function geom(detail) {
+  const vw = innerWidth, vh = innerHeight;
+  const maxW = detail ? vw * 0.45 - 48 : vw - 160;   // 分析模式：照片缩小到左上方
+  const maxH = detail ? vh * 0.7 : vh - 120;
+  let w = maxW, h = w / lbRatio;
+  if (h > maxH) { h = maxH; w = h * lbRatio; }
+  return detail ? { left: 48, top: 48, w, h } : { left: (vw - w) / 2, top: (vh - h) / 2, w, h };
+}
+function placeImg() {
+  const g = geom(isDetail());
+  Object.assign(lbImg.style, { left: g.left + "px", top: g.top + "px", width: g.w + "px", height: g.h + "px" });
+  const d = geom(true);
+  lb.style.setProperty("--panel-left", d.left + d.w + 64 + "px");
+}
+
+// 先用小图（已经加载过）马上显示，大图下载好后再换上
+function loadPhoto(p) {
+  const probe = new Image();
+  probe.src = `photos/thumb/${p.file}`;
+  lbImg.src = probe.src;
+  lbImg.alt = p.title;
+  return probe.decode().catch(() => {}).then(() => {
+    if (probe.naturalWidth) lbRatio = probe.naturalWidth / probe.naturalHeight;
+    const hi = new Image();
+    hi.onload = () => { if (lbList[lbIndex] === p) lbImg.src = hi.src; };
+    hi.src = `photos/full/${p.file}`;
+  });
+}
+
+function fillPanel(p) {
+  document.getElementById("lbCount").textContent =
+    `${String(lbIndex + 1).padStart(2, "0")} / ${String(lbList.length).padStart(2, "0")}`;
+  document.getElementById("lbTitle").textContent = p.title;
+  document.getElementById("lbMeta").textContent = [p.place, p.date].filter(Boolean).join(" · ");
+  document.getElementById("lbExif").innerHTML = [
+    ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
+  ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("");
+  const text = (ANALYSIS[p.file] || "").trim();
+  const box = document.getElementById("lbAnalysis");
+  box.classList.toggle("empty", !text);
+  box.innerHTML = text ? text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("") : "Analysis coming soon";
+  document.querySelector(".lb-panel").scrollTop = 0;
+}
+
+function openLb(i, list = visible) {
+  lbList = list; lbIndex = i;
+  const p = lbList[lbIndex];
+  clearTimeout(introTimer);
+  lb.classList.remove("detail", "showing");
+  lb.classList.add("open", "instant");
+  document.body.style.overflow = "hidden";
+  fillPanel(p);
+  loadPhoto(p).then(() => {
+    placeImg();
+    lbImg.getBoundingClientRect();     // 先摆好位置（不要动画）
+    lb.classList.remove("instant");
+    lb.classList.add("showing");       // 淡入
+    introTimer = setTimeout(toDetail, INTRO_TIME);
+  });
+}
+function toDetail() {
+  clearTimeout(introTimer);
+  if (!lb.classList.contains("open") || isDetail()) return;
+  lb.classList.add("detail");
+  placeImg();                          // 照片慢慢缩到左上方
+}
 function closeLb() {
-  lb.classList.remove("open"); document.body.style.overflow = "";
+  clearTimeout(introTimer);
+  lb.classList.remove("open", "detail", "showing");
+  document.body.style.overflow = "";
   if (lbList === visible) turnToPhoto(lbIndex); // 从扇子打开的：关掉后扇子停在最后看的那张
 }
-function showLb() {
+function step(d) {
+  lbIndex = (lbIndex + d + lbList.length) % lbList.length;
   const p = lbList[lbIndex];
-  const img = document.getElementById("lbImg");
-  img.hidden = !p.file;
-  if (p.file) img.src = `photos/full/${p.file}`;
-  document.getElementById("lbTitle").textContent = p.title;
-  document.getElementById("lbExif").innerHTML = p.aperture ? [
-    ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
-  ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("") : "";
-  document.getElementById("lbMeta").textContent = [p.place, p.date, `${lbIndex + 1}/${lbList.length}`].filter(Boolean).join(" · ");
+  toDetail();
+  fillPanel(p);
+  loadPhoto(p).then(placeImg);
 }
-function step(d) { lbIndex = (lbIndex + d + lbList.length) % lbList.length; showLb(); }
-document.getElementById("lbClose").onclick = closeLb;
+
+document.getElementById("lbClose").onclick = e => { e.stopPropagation(); closeLb(); };
 document.getElementById("lbPrev").onclick = e => { e.stopPropagation(); step(-1); };
 document.getElementById("lbNext").onclick = e => { e.stopPropagation(); step(1); };
-lb.onclick = e => { if (e.target === lb) closeLb(); };
+lb.onclick = e => {
+  if (!isDetail()) toDetail();             // 大图展示时点一下：直接进入分析
+  else if (e.target === lb) closeLb();     // 分析模式下点空白处：关闭
+};
+addEventListener("resize", () => {
+  if (!lb.classList.contains("open")) return;
+  lb.classList.add("instant"); placeImg(); lbImg.getBoundingClientRect(); lb.classList.remove("instant");
+});
 document.addEventListener("keydown", e => {
   if (!lb.classList.contains("open")) {
     if (e.key === "ArrowLeft") turn(-1);
