@@ -224,6 +224,7 @@
   }
   .lb-btn:hover { background: var(--text); color: var(--bg); }
   .lb-close { position: fixed; top: 20px; right: 20px; z-index: 2; }
+  .lb-panel h2:empty { display: none; }
   .lb-panel h2 { font-family: "Noto Serif SC", serif; font-size: 40px; line-height: 1.2; }
   .lb-meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
   .lb-exif { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
@@ -487,6 +488,7 @@ const ANALYSIS = {
 
 /* ==========================================================
    🗑 排除的照片 —— 右上角垃圾桶打开的页面
+   这里的照片不显示题目（// 后面的名字只是方便找照片）
    照片分成三类，每一类写一段整体理由（EXCLUDE_GROUPS 里的 reason）
    每张照片的 group 决定它属于哪一类；reason 可以留空，写了就是这张照片额外的说明
    （写在两个 ` 之间；空一行 = 分段）
@@ -501,43 +503,43 @@ const EXCLUDE_GROUPS = [
 ];
 
 const EXCLUDED = [
-  { file: "DSC_0049.jpg",  title: "Vine Bridge",           date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",
+  { file: "DSC_0049.jpg",  date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",   // Vine Bridge
     group: "weak",    reason: `` },
-  { file: "DSC_0056.jpg",  title: "Rooster",              date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",
+  { file: "DSC_0056.jpg",  date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",   // Rooster
     group: "record",  reason: `` },
-  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",       date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",
+  { file: "DSC_0138.jpg",  date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",   // Blue Sky Perch
     group: "weak",    reason: `` },
-  { file: "DSC_0149.jpg",  title: "Castle in the Trees",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",
+  { file: "DSC_0149.jpg",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",   // Castle in the Trees
     group: "record",  reason: `` },
-  { file: "DSC_0181.jpg",  title: "Lake & Mountains",     date: "Apr 8, 2026",  aperture: "f/13",  shutter: "1/640s",  iso: 320, focal: "46mm",
+  { file: "DSC_0181.jpg",  date: "Apr 8, 2026",  aperture: "f/13",  shutter: "1/640s",  iso: 320, focal: "46mm",   // Lake & Mountains
     group: "record",  reason: `` },
-  { file: "DSC_0182.jpg",  title: "On Deck",              date: "Apr 8, 2026",  aperture: "f/11",  shutter: "1/500s",  iso: 320, focal: "46mm",
+  { file: "DSC_0182.jpg",  date: "Apr 8, 2026",  aperture: "f/11",  shutter: "1/500s",  iso: 320, focal: "46mm",   // On Deck
     group: "record",  reason: `` },
-  { file: "DSC_0184.jpg",  title: "Traveler",             date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 320, focal: "58mm",
+  { file: "DSC_0184.jpg",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 320, focal: "58mm",   // Traveler
     group: "record",  reason: `` },
-  { file: "DSC_0358.jpg",  title: "Monitor Lizard",       date: "May 28, 2026", aperture: "f/4",   shutter: "1/100s",  iso: 200, focal: "120mm",
+  { file: "DSC_0358.jpg",  date: "May 28, 2026", aperture: "f/4",   shutter: "1/100s",  iso: 200, focal: "120mm",   // Monitor Lizard
     group: "record",  reason: `` },
-  { file: "DSC_0444.jpg",  title: "Incense",              date: "Jun 28, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 250, focal: "120mm",
+  { file: "DSC_0444.jpg",  date: "Jun 28, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 250, focal: "120mm",   // Incense
     group: "record",  reason: `` },
-  { file: "DSC_0468.jpg",  title: "Afternoon Nap",        date: "Jul 1, 2026",  aperture: "f/4",   shutter: "1/25s",   iso: 400, focal: "120mm",
+  { file: "DSC_0468.jpg",  date: "Jul 1, 2026",  aperture: "f/4",   shutter: "1/25s",   iso: 400, focal: "120mm",   // Afternoon Nap
     group: "subject", reason: `` },
-  { file: "DSC_0499.jpg",  title: "Panda",                date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",
+  { file: "DSC_0499.jpg",  date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",   // Panda
     group: "subject", reason: `` },
-  { file: "DSC_1269.jpg",  title: "Black Swan",           date: "Jul 25, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 400, focal: "120mm",
+  { file: "DSC_1269.jpg",  date: "Jul 25, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 400, focal: "120mm",   // Black Swan
     group: "record",  reason: `` },
-  { file: "DSC_1544.jpg",  title: "Garden Walk",          date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
+  { file: "DSC_1544.jpg",  date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",   // Garden Walk
     group: "weak",    reason: `` },
-  { file: "DSC_1546.jpg",  title: "Laughing Buddha",      date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/125s",  iso: 100, focal: "120mm",
+  { file: "DSC_1546.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/125s",  iso: 100, focal: "120mm",   // Laughing Buddha
     group: "subject", reason: `` },
-  { file: "DSC_1558.jpg",  title: "Mother Hen",           date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
+  { file: "DSC_1558.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",   // Mother Hen
     group: "subject", reason: `` },
-  { file: "DSC_1564.jpg",  title: "Foraging",             date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
+  { file: "DSC_1564.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",   // Foraging
     group: "record",  reason: `` },
-  { file: "DSC_1567.jpg",  title: "Silhouette",           date: "Oct 11, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 64,  focal: "59mm",
+  { file: "DSC_1567.jpg",  date: "Oct 11, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 64,  focal: "59mm",   // Silhouette
     group: "weak",    reason: `` },
-  { file: "DSC_1586.jpg",  title: "Waiting",              date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/250s",  iso: 64,  focal: "81mm",
+  { file: "DSC_1586.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/250s",  iso: 64,  focal: "81mm",   // Waiting
     group: "subject", reason: `` },
-  { file: "DSC_1587.jpg",  title: "Down the Steps",       date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
+  { file: "DSC_1587.jpg",  date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",   // Down the Steps
     group: "weak",    reason: `` },
 ];
 
@@ -551,8 +553,7 @@ function renderExcluded() {
   box.innerHTML = EXCLUDE_GROUPS.map((g, gi) => {
     const reason = g.reason.trim();
     const cards = EX_ORDER.map((p, i) => p.group !== g.id ? "" : `<figure class="ex-card" data-i="${i}">
-        <div class="ex-img"><img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy"><span class="ex-stamp">Excluded</span></div>
-        <figcaption><b>${p.title}</b></figcaption>
+        <div class="ex-img"><img src="photos/thumb/${p.file}" alt="Excluded photo" loading="lazy"><span class="ex-stamp">Excluded</span></div>
       </figure>`).join("");
     const count = EX_ORDER.filter(p => p.group === g.id).length;
     return `<section class="ex-group">
@@ -782,7 +783,7 @@ function loadPhoto(p) {
   const probe = new Image();
   probe.src = `photos/thumb/${p.file}`;
   lbImg.src = probe.src;
-  lbImg.alt = p.title;
+  lbImg.alt = p.title || "Excluded photo";
   return probe.decode().catch(() => {}).then(() => {
     if (probe.naturalWidth) lbRatio = probe.naturalWidth / probe.naturalHeight;
     const hi = new Image();
@@ -794,7 +795,7 @@ function loadPhoto(p) {
 function fillPanel(p) {
   document.getElementById("lbCount").textContent =
     `${String(lbIndex + 1).padStart(2, "0")} / ${String(lbList.length).padStart(2, "0")}`;
-  document.getElementById("lbTitle").textContent = p.title;
+  document.getElementById("lbTitle").textContent = p.title || "";
   document.getElementById("lbMeta").textContent = [p.place, p.date].filter(Boolean).join(" · ");
   document.getElementById("lbExif").innerHTML = [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
