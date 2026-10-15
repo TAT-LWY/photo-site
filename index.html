@@ -438,7 +438,6 @@ const PHOTOS = [
   { file: "DSC_0141.jpg",  title: "Taking Off",            place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
   { file: "DSC_0143.jpg",  title: "Sailboat",              place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 250,  focal: "120mm" },
   { file: "DSC_0153.jpg",  title: "Misty Peaks",           place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0181.jpg",  title: "Lake & Mountains",      place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "46mm" },
   { file: "DSC_0191.jpg",  title: "By the Lake",           place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "24mm" },
   { file: "DSC_0397.jpg",  title: "Fallen Leaves",         place: "", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },
   { file: "DSC_0439.jpg",  title: "Golden Eaves",          place: "", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },
@@ -471,7 +470,6 @@ const ANALYSIS = {
   "DSC_0141.jpg":   { intended: "", analysis: `` },   // Taking Off
   "DSC_0143.jpg":   { intended: "", analysis: `` },   // Sailboat
   "DSC_0153.jpg":   { intended: "", analysis: `` },   // Misty Peaks
-  "DSC_0181.jpg":   { intended: "", analysis: `` },   // Lake & Mountains
   "DSC_0191.jpg":   { intended: "", analysis: `` },   // By the Lake
   "DSC_0397.jpg":   { intended: "", analysis: `` },   // Fallen Leaves
   "DSC_0439.jpg":   { intended: "", analysis: `` },   // Golden Eaves
@@ -504,12 +502,14 @@ const EXCLUDE_GROUPS = [
 
 const EXCLUDED = [
   { file: "DSC_0049.jpg",  title: "Vine Bridge",           date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",
-    group: "weak",    reason: `Although it uses leading lines, symmetrical composition, and natural framing to guide the viewer's attention, its ability to communicate a clear emotion is relatively weak. The handrails lead the viewer's sight towards the end, but the bushes at the end do not provide a strong focal point, making the image feel less engaging.` },
+    group: "weak",    reason: `` },
   { file: "DSC_0056.jpg",  title: "Rooster",              date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",
     group: "record",  reason: `` },
   { file: "DSC_0138.jpg",  title: "Blue Sky Perch",       date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",
     group: "weak",    reason: `` },
   { file: "DSC_0149.jpg",  title: "Castle in the Trees",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",
+    group: "record",  reason: `` },
+  { file: "DSC_0181.jpg",  title: "Lake & Mountains",     date: "Apr 8, 2026",  aperture: "f/13",  shutter: "1/640s",  iso: 320, focal: "46mm",
     group: "record",  reason: `` },
   { file: "DSC_0182.jpg",  title: "On Deck",              date: "Apr 8, 2026",  aperture: "f/11",  shutter: "1/500s",  iso: 320, focal: "46mm",
     group: "record",  reason: `` },
