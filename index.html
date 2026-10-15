@@ -72,6 +72,48 @@
   body.view-excluded .back-link { display: inline; }
   body.view-excluded .trash-btn { background: var(--text); color: var(--bg) !important; border-color: var(--text); }
   body.view-excluded #gallery, body.view-excluded #compare, body.view-excluded #contact { display: none; }
+  .vote-nav-btn {
+    padding: 6px 16px; border-radius: 999px; background: var(--accent); color: #fff !important; font-weight: 600;
+  }
+  .vote-nav-btn:hover { filter: brightness(1.08); }
+  body.view-vote .nav-links > a[href^="#"] { display: none; }
+  body.view-vote .back-link { display: inline; }
+  body.view-vote .vote-nav-btn { display: none; }
+  body.view-vote #gallery, body.view-vote #compare, body.view-vote #contact { display: none; }
+
+  /* Vote 页面 */
+  .vote-page { padding: 28px 0 60px; }
+  .vp-intro { color: var(--muted); margin: -8px 0 28px; max-width: 760px; }
+  .vp-main { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr); gap: 56px; align-items: center; }
+  .vp-photo {
+    height: 64vh; display: flex; align-items: center; justify-content: center;
+    background: var(--surface); border-radius: 16px; overflow: hidden;
+  }
+  .vp-photo img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; transition: opacity .35s; }
+  .vp-photo img.fading, #vpBox.fading { opacity: 0; }
+  #vpBox { transition: opacity .3s; min-height: 330px; }
+  .vp-count { font-size: 12px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); }
+  .vp-step { font-size: 12px; color: var(--muted); margin-top: 18px; }
+  .vp-q { font-family: "Noto Serif SC", serif; font-size: 24px; line-height: 1.35; margin: 4px 0 22px; }
+  .vp-btns { display: flex; flex-direction: column; gap: 12px; }
+  .vp-btns .vote-btn { width: 100%; text-align: left; padding: 13px 22px; font-size: 16px; border-radius: 14px; }
+  .vp-btns .vote-btn.unsure { padding: 9px 22px; font-size: 14px; border-width: 1.5px; }
+  .vp-done { font-family: "Noto Serif SC", serif; font-size: 24px; margin-top: 18px; }
+  .vp-your { color: var(--muted); font-size: 14px; margin-top: 10px; }
+  .vp-actions { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+  .vp-link-btn {
+    padding: 9px 18px; border-radius: 999px; font-size: 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--text); text-decoration: none;
+  }
+  .vp-link-btn:hover { border-color: var(--text); }
+  .vp-link-btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .vp-nav { display: flex; justify-content: space-between; margin-top: 26px; }
+  .vp-nav button { background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 4px 0; }
+  .vp-nav button:hover { color: var(--text); }
+  .vp-progress { height: 6px; background: var(--line); border-radius: 999px; margin-top: 34px; overflow: hidden; }
+  #vpProgress { height: 100%; width: 0; background: var(--accent); transition: width .6s; }
+  .vp-progress-text { font-size: 13px; color: var(--muted); margin-top: 8px; text-align: center; }
+
   .excluded { padding: 28px 0 90px; }
   .excluded-intro { color: var(--muted); margin: -8px 0 36px; max-width: 720px; }
   .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
@@ -162,7 +204,7 @@
   .lightbox.instant #lbImg { transition: none; }
 
   .lb-panel {
-    position: fixed; top: 48px; bottom: 215px; left: var(--panel-left, 55vw); right: 56px;
+    position: fixed; top: 48px; bottom: 175px; left: var(--panel-left, 55vw); right: 56px;
     overflow-y: auto; padding-right: 8px;
     opacity: 0; transform: translateX(40px); pointer-events: none;
     transition: opacity .6s ease .45s, transform .7s var(--ease) .35s, left .9s var(--ease);
@@ -191,46 +233,36 @@
   .lb-analysis { font-size: 16px; line-height: 1.85; }
   .lb-analysis p + p { margin-top: 14px; }
   .lb-analysis img { max-width: 100%; border-radius: 8px; margin: 10px 0; display: block; }
-  /* 投票（三步：正负 → 唤醒度 → 具体情绪） */
+  /* 照片下方：投票结果（只显示结果，投票在 Vote 页面） */
   .lb-vote {
-    position: fixed; left: 48px; right: 56px; bottom: 26px; display: flex; justify-content: center;
+    position: fixed; left: 48px; right: 56px; bottom: 30px; display: flex; justify-content: center;
     opacity: 0; transform: translateY(24px); pointer-events: none;
     transition: opacity .6s ease .55s, transform .7s var(--ease) .45s;
   }
   .lightbox.detail .lb-vote { opacity: 1; transform: none; pointer-events: auto; cursor: auto; }
-  .vote-inner { width: min(980px, 100%); text-align: center; transition: opacity .3s; }
-  .vote-inner.fading { opacity: 0; }
-  .vote-step { font-size: 11px; letter-spacing: .15em; color: var(--accent); text-transform: uppercase; }
-  .vote-q { font-family: "Noto Serif SC", serif; font-size: 17px; margin: 2px 0 12px; }
-  .vote-row { display: flex; align-items: center; gap: 16px; }
-  .vote-btns { display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; }
+  .res { width: min(980px, 100%); }
+  .res-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .res-title { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .res-head a { font-size: 13px; color: var(--accent); text-decoration: none; }
+  .res-head a:hover { text-decoration: underline; }
+  .res-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 14px; margin-top: 7px; }
+  .res-label { font-size: 13px; color: var(--muted); text-align: right; }
+  .res-bar { position: relative; display: flex; height: 24px; border-radius: 999px; overflow: hidden; background: var(--line); }
+  .res-seg {
+    flex: 0 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    background: var(--c); color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35); transition: flex-grow .9s cubic-bezier(.22, 1, .36, 1);
+  }
+  .res-seg.sep { border-left: 2px solid var(--bg); }
+  .res-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
+
+  /* 投票按钮（Vote 页面用） */
   .vote-btn {
-    flex: none; min-width: 150px; padding: 8px 18px; border-radius: 999px; font-size: 14px; font-weight: 600;
+    padding: 8px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; line-height: 1.25;
     cursor: pointer; border: 2px solid var(--c); color: var(--c); background: var(--surface); transition: all .2s;
-    line-height: 1.25;
   }
-  .vote-btn small { display: block; font-size: 11px; font-weight: 400; opacity: .8; }
-  .vote-btn:hover:not(:disabled) { transform: translateY(-2px); }
-  .vote-btn.mine { background: var(--c); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
-  .vote-btn:disabled { cursor: default; }
-  .vote-btn.unsure { min-width: 120px; padding: 5px 14px; font-size: 13px; border-width: 1.5px; }
-  .vote-unsure { margin-top: 10px; }
-  .vote-btn:disabled:not(.mine) { opacity: .45; }
-  .vote-bar { flex: 1; display: flex; height: 34px; border-radius: 999px; overflow: hidden; position: relative; background: var(--line); }
-  .vote-seg {
-    position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
-    color: #fff; font-weight: 700; font-size: 14px; white-space: nowrap; background: var(--c);
-    text-shadow: 0 1px 2px rgba(0,0,0,.35);
-    flex: 0 1 0; min-width: 0;   /* 宽度按票数比例分（flex-grow），保证正好填满 */
-    transition: flex-grow .9s cubic-bezier(.22, 1, .36, 1), background .4s;
-  }
-  .vote-seg.sep { border-left: 3px solid var(--bg); }
-  .vote-bar.hidden-results .vote-seg { background: var(--line); color: transparent; text-shadow: none; }
-  .vote-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; pointer-events: none; }
-  .vote-foot { color: var(--muted); font-size: 12px; margin-top: 10px; }
-  .vote-foot button { background: none; border: none; color: inherit; font: inherit; cursor: pointer; text-decoration: underline; padding: 0; }
-  .vote-foot button:hover { color: var(--text); }
-  .vote-foot .crumb.current { color: var(--text); font-weight: 600; text-decoration: none; }
+  .vote-btn small { display: block; font-size: 12px; font-weight: 400; opacity: .8; }
+  .vote-btn:hover { background: var(--c); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
 
   .lb-analysis.empty {
     border: 2px dashed var(--line); border-radius: 12px; padding: 70px 24px;
@@ -293,6 +325,7 @@
       <a href="#compare">Compare</a>
       <a href="#contact">Contact</a>
       <a href="./" class="back-link">← Back to portfolio</a>
+      <a href="?view=vote" class="vote-nav-btn">Vote</a>
       <a href="?view=excluded" class="trash-btn" id="trashBtn" title="Excluded photos" aria-label="Excluded photos">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>
@@ -330,6 +363,21 @@
       <a href="mailto:203283@student.nlcssingapore.sg">School Email <span>203283@student.nlcssingapore.sg →</span></a>
     </div>
   </section>
+  <section class="vote-page" id="votePage" hidden>
+    <h2 class="section-title">Vote</h2>
+    <p class="vp-intro">Look at each photo and choose the emotion you think it <b>expresses</b>. There are no right or wrong answers, so just go with your first impression.</p>
+    <div class="vp-main">
+      <div class="vp-photo"><img id="vpImg" alt=""></div>
+      <div class="vp-side">
+        <div class="vp-count" id="vpCount"></div>
+        <div id="vpBox"></div>
+        <div class="vp-nav"><button id="vpPrev">← Previous photo</button><button id="vpNext">Next photo →</button></div>
+      </div>
+    </div>
+    <div class="vp-progress"><div id="vpProgress"></div></div>
+    <div class="vp-progress-text" id="vpProgressText"></div>
+  </section>
+
   <section class="excluded" id="excluded" hidden>
     <h2 class="section-title">Excluded photos</h2>
     <p class="excluded-intro">Photos I took but decided not to use in this research, and why. This shows how the photos in the portfolio were selected.</p>
@@ -358,7 +406,7 @@
     <div class="lb-analysis" id="lbAnalysis"></div>
   </aside>
   <div class="lb-vote">
-    <div class="vote-inner" id="voteBox"></div>
+    <div class="res" id="resBox"></div>
   </div>
   <button class="lb-btn lb-close" id="lbClose" title="Close">✕</button>
 </div>
@@ -727,8 +775,8 @@ function fillPanel(p) {
   box.innerHTML = text ? text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("")
     : isExcluded ? "Reason coming soon" : "Analysis coming soon";
   document.querySelector(".lb-panel").scrollTop = 0;
-  if (isExcluded) { if (voteUnsub) { voteUnsub(); voteUnsub = null; } voteFile = null; }
-  else watchVotes(p.file);
+  if (isExcluded) stopResults();
+  else watchResults(p.file);
 }
 
 function openLb(i, list = visible) {
@@ -755,8 +803,7 @@ function toDetail() {
 }
 function closeLb() {
   clearTimeout(introTimer);
-  if (voteUnsub) { voteUnsub(); voteUnsub = null; }
-  clearTimeout(advanceTimer); voteFile = null;
+  stopResults();
   lb.classList.remove("open", "detail", "showing");
   document.body.style.overflow = "";
   if (lbList === visible) turnToPhoto(lbIndex); // 从扇子打开的：关掉后扇子停在最后看的那张
@@ -782,6 +829,11 @@ addEventListener("resize", () => {
 });
 document.addEventListener("keydown", e => {
   if (!lb.classList.contains("open")) {
+    if (VIEW === "vote") {   // Vote 页面：左右键换照片
+      if (e.key === "ArrowLeft") vpShow((vpIndex - 1 + vpOrder.length) % vpOrder.length);
+      if (e.key === "ArrowRight") vpShow((vpIndex + 1) % vpOrder.length);
+      return;
+    }
     if (e.key === "ArrowLeft") turn(-1);
     if (e.key === "ArrowRight") turn(1);
     return;
@@ -802,36 +854,29 @@ lb.addEventListener("touchend", e => {
 
 // ===================== 投票：正负 → 唤醒度 → 具体情绪 =====================
 /* 基于 Russell 的情绪二维模型（valence 正负 × arousal 唤醒度）
-   第 1 步：Positive / Negative
-   第 2 步：Low arousal（平静）/ High arousal（激动）
-   第 3 步：从这个象限的 3 个情绪词里选一个
-   每一步投完都会显示这一步的投票百分比，然后进入下一步 */
+   第 1 步：Positive / Negative     第 2 步：Low / High arousal     第 3 步：这个象限的 3 个情绪词
+   每一步都可以选 "I'm not sure"，选了就在这一步结束
+   投票在 Vote 页面（?view=vote）进行；点开照片时只显示结果 */
 const EMOTIONS = {                         // 改情绪词时，Firebase 的规则也要一起改
   positive_low:  ["Calm", "Peaceful", "Content"],
   positive_high: ["Joy", "Excitement", "Awe"],
   negative_low:  ["Sadness", "Loneliness", "Melancholy"],
   negative_high: ["Fear", "Tension", "Anxiety"],
 };
-const COLORS = {                           // 每个选项在进度条上的颜色
-  positive: "#e9a23b", negative: "#5a6d94",
-  positive_low: "#f0bd5e", positive_high: "#d27b1c",
-  negative_low: "#8496bd", negative_high: "#3d4c6e",
+const COLORS = {                           // 结果条和按钮的颜色
+  positive: "#e9a23b", negative: "#5a6d94", unsure: "#a39e95",
+  low: "#6f9e95", high: "#cc6a4c",
   positive_low_0: "#e8b43c", positive_low_1: "#d98a2b", positive_low_2: "#b9651d",
   positive_high_0: "#ef9a2e", positive_high_1: "#d4652a", positive_high_2: "#a9411d",
   negative_low_0: "#8a9dc7", negative_low_1: "#6479a8", negative_low_2: "#45578a",
   negative_high_0: "#5a6b96", negative_high_1: "#3b4970", negative_high_2: "#222b48",
-  unsure: "#a39e95",
 };
 const FIREBASE_CONFIG = {                   // Firebase 项目 weiyu-photo-votes（数据库在新加坡）
   projectId: "weiyu-photo-votes",
   databaseURL: "https://weiyu-photo-votes-default-rtdb.asia-southeast1.firebasedatabase.app",
 };
-const SHOW_RESULTS_BEFORE_VOTING = false;   // false = 每一步投完才能看到那一步的结果（避免被别人影响）
-const STEP_PAUSE = 1500;                    // 每一步显示结果多久（毫秒）后进入下一步
 
-let db = null, fb = null, voteUnsub = null;
-let counts = {};                            // 当前照片所有选项的票数
-let voteFile = null, viewStep = 1, advanceTimer = null;
+let db = null, fb = null;
 const voteKey = file => file.replace(/\./g, "_");   // Firebase 的键名不能有 "."
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -842,7 +887,6 @@ const myPath = file => { try { return JSON.parse(store.get("path:" + file)) || {
 const savePath = (file, path) => store.set("path:" + file, JSON.stringify(path));
 const UNSURE = "unsure";                    // "I'm not sure"：选了就在这一步结束投票
 const currentStep = p => p.e || [p.v, p.a].includes(UNSURE) ? 4 : !p.v ? 1 : !p.a ? 2 : 3;   // 4 = 投完了
-const lastStep = p => p.e ? 3 : p.a ? 2 : 1;   // 最后投到了第几步
 
 const votesReady = (async () => {
   if (!FIREBASE_CONFIG) return;
@@ -860,17 +904,17 @@ function stepOptions(step, path) {
   if (step === 1) return {
     q: "Does this photo express a positive or negative emotion?",
     opts: [
-      { id: "positive", label: "☀ Positive", key: "positive" },
+      { id: "positive", label: "☀ Positive", key: "positive", color: COLORS.positive },
+      { id: "negative", label: "☾ Negative", key: "negative", color: COLORS.negative },
       unsure("unsure"),
-      { id: "negative", label: "Negative ☾", key: "negative" },
     ],
   };
   if (step === 2) return {
     q: `How intense is this ${path.v} emotion?`,
     opts: [
-      { id: "low", label: "Low arousal", sub: "calm, quiet", key: `${path.v}_low` },
+      { id: "low", label: "Low arousal", sub: "calm, quiet", key: `${path.v}_low`, color: COLORS.low },
+      { id: "high", label: "High arousal", sub: "intense, energetic", key: `${path.v}_high`, color: COLORS.high },
       unsure(`${path.v}_unsure`),
-      { id: "high", label: "High arousal", sub: "intense, energetic", key: `${path.v}_high` },
     ],
   };
   const quad = `${path.v}_${path.a}`;
@@ -883,97 +927,13 @@ function stepOptions(step, path) {
   };
 }
 
-function renderVote() {
-  const box = document.getElementById("voteBox");
-  const file = voteFile;
-  if (!file) return;
-  const path = myPath(file);
-  const reached = currentStep(path) === 4 ? lastStep(path) : currentStep(path);
-  const step = Math.min(viewStep, reached);   // 不能显示还没走到的步骤（例如刚点了 Change vote）
-  const { q, opts } = stepOptions(step, path);
-  const chosen = [path.v, path.a, path.e][step - 1];
-  const show = !!chosen || SHOW_RESULTS_BEFORE_VOTING;
-  const nums = opts.map(o => counts[o.key] || 0);
-  const total = nums.reduce((x, y) => x + y, 0);
-  const pcts = nums.map(n => total ? Math.round(n / total * 100) : Math.round(100 / opts.length));
-  const color = o => o.color || COLORS[o.key];
-  // 分隔线只加在"前面已经有可见段"的段上（0 票的段宽度为 0，不显示分隔线）
-  let seen = false;
-  const seps = nums.map(n => { const visible = !(show && total) || n > 0; const sep = visible && seen; if (visible) seen = true; return sep; });
-  const btn = o => `<button class="vote-btn${o.id === chosen ? " mine" : ""}${o.id === UNSURE ? " unsure" : ""}" data-id="${o.id}" style="--c:${color(o)}"
-      ${chosen ? "disabled" : ""}>${o.label}${o.sub ? `<small>${o.sub}</small>` : ""}</button>`;
-  const bar = `<div class="vote-bar${show && total ? "" : " hidden-results"}">
-      ${opts.map((o, i) => `<div class="vote-seg${seps[i] ? " sep" : ""}" style="flex-grow:${show && total ? nums[i] : 1};--c:${color(o)}">
-        ${show && total && pcts[i] >= 6 ? segText(o, pcts[i], step) : ""}</div>`).join("")}
-      ${!show ? `<span class="vote-hint">Vote to see results</span>` : !total ? `<span class="vote-hint">No votes yet</span>` : ""}
-    </div>`;
-  const row = step < 3   // 第 1、2 步：两边 PK，"I'm not sure" 在进度条下面
-    ? `<div class="vote-row">${btn(opts[0])}${bar}${btn(opts[2])}</div><div class="vote-unsure">${btn(opts[1])}</div>`
-    : `<div class="vote-btns">${opts.map(btn).join("")}</div><div class="vote-row">${bar}</div>`;
-
-  // 底部：你的投票路径（可以点回去看前面每一步的结果）+ 票数 + 重新投票
-  const crumbs = [];
-  const name = id => ({ positive: "☀ Positive", negative: "☾ Negative", low: "Low arousal", high: "High arousal", unsure: "Not sure" })[id]
-    || id[0].toUpperCase() + id.slice(1);
-  if (path.v) crumbs.push([1, name(path.v)]);
-  if (path.a) crumbs.push([2, name(path.a)]);
-  if (path.e) crumbs.push([3, name(path.e)]);
-  const foot = [
-    crumbs.length ? "Your vote: " + crumbs.map(([n, t]) =>
-      `<button class="crumb${n === step ? " current" : ""}" data-step="${n}">${t}</button>`).join(" › ") : "",
-    show ? `${total} vote${total === 1 ? "" : "s"} in this step` : "",
-    crumbs.length ? `<button class="redo">Change vote</button>` : "",
-    db ? "" : "offline: votes are only saved in this browser",
-  ].filter(Boolean).join(" · ");
-
-  box.innerHTML = `<div class="vote-step">Step ${step} of 3</div><div class="vote-q">${q}</div>${row}${foot ? `<div class="vote-foot">${foot}</div>` : ""}`;
-  box.querySelectorAll(".vote-btn:not(:disabled)").forEach(b => b.onclick = e => { e.stopPropagation(); castVote(step, b.dataset.id); });
-  box.querySelectorAll(".crumb").forEach(b => b.onclick = e => { e.stopPropagation(); goStep(+b.dataset.step); });
-  box.querySelector(".redo")?.addEventListener("click", e => { e.stopPropagation(); resetVote(); });
-}
-
-// 进度条每一段上的文字（太窄时只显示百分比）
-function segText(o, pct, step) {
-  const label = o.id === UNSURE ? "Not sure" : step === 3 ? o.label : "";
-  return label && pct >= 15 ? `${label} ${pct}%` : `${pct}%`;
-}
-
-// 切换显示第几步（带淡入淡出）
-function goStep(n) {
-  clearTimeout(advanceTimer);
-  if (n === viewStep) return;
-  const box = document.getElementById("voteBox");
-  box.classList.add("fading");
-  setTimeout(() => { viewStep = n; renderVote(); box.classList.remove("fading"); }, 300);
-}
-
-// 打开某张照片时：开始实时监听它的票数
-async function watchVotes(file) {
-  if (voteUnsub) { voteUnsub(); voteUnsub = null; }
-  clearTimeout(advanceTimer);
-  voteFile = file;
-  counts = {};
-  const p = myPath(file);
-  viewStep = currentStep(p) === 4 ? lastStep(p) : currentStep(p);
-  renderVote();
-  await votesReady;
-  if (voteFile !== file) return;
-  if (!db) { counts = JSON.parse(store.get("counts:" + file) || "{}"); renderVote(); return; }
-  voteUnsub = fb.onValue(fb.ref(db, "votes/" + voteKey(file)), snap => {
-    if (voteFile !== file) return;
-    counts = snap.val() || {};
-    renderVote();
-  });
-}
-
 // 写入票数变化：{ 选项键: +1 或 -1 }
 async function applyVotes(file, changes) {
   await votesReady;
-  if (!db) {
+  if (!db) {   // 连不上 Firebase 时：只存在这个浏览器里
     const c = JSON.parse(store.get("counts:" + file) || "{}");
     for (const [k, d] of Object.entries(changes)) c[k] = Math.max(0, (c[k] || 0) + d);
     store.set("counts:" + file, JSON.stringify(c));
-    counts = c; renderVote();
     return;
   }
   const updates = {};
@@ -981,30 +941,189 @@ async function applyVotes(file, changes) {
   fb.update(fb.ref(db), updates).catch(err => console.error("Vote failed:", err));
 }
 
-function castVote(step, id) {
-  const file = voteFile;
-  const path = myPath(file);
-  if (currentStep(path) !== step) return;
-  const opt = stepOptions(step, path).opts.find(o => o.id === id);
-  path[["v", "a", "e"][step - 1]] = id;
-  savePath(file, path);
-  renderVote();                                   // 先显示这一步的结果
-  applyVotes(file, { [opt.key]: 1 });
-  if (step < 3 && id !== UNSURE) advanceTimer = setTimeout(() => { if (voteFile === file) goStep(step + 1); }, STEP_PAUSE);
-}
-
-// 重新投票：把之前三步的票都撤回，从第 1 步开始
-function resetVote() {
-  const file = voteFile;
+// 撤回这个浏览器对某张照片的投票（三步都撤回）
+function undoVote(file) {
   const p = myPath(file);
   const changes = {};
   if (p.v) changes[p.v] = -1;
   if (p.a) changes[`${p.v}_${p.a}`] = -1;
   if (p.e) changes[`${p.v}_${p.a}_${p.e}`] = -1;
   savePath(file, {});
-  applyVotes(file, changes);
-  goStep(1);
-  if (viewStep === 1) renderVote();
+  if (Object.keys(changes).length) applyVotes(file, changes);
+}
+
+// ---------- 点开照片时：显示投票结果（实时更新） ----------
+let resUnsub = null, resFile = null, resCounts = {};
+async function watchResults(file) {
+  stopResults();
+  resFile = file;
+  resCounts = {};
+  renderResults();
+  await votesReady;
+  if (resFile !== file) return;
+  if (!db) { resCounts = JSON.parse(store.get("counts:" + file) || "{}"); renderResults(); return; }
+  resUnsub = fb.onValue(fb.ref(db, "votes/" + voteKey(file)), snap => {
+    if (resFile !== file) return;
+    resCounts = snap.val() || {};
+    renderResults();
+  });
+}
+function stopResults() {
+  if (resUnsub) { resUnsub(); resUnsub = null; }
+  resFile = null;
+}
+
+// 一条结果条：segs = [{ label, n, color }]
+function resultBar(label, segs) {
+  const total = segs.reduce((x, s) => x + s.n, 0);
+  let seen = false;
+  const html = segs.map(s => {
+    const pct = total ? Math.round(s.n / total * 100) : 0;
+    const sep = s.n > 0 && seen;
+    if (s.n > 0) seen = true;
+    const text = pct >= 13 ? `${s.label} ${pct}%` : pct >= 5 ? `${pct}%` : "";
+    return `<div class="res-seg${sep ? " sep" : ""}" style="flex-grow:${s.n};--c:${s.color}" title="${s.label}: ${s.n} (${pct}%)">${text}</div>`;
+  }).join("");
+  return `<div class="res-row"><div class="res-label">${label}</div>
+    <div class="res-bar">${html}${total ? "" : `<span class="res-empty">No votes yet</span>`}</div></div>`;
+}
+
+function renderResults() {
+  const box = document.getElementById("resBox");
+  if (!resFile) { box.innerHTML = ""; return; }
+  const c = k => resCounts[k] || 0;
+  const voters = c("positive") + c("negative") + c(UNSURE);
+  const emotionSegs = [];
+  for (const quad of Object.keys(EMOTIONS))
+    EMOTIONS[quad].forEach((w, i) => emotionSegs.push({ label: w, n: c(`${quad}_${w.toLowerCase()}`), color: COLORS[`${quad}_${i}`] }));
+  emotionSegs.push({ label: "Not sure", n: Object.keys(EMOTIONS).reduce((x, q) => x + c(`${q}_unsure`), 0), color: COLORS.unsure });
+  box.innerHTML = `
+    <div class="res-head"><span class="res-title">Audience votes · ${voters} voter${voters === 1 ? "" : "s"}</span><a href="?view=vote">Vote →</a></div>
+    ${resultBar("Positive / Negative", [
+      { label: "Positive", n: c("positive"), color: COLORS.positive },
+      { label: "Not sure", n: c(UNSURE), color: COLORS.unsure },
+      { label: "Negative", n: c("negative"), color: COLORS.negative },
+    ])}
+    ${resultBar("Arousal", [
+      { label: "Low", n: c("positive_low") + c("negative_low"), color: COLORS.low },
+      { label: "Not sure", n: c("positive_unsure") + c("negative_unsure"), color: COLORS.unsure },
+      { label: "High", n: c("positive_high") + c("negative_high"), color: COLORS.high },
+    ])}
+    ${resultBar("Emotion", emotionSegs)}`;
+}
+
+// ---------- Vote 页面：一张一张投 ----------
+let vpOrder = [], vpIndex = 0, vpTimer = null;
+
+// 每个投票者看到的照片顺序是随机的（存在浏览器里，刷新后顺序不变）
+function vpBuildOrder() {
+  const files = PHOTOS.map(p => p.file);
+  let order = [];
+  try { order = JSON.parse(store.get("voteOrder")) || []; } catch {}
+  order = order.filter(f => files.includes(f));
+  const missing = files.filter(f => !order.includes(f));
+  for (let i = missing.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [missing[i], missing[j]] = [missing[j], missing[i]];
+  }
+  order = order.concat(missing);
+  store.set("voteOrder", JSON.stringify(order));
+  return order;
+}
+const vpDone = f => currentStep(myPath(f)) === 4;
+const vpNextUndone = from => {
+  for (let k = 1; k <= vpOrder.length; k++) {
+    const i = (from + k) % vpOrder.length;
+    if (!vpDone(vpOrder[i])) return i;
+  }
+  return -1;
+};
+
+function initVotePage() {
+  vpOrder = vpBuildOrder();
+  const first = vpOrder.findIndex(f => !vpDone(f));
+  vpShow(first === -1 ? 0 : first, false);
+  document.getElementById("vpPrev").onclick = () => vpShow((vpIndex - 1 + vpOrder.length) % vpOrder.length);
+  document.getElementById("vpNext").onclick = () => vpShow((vpIndex + 1) % vpOrder.length);
+}
+
+// 换到第 i 张照片（带淡入淡出）
+function vpShow(i, fade = true) {
+  clearTimeout(vpTimer);
+  const img = document.getElementById("vpImg");
+  const go = () => {
+    vpIndex = i;
+    const file = vpOrder[i];
+    img.onload = () => img.classList.remove("fading");
+    img.src = `photos/thumb/${file}`;
+    img.alt = `Photo ${i + 1}`;
+    const next = vpOrder[(i + 1) % vpOrder.length];
+    new Image().src = `photos/thumb/${next}`;    // 预先加载下一张
+    vpRender();
+  };
+  if (!fade) return go();
+  img.classList.add("fading");
+  document.getElementById("vpBox").classList.add("fading");
+  setTimeout(go, 300);
+}
+
+function vpRender() {
+  const file = vpOrder[vpIndex];
+  const path = myPath(file);
+  const step = currentStep(path);
+  const box = document.getElementById("vpBox");
+  const doneCount = vpOrder.filter(vpDone).length;
+  document.getElementById("vpCount").textContent = `Photo ${vpIndex + 1} of ${vpOrder.length}`;
+  document.getElementById("vpProgress").style.width = doneCount / vpOrder.length * 100 + "%";
+  document.getElementById("vpProgressText").textContent = doneCount === vpOrder.length
+    ? `You've voted on all ${vpOrder.length} photos. Thank you!`
+    : `${doneCount} of ${vpOrder.length} photos voted`;
+
+  if (step === 4) {
+    const name = id => ({ positive: "☀ Positive", negative: "☾ Negative", low: "Low arousal", high: "High arousal", unsure: "Not sure" })[id]
+      || id[0].toUpperCase() + id.slice(1);
+    const your = [path.v, path.a, path.e].filter(Boolean).map(name).join(" › ");
+    const allDone = doneCount === vpOrder.length;
+    box.innerHTML = `
+      <div class="vp-done">${allDone ? "All done, thank you! 🎉" : "Thanks! ✓"}</div>
+      <div class="vp-your">Your vote: ${your}</div>
+      <div class="vp-actions">
+        ${allDone ? `<a class="vp-link-btn primary" href="./">See the photos & results →</a>` : `<button class="vp-link-btn primary" id="vpGoNext">Next photo →</button>`}
+        <button class="vp-link-btn" id="vpRedo">Change my vote</button>
+      </div>`;
+    document.getElementById("vpGoNext")?.addEventListener("click", () => vpShow(vpNextUndone(vpIndex)));
+    document.getElementById("vpRedo").onclick = () => { undoVote(file); vpFadeRender(); };
+  } else {
+    const { q, opts } = stepOptions(step, path);
+    box.innerHTML = `
+      <div class="vp-step">Step ${step} of 3</div>
+      <div class="vp-q">${q}</div>
+      <div class="vp-btns">${opts.map(o => `<button class="vote-btn${o.id === UNSURE ? " unsure" : ""}" data-id="${o.id}" style="--c:${o.color}">
+        ${o.label}${o.sub ? `<small>${o.sub}</small>` : ""}</button>`).join("")}</div>`;
+    box.querySelectorAll(".vote-btn").forEach(b => b.onclick = () => vpCast(step, b.dataset.id));
+  }
+  box.classList.remove("fading");
+}
+function vpFadeRender() {
+  const box = document.getElementById("vpBox");
+  box.classList.add("fading");
+  setTimeout(vpRender, 250);
+}
+
+function vpCast(step, id) {
+  const file = vpOrder[vpIndex];
+  const path = myPath(file);
+  if (currentStep(path) !== step) return;
+  const opt = stepOptions(step, path).opts.find(o => o.id === id);
+  path[["v", "a", "e"][step - 1]] = id;
+  savePath(file, path);
+  applyVotes(file, { [opt.key]: 1 });
+  vpFadeRender();
+  // 这张投完了：1.2 秒后自动换到下一张还没投的照片
+  if (currentStep(path) === 4) {
+    const next = vpNextUndone(vpIndex);
+    if (next !== -1) vpTimer = setTimeout(() => vpShow(next), 1200);
+  }
 }
 
 // 深色/浅色切换
@@ -1042,13 +1161,18 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
 });
 updateThemeBtn();
 
-// 网址是 ?view=excluded 时显示"排除的照片"页面
-const VIEW_EXCLUDED = new URLSearchParams(location.search).get("view") === "excluded";
-if (VIEW_EXCLUDED) {
+// 网址是 ?view=excluded 显示"排除的照片"页面；?view=vote 显示投票页面
+const VIEW = new URLSearchParams(location.search).get("view");
+if (VIEW === "excluded") {
   document.body.classList.add("view-excluded");
   document.getElementById("excluded").hidden = false;
   document.title = "Excluded photos · Weiyu";
   renderExcluded();
+} else if (VIEW === "vote") {
+  document.body.classList.add("view-vote");
+  document.getElementById("votePage").hidden = false;
+  document.title = "Vote · Weiyu";
+  initVotePage();
 } else {
   render();
   renderPairs();
