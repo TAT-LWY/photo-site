@@ -162,10 +162,9 @@
   .screen img { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .35s; }
   .screen img.fading { opacity: 0; }
   .hud {
-    position: absolute; left: 14px; right: 14px; display: flex; justify-content: space-between; pointer-events: none;
+    position: absolute; left: 14px; right: 14px; display: flex; justify-content: flex-end; pointer-events: none;
     color: #fff; font-size: 12px; letter-spacing: .08em; text-shadow: 0 1px 3px rgba(0,0,0,.8);
   }
-  .hud.top { top: 10px; }
   .hud.bottom { bottom: 10px; font-size: 14px; letter-spacing: 0; }
   .cam-controls { display: flex; justify-content: center; gap: 14px; padding-top: 10px; }
   .cam-controls button { background: #2d2b28; color: #ddd; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 18px; }
@@ -428,8 +427,7 @@
         <div class="camera">
           <div class="screen" id="tqScreen" title="Click to enlarge">
             <img id="tqImg" alt="">
-            <div class="hud top"><span id="tqMode"></span><span id="tqCount"></span></div>
-            <div class="hud bottom"><span id="tqTitle"></span><span id="tqUse"></span></div>
+            <div class="hud bottom"><span id="tqUse"></span></div>
           </div>
           <div class="cam-controls"><button id="tqPrev" title="Previous photo">‹</button><button id="tqNext" title="Next photo">›</button></div>
         </div>
@@ -757,7 +755,6 @@ function tqSelect(i) {
   document.getElementById("tqNum").textContent = `${String(tqSel + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
   document.getElementById("tqName").textContent = t.name;
   document.getElementById("tqSubs").textContent = [...new Set(t.photos.flatMap(x => x.use.split(" · ")))].join(" · ");
-  document.getElementById("tqMode").textContent = "● " + (t.short || t.name).toUpperCase();
   const text = t.analysis.trim();
   const box = document.getElementById("tqAnalysis");
   box.classList.toggle("empty", !text);
@@ -774,8 +771,6 @@ function tqShow() {
     else { tqImg.onload = () => tqImg.classList.remove("fading"); tqImg.src = url; }
   }, 200);
   tqImg.alt = p.title;
-  document.getElementById("tqCount").textContent = `${tqPhoto + 1} / ${t.photos.length}`;
-  document.getElementById("tqTitle").textContent = p.title;
   document.getElementById("tqUse").textContent = x.use;
   tqSchedule();
 }
