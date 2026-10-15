@@ -437,20 +437,15 @@ const PHOTOS = [
   { file: "DSC_0397.jpg",  title: "Fallen Leaves",         place: "", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },
   { file: "DSC_0439.jpg",  title: "Golden Eaves",          place: "", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },
   { file: "DSC_0456.jpg",  title: "Lone Boat",             place: "", date: "Jul 1, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0468.jpg",  title: "Afternoon Nap",         place: "", date: "Jul 1, 2026", mood: "day",     aperture: "f/4",   shutter: "1/25s",   iso: 400,  focal: "120mm" },
   { file: "DSC_0520.jpg",  title: "Up a Tree",             place: "", date: "Jul 7, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 400,  focal: "120mm" },
   { file: "DSC_1239.jpg",  title: "Wing Stretch",          place: "", date: "Jul 25, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 400,  focal: "120mm" },
   { file: "DSC_1522.jpg",  title: "Night Road",            place: "", date: "Sep 1, 2026", mood: "night",   aperture: "f/4",   shutter: "1/5s",    iso: 2000, focal: "120mm" },
   { file: "DSC_1538.jpg",  title: "Through the Ring",      place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },
   { file: "DSC_1541.jpg",  title: "Two Faces",             place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },
-  { file: "DSC_1544.jpg",  title: "Garden Walk",           place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/160s",  iso: 64,   focal: "24mm" },
-  { file: "DSC_1546.jpg",  title: "Laughing Buddha",       place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 100,  focal: "120mm" },
   { file: "DSC_1552.jpg",  title: "Supertree",             place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },
-  { file: "DSC_1558.jpg",  title: "Mother Hen",            place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/200s",  iso: 64,   focal: "120mm" },
   { file: "DSC_1573.jpg",  title: "In the Frame",          place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },
   { file: "DSC_1577.jpg",  title: "Resting in the Circle", place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },
   { file: "DSC_1584.jpg",  title: "Fading Wheel",          place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },
-  { file: "DSC_1587.jpg",  title: "Down the Steps",        place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/160s",  iso: 64,   focal: "24mm" },
 ];
 
 /* ==========================================================
@@ -476,20 +471,15 @@ const ANALYSIS = {
   "DSC_0397.jpg":   { intended: "", analysis: `` },   // Fallen Leaves
   "DSC_0439.jpg":   { intended: "", analysis: `` },   // Golden Eaves
   "DSC_0456.jpg":   { intended: "", analysis: `` },   // Lone Boat
-  "DSC_0468.jpg":   { intended: "", analysis: `` },   // Afternoon Nap
   "DSC_0520.jpg":   { intended: "", analysis: `` },   // Up a Tree
   "DSC_1239.jpg":   { intended: "", analysis: `` },   // Wing Stretch
   "DSC_1522.jpg":   { intended: "", analysis: `` },   // Night Road
   "DSC_1538.jpg":   { intended: "", analysis: `` },   // Through the Ring
   "DSC_1541.jpg":   { intended: "", analysis: `` },   // Two Faces
-  "DSC_1544.jpg":   { intended: "", analysis: `` },   // Garden Walk
-  "DSC_1546.jpg":   { intended: "", analysis: `` },   // Laughing Buddha
   "DSC_1552.jpg":   { intended: "", analysis: `` },   // Supertree
-  "DSC_1558.jpg":   { intended: "", analysis: `` },   // Mother Hen
   "DSC_1573.jpg":   { intended: "", analysis: `` },   // In the Frame
   "DSC_1577.jpg":   { intended: "", analysis: `` },   // Resting in the Circle
   "DSC_1584.jpg":   { intended: "", analysis: `` },   // Fading Wheel
-  "DSC_1587.jpg":   { intended: "", analysis: `` },   // Down the Steps
 };
 
 /* ==========================================================
@@ -511,15 +501,25 @@ const EXCLUDED = [
     reason: `` },
   { file: "DSC_0444.jpg",  title: "Incense",              date: "Jun 28, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 250, focal: "120mm",
     reason: `` },
+  { file: "DSC_0468.jpg",  title: "Afternoon Nap",        date: "Jul 1, 2026",  aperture: "f/4",   shutter: "1/25s",   iso: 400, focal: "120mm",
+    reason: `` },
   { file: "DSC_0499.jpg",  title: "Panda",                date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",
     reason: `` },
   { file: "DSC_1269.jpg",  title: "Black Swan",           date: "Jul 25, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 400, focal: "120mm",
+    reason: `` },
+  { file: "DSC_1544.jpg",  title: "Garden Walk",          date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
+    reason: `` },
+  { file: "DSC_1546.jpg",  title: "Laughing Buddha",      date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/125s",  iso: 100, focal: "120mm",
+    reason: `` },
+  { file: "DSC_1558.jpg",  title: "Mother Hen",           date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
     reason: `` },
   { file: "DSC_1564.jpg",  title: "Foraging",             date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
     reason: `` },
   { file: "DSC_1567.jpg",  title: "Silhouette",           date: "Oct 11, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 64,  focal: "59mm",
     reason: `` },
   { file: "DSC_1586.jpg",  title: "Waiting",              date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/250s",  iso: 64,  focal: "81mm",
+    reason: `` },
+  { file: "DSC_1587.jpg",  title: "Down the Steps",       date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
     reason: `` },
 ];
 
