@@ -72,6 +72,10 @@
   body.view-excluded .back-link { display: inline; }
   body.view-excluded .trash-btn { background: var(--text); color: var(--bg) !important; border-color: var(--text); }
   body.view-excluded #gallery, body.view-excluded #compare, body.view-excluded #contact { display: none; }
+  body.view-techniques .nav-links > a[href^="#"] { display: none; }
+  body.view-techniques .back-link { display: inline; }
+  body.view-techniques .tech-link { color: var(--text); font-weight: 600; }
+  body.view-techniques #gallery, body.view-techniques #compare, body.view-techniques #contact { display: none; }
   .vote-nav-btn {
     padding: 6px 16px; border-radius: 999px; background: var(--accent); color: #fff !important; font-weight: 600;
   }
@@ -126,6 +130,25 @@
   .ex-reason.empty { font-style: italic; font-size: 14px; }
   .ex-count { color: var(--muted); font-size: 14px; white-space: nowrap; padding-top: 8px; }
   .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+
+  /* Techniques 页面 */
+  .techniques { padding: 28px 0 90px; }
+  .tq-subs { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .tq-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
+  .tq-card { cursor: zoom-in; }
+  .tq-img { border-radius: 10px; overflow: hidden; background: var(--line); }
+  .tq-img img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; transition: transform .5s; }
+  .tq-card:hover .tq-img img { transform: scale(1.04); }
+  .tq-card figcaption { margin-top: 10px; line-height: 1.45; }
+  .tq-card figcaption b { font-family: "Noto Serif SC", serif; font-size: 16px; display: block; }
+  .tq-card figcaption span { font-size: 13px; color: var(--accent); }
+  .tq-heading { font-family: "Noto Serif SC", serif; font-size: 20px; margin: 36px 0 12px; }
+  .tq-analysis { font-size: 16px; line-height: 1.85; max-width: 900px; }
+  .tq-analysis p + p { margin-top: 14px; }
+  .tq-analysis.empty {
+    border: 2px dashed var(--line); border-radius: 12px; padding: 36px 24px;
+    text-align: center; color: var(--muted); font-size: 14px; max-width: none;
+  }
   .ex-card { cursor: zoom-in; }
   .ex-img { position: relative; border-radius: 12px; overflow: hidden; background: var(--line); }
   .ex-img img {
@@ -335,6 +358,7 @@
       <a href="#compare">Compare</a>
       <a href="#contact">Contact</a>
       <a href="./" class="back-link">← Back to portfolio</a>
+      <a href="?view=techniques" class="tech-link">Techniques</a>
       <a href="?view=vote" class="vote-nav-btn">Vote</a>
       <a href="?view=excluded" class="trash-btn" id="trashBtn" title="Excluded photos" aria-label="Excluded photos">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -386,6 +410,12 @@
     </div>
     <div class="vp-progress"><div id="vpProgress"></div></div>
     <div class="vp-progress-text" id="vpProgressText"></div>
+  </section>
+
+  <section class="techniques" id="techniques" hidden>
+    <h2 class="section-title">Techniques</h2>
+    <p class="excluded-intro">The seven groups of photography techniques in this project, the photos that use each one, and how each technique can affect the emotion of a photo.</p>
+    <div id="techGroups"></div>
   </section>
 
   <section class="excluded" id="excluded" hidden>
@@ -565,6 +595,123 @@ const COMPARISONS = [
 ];
 
 const byFile = Object.fromEntries(PHOTOS.map(p => [p.file, p]));
+/* ==========================================================
+   🎛 技巧 —— Techniques 页面（?view=techniques）
+   7 类摄影技巧，每类列出用到它的照片（file + 这张照片具体用了什么）
+   analysis：这一类技巧怎么影响情绪（写在两个 ` 之间；空一行 = 分段）
+   ========================================================== */
+const TECHNIQUES = [
+  { name: "Composition", photos: [
+      { file: "DSC0211.jpg",       use: "Leading lines" },                  // Garden Path
+      { file: "DSC_1522.jpg",      use: "Leading lines" },                  // Night Road
+      { file: "DSC_0091.jpg",      use: "Leading lines · Symmetry" },       // Quiet Street
+      { file: "DSC_0141.jpg",      use: "Negative space" },                 // Taking Off
+      { file: "DSC_0143.jpg",      use: "Negative space" },                 // Sailboat
+      { file: "DSC0249.jpg",       use: "Negative space" },                 // Lone Bird
+      { file: "DSC_0456.jpg",      use: "Negative space" },                 // Lone Boat
+      { file: "DSC_0085.jpg",      use: "Negative space · Symmetry" },      // Rooftop Statue
+      { file: "DSC_1538_edit.jpg", use: "Frame within a frame" },           // Through the Ring
+      { file: "DSC_1577.jpg",      use: "Framing" },                        // Resting in the Circle
+      { file: "DSC_1573.jpg",      use: "Framing · Negative space" },       // In the Frame
+      { file: "DSC_0191.jpg",      use: "Framing · Symmetry" },             // By the Lake
+      { file: "DSC_1552_edit.jpg", use: "Natural framing · Layering" },     // Supertree
+      { file: "DSC_0439.jpg",      use: "Diagonal lines · Repetition" },    // Golden Eaves
+      { file: "DSC_1541.jpg",      use: "Top-heavy composition" },          // Two Faces
+    ],
+    analysis: `` },
+  { name: "Lighting", photos: [
+      { file: "DSC_0397.jpg",      use: "Hard light" },                     // Fallen Leaves
+      { file: "DSC0249.jpg",       use: "Silhouette" },                     // Lone Bird
+      { file: "DSC_0137.jpg",      use: "Backlighting · Silhouette" },      // Crow on the Rail
+      { file: "DSC_1577.jpg",      use: "Soft light" },                     // Resting in the Circle
+      { file: "DSC_1541.jpg",      use: "Flat overcast light" },            // Two Faces
+      { file: "DSC_1522.jpg",      use: "Street lights at night" },         // Night Road
+    ],
+    analysis: `` },
+  { name: "Colour", photos: [
+      { file: "DSC0211.jpg",       use: "Warm colours" },                   // Garden Path
+      { file: "DSC_1522.jpg",      use: "Warm colours" },                   // Night Road
+      { file: "DSC_0143.jpg",      use: "Saturated colours" },              // Sailboat
+      { file: "DSC_0141.jpg",      use: "Saturated colours" },              // Taking Off
+      { file: "DSC_0135.jpg",      use: "Cool colours" },                   // Snow Mountain
+      { file: "DSC_0153.jpg",      use: "Cool colours" },                   // Misty Peaks
+      { file: "DSC_0137.jpg",      use: "Low saturation" },                 // Crow on the Rail
+      { file: "DSC_0456.jpg",      use: "Low saturation" },                 // Lone Boat
+      { file: "DSC_1541.jpg",      use: "Low saturation" },                 // Two Faces
+      { file: "DSC_1584.jpg",      use: "Low saturation" },                 // Fading Wheel
+    ],
+    analysis: `` },
+  { name: "Exposure & Contrast", photos: [
+      { file: "DSC_0397.jpg",      use: "Low-key · High contrast" },        // Fallen Leaves
+      { file: "DSC_1522.jpg",      use: "Dark exposure" },                  // Night Road
+      { file: "DSC0211.jpg",       use: "Dark exposure" },                  // Garden Path
+      { file: "DSC_0135.jpg",      use: "Bright exposure" },                // Snow Mountain
+      { file: "DSC_0143.jpg",      use: "Bright exposure" },                // Sailboat
+      { file: "DSC_0153.jpg",      use: "Low contrast" },                   // Misty Peaks
+      { file: "DSC_1584.jpg",      use: "Low contrast" },                   // Fading Wheel
+    ],
+    analysis: `` },
+  { name: "Perspective & Camera Angle", photos: [
+      { file: "DSC_0085.jpg",      use: "Low angle" },                      // Rooftop Statue
+      { file: "DSC_0439.jpg",      use: "Low angle" },                      // Golden Eaves
+      { file: "DSC_1541.jpg",      use: "Low angle" },                      // Two Faces
+      { file: "DSC_1552_edit.jpg", use: "Low angle" },                      // Supertree
+      { file: "DSC_1522.jpg",      use: "High angle" },                     // Night Road
+      { file: "DSC_0456.jpg",      use: "High angle" },                     // Lone Boat
+      { file: "DSC_0143.jpg",      use: "High angle" },                     // Sailboat
+      { file: "DSC_0191.jpg",      use: "Back view" },                      // By the Lake
+      { file: "DSC_0091.jpg",      use: "Eye level" },                      // Quiet Street
+    ],
+    analysis: `` },
+  { name: "Depth of Field", photos: [
+      { file: "DSC_1577.jpg",      use: "Shallow · Foreground blur" },      // Resting in the Circle
+      { file: "DSC_1573.jpg",      use: "Shallow" },                        // In the Frame
+      { file: "DSC_0135.jpg",      use: "Deep" },                           // Snow Mountain
+    ],
+    analysis: `` },
+  { name: "Scale, Distance & Focal Length", photos: [
+      { file: "DSC_0135.jpg",      use: "Scale contrast · Telephoto compression" },  // Snow Mountain
+      { file: "DSC_1552_edit.jpg", use: "Scale contrast" },                 // Supertree
+      { file: "DSC_1541.jpg",      use: "Scale contrast" },                 // Two Faces
+      { file: "DSC_0153.jpg",      use: "Telephoto compression" },          // Misty Peaks
+      { file: "DSC_0439.jpg",      use: "Telephoto compression" },          // Golden Eaves
+      { file: "DSC_1538_edit.jpg", use: "Wide angle" },                     // Through the Ring
+    ],
+    analysis: `` },
+];
+
+function renderTechniques() {
+  const box = document.getElementById("techGroups");
+  box.innerHTML = TECHNIQUES.map((t, ti) => {
+    const subs = [...new Set(t.photos.flatMap(x => x.use.split(" · ")))].join(" · ");
+    const text = t.analysis.trim();
+    const cards = t.photos.map((x, i) => {
+      const p = PHOTOS.find(q => q.file === x.file);
+      return `<figure class="tq-card" data-t="${ti}" data-i="${i}">
+          <div class="tq-img"><img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy"></div>
+          <figcaption><b>${p.title}</b><span>${x.use}</span></figcaption>
+        </figure>`;
+    }).join("");
+    return `<section class="ex-group">
+      <div class="ex-group-head">
+        <span class="ex-num">${String(ti + 1).padStart(2, "0")}</span>
+        <div>
+          <h3>${t.name}</h3>
+          <div class="tq-subs">${subs}</div>
+        </div>
+        <span class="ex-count">${t.photos.length} photo${t.photos.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="tq-grid">${cards}</div>
+      <h4 class="tq-heading">How it affects emotion</h4>
+      <div class="tq-analysis${text ? "" : " empty"}">${text ? paragraphs(text) : "Analysis coming soon"}</div>
+    </section>`;
+  }).join("");
+  box.querySelectorAll(".tq-card").forEach(c => c.onclick = () => {
+    const t = TECHNIQUES[+c.dataset.t];
+    openLb(+c.dataset.i, t.photos.map(x => PHOTOS.find(q => q.file === x.file)));
+  });
+}
+
 function renderPairs() {
   const el = document.getElementById("pairs");
   el.innerHTML = COMPARISONS.map((c, n) => {
@@ -1223,6 +1370,11 @@ if (VIEW === "excluded") {
   document.getElementById("excluded").hidden = false;
   document.title = "Excluded photos · Weiyu";
   renderExcluded();
+} else if (VIEW === "techniques") {
+  document.body.classList.add("view-techniques");
+  document.getElementById("techniques").hidden = false;
+  document.title = "Techniques · Weiyu";
+  renderTechniques();
 } else if (VIEW === "vote") {
   document.body.classList.add("view-vote");
   document.getElementById("votePage").hidden = false;
