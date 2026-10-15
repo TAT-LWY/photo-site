@@ -129,17 +129,49 @@
 
   /* Techniques 页面 */
   .techniques { border-top: 1px solid var(--line); padding: 70px 0 30px; }
-  .tq-subs { color: var(--muted); font-size: 14px; margin-top: 6px; }
-  .tq-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
-  .tq-card { cursor: zoom-in; }
-  .tq-img { border-radius: 10px; overflow: hidden; background: var(--line); }
-  .tq-img img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; transition: transform .5s; }
-  .tq-card:hover .tq-img img { transform: scale(1.04); }
-  .tq-card figcaption { margin-top: 10px; line-height: 1.45; }
-  .tq-card figcaption b { font-family: "Noto Serif SC", serif; font-size: 16px; display: block; }
-  .tq-card figcaption span { font-size: 13px; color: var(--accent); }
-  .tq-heading { font-family: "Noto Serif SC", serif; font-size: 20px; margin: 36px 0 12px; }
-  .tq-analysis { font-size: 16px; line-height: 1.85; max-width: 900px; }
+  .tq-layout { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 64px; align-items: start; }
+  .dial-box { position: sticky; top: 110px; width: 420px; height: 440px; display: flex; align-items: center; justify-content: center; }
+  .dial-pointer {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 2;
+    border-left: 11px solid transparent; border-right: 11px solid transparent; border-top: 16px solid var(--accent);
+  }
+  .dial {
+    position: relative; width: 400px; height: 400px; border-radius: 50%; cursor: pointer; touch-action: none; user-select: none; outline: none;
+    background: radial-gradient(circle, #2b2a28 0 34%, transparent 34.5%), repeating-conic-gradient(#3a3835 0 2deg, #262523 2deg 4deg);
+    box-shadow: 0 18px 40px rgba(0,0,0,.25), inset 0 0 0 10px #1f1e1c, inset 0 0 0 11px #4a4743;
+    transition: transform .8s cubic-bezier(.2,.8,.2,1);
+  }
+  .dial:focus-visible { box-shadow: 0 0 0 3px var(--accent), 0 18px 40px rgba(0,0,0,.25), inset 0 0 0 10px #1f1e1c; }
+  .dial.dragging { transition: none; cursor: grabbing; }
+  .dial-face { position: absolute; inset: 64px; border-radius: 50%; background: #1d1c1a; box-shadow: inset 0 0 0 1px #3d3a36; }
+  .dial-label {
+    position: absolute; left: 50%; top: 50%; width: 150px; height: 20px; margin: -10px 0 0 -75px; pointer-events: none;
+    text-align: center; font-size: 13px; font-weight: 500; letter-spacing: .04em; color: #cfc9be; transition: color .3s;
+  }
+  .dial-label.on { color: #ffb38a; }
+  .dial-center {
+    position: absolute; left: 50%; top: 50%; width: 100px; height: 100px; margin: -50px 0 0 -50px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle at 40% 35%, #4a4743, #1d1c1a); box-shadow: 0 4px 12px rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center; color: #8f897f; font-size: 11px; letter-spacing: .2em;
+  }
+  .tq-num { color: var(--accent); font-size: 13px; letter-spacing: .14em; }
+  .tq-name { font-family: "Noto Serif SC", serif; font-size: 30px; line-height: 1.25; }
+  .tq-subs { color: var(--muted); font-size: 14px; margin: 4px 0 18px; }
+  .camera { background: #1b1a18; border-radius: 22px; padding: 16px 16px 12px; box-shadow: 0 16px 40px rgba(0,0,0,.18); max-width: 820px; }
+  .screen { position: relative; aspect-ratio: 16 / 10; background: #000; border-radius: 8px; overflow: hidden; cursor: zoom-in; }
+  .screen img { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .35s; }
+  .screen img.fading { opacity: 0; }
+  .hud {
+    position: absolute; left: 14px; right: 14px; display: flex; justify-content: space-between; pointer-events: none;
+    color: #fff; font-size: 12px; letter-spacing: .08em; text-shadow: 0 1px 3px rgba(0,0,0,.8);
+  }
+  .hud.top { top: 10px; }
+  .hud.bottom { bottom: 10px; font-size: 14px; letter-spacing: 0; }
+  .cam-controls { display: flex; justify-content: center; gap: 14px; padding-top: 10px; }
+  .cam-controls button { background: #2d2b28; color: #ddd; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+  .cam-controls button:hover { background: #3d3a36; }
+  .tq-heading { font-family: "Noto Serif SC", serif; font-size: 20px; margin: 32px 0 12px; }
+  .tq-analysis { font-size: 16px; line-height: 1.85; max-width: 820px; }
   .tq-analysis p + p { margin-top: 14px; }
   .tq-analysis.empty {
     border: 2px dashed var(--line); border-radius: 12px; padding: 36px 24px;
@@ -383,7 +415,28 @@
   <section class="techniques" id="techniques">
     <h2 class="section-title">Techniques</h2>
     <p class="compare-intro">The seven groups of photography techniques in this project, the photos that use each one, and how each technique can affect the emotion of a photo.</p>
-    <div id="techGroups"></div>
+    <div class="tq-layout">
+      <div class="dial-box">
+        <div class="dial-pointer"></div>
+        <div class="dial" id="dial" tabindex="0" aria-label="Choose a technique (drag, click, or use the arrow keys)"><div class="dial-face"></div></div>
+        <div class="dial-center">MODE</div>
+      </div>
+      <div class="tq-main">
+        <div class="tq-num" id="tqNum"></div>
+        <h3 class="tq-name" id="tqName"></h3>
+        <div class="tq-subs" id="tqSubs"></div>
+        <div class="camera">
+          <div class="screen" id="tqScreen" title="Click to enlarge">
+            <img id="tqImg" alt="">
+            <div class="hud top"><span id="tqMode"></span><span id="tqCount"></span></div>
+            <div class="hud bottom"><span id="tqTitle"></span><span id="tqUse"></span></div>
+          </div>
+          <div class="cam-controls"><button id="tqPrev" title="Previous photo">‹</button><button id="tqNext" title="Next photo">›</button></div>
+        </div>
+        <h4 class="tq-heading">How it affects emotion</h4>
+        <div class="tq-analysis" id="tqAnalysis"></div>
+      </div>
+    </div>
   </section>
 
   <section class="compare" id="compare">
@@ -592,8 +645,9 @@ const COMPARISONS = [
 
 const byFile = Object.fromEntries(PHOTOS.map(p => [p.file, p]));
 /* ==========================================================
-   🎛 技巧 —— 主页上 Portfolio 和 Comparisons 之间的 Techniques 区域
+   🎛 技巧 —— 主页上 Portfolio 和 Comparisons 之间的 Techniques 区域（相机转盘）
    7 类摄影技巧，每类列出用到它的照片（file + 这张照片具体用了什么）
+   short：转盘上显示的短名字（不写就用 name）
    analysis：这一类技巧怎么影响情绪（写在两个 ` 之间；空一行 = 分段）
    ========================================================== */
 const TECHNIQUES = [
@@ -637,7 +691,7 @@ const TECHNIQUES = [
       { file: "DSC_1584.jpg",      use: "Low saturation" },                 // Fading Wheel
     ],
     analysis: `` },
-  { name: "Exposure & Contrast", photos: [
+  { name: "Exposure & Contrast", short: "Exposure", photos: [
       { file: "DSC_0397.jpg",      use: "Low-key · High contrast" },        // Fallen Leaves
       { file: "DSC_1522.jpg",      use: "Dark exposure" },                  // Night Road
       { file: "DSC0211.jpg",       use: "Dark exposure" },                  // Garden Path
@@ -647,7 +701,7 @@ const TECHNIQUES = [
       { file: "DSC_1584.jpg",      use: "Low contrast" },                   // Fading Wheel
     ],
     analysis: `` },
-  { name: "Perspective & Camera Angle", photos: [
+  { name: "Perspective & Camera Angle", short: "Angle", photos: [
       { file: "DSC_0085.jpg",      use: "Low angle" },                      // Rooftop Statue
       { file: "DSC_0439.jpg",      use: "Low angle" },                      // Golden Eaves
       { file: "DSC_1541.jpg",      use: "Low angle" },                      // Two Faces
@@ -665,7 +719,7 @@ const TECHNIQUES = [
       { file: "DSC_0135.jpg",      use: "Deep" },                           // Snow Mountain
     ],
     analysis: `` },
-  { name: "Scale, Distance & Focal Length", photos: [
+  { name: "Scale, Distance & Focal Length", short: "Scale", photos: [
       { file: "DSC_0135.jpg",      use: "Scale contrast · Telephoto compression" },  // Snow Mountain
       { file: "DSC_1552_edit.jpg", use: "Scale contrast" },                 // Supertree
       { file: "DSC_1541.jpg",      use: "Scale contrast" },                 // Two Faces
@@ -676,37 +730,109 @@ const TECHNIQUES = [
     analysis: `` },
 ];
 
+// 相机转盘：拖动转盘，或者点转盘上的某个技巧，它会自动转到最上面
+const dial = document.getElementById("dial");
+const TQ_STEP = 360 / TECHNIQUES.length;
+const TQ_INTERVAL = 3000;                   // 相机屏幕自动换下一张照片的间隔（毫秒）
+let tqSel = 0, tqRot = 0, tqPhoto = 0, tqTimer = null, tqDrag = null;
+const tqImg = document.getElementById("tqImg");
+
 function renderTechniques() {
-  const box = document.getElementById("techGroups");
-  box.innerHTML = TECHNIQUES.map((t, ti) => {
-    const subs = [...new Set(t.photos.flatMap(x => x.use.split(" · ")))].join(" · ");
-    const text = t.analysis.trim();
-    const cards = t.photos.map((x, i) => {
-      const p = PHOTOS.find(q => q.file === x.file);
-      return `<figure class="tq-card" data-t="${ti}" data-i="${i}">
-          <div class="tq-img"><img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy"></div>
-          <figcaption><b>${p.title}</b><span>${x.use}</span></figcaption>
-        </figure>`;
-    }).join("");
-    return `<section class="ex-group">
-      <div class="ex-group-head">
-        <span class="ex-num">${String(ti + 1).padStart(2, "0")}</span>
-        <div>
-          <h3>${t.name}</h3>
-          <div class="tq-subs">${subs}</div>
-        </div>
-        <span class="ex-count">${t.photos.length} photo${t.photos.length === 1 ? "" : "s"}</span>
-      </div>
-      <div class="tq-grid">${cards}</div>
-      <h4 class="tq-heading">How it affects emotion</h4>
-      <div class="tq-analysis${text ? "" : " empty"}">${text ? paragraphs(text) : "Analysis coming soon"}</div>
-    </section>`;
-  }).join("");
-  box.querySelectorAll(".tq-card").forEach(c => c.onclick = () => {
-    const t = TECHNIQUES[+c.dataset.t];
-    openLb(+c.dataset.i, t.photos.map(x => PHOTOS.find(q => q.file === x.file)));
-  });
+  dial.insertAdjacentHTML("beforeend", TECHNIQUES.map((t, i) =>
+    `<div class="dial-label" style="transform: rotate(${i * TQ_STEP}deg) translateY(-158px)">${t.short || t.name}</div>`).join(""));
+  tqSelect(0);
 }
+
+function tqSelect(i) {
+  const n = TECHNIQUES.length;
+  let target = -i * TQ_STEP;                // 往最近的方向转
+  while (target - tqRot > 180) target -= 360;
+  while (target - tqRot < -180) target += 360;
+  tqRot = target;
+  dial.style.transform = `rotate(${tqRot}deg)`;
+  tqSel = ((i % n) + n) % n;
+  tqPhoto = 0;
+  const t = TECHNIQUES[tqSel];
+  dial.querySelectorAll(".dial-label").forEach((l, k) => l.classList.toggle("on", k === tqSel));
+  document.getElementById("tqNum").textContent = `${String(tqSel + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
+  document.getElementById("tqName").textContent = t.name;
+  document.getElementById("tqSubs").textContent = [...new Set(t.photos.flatMap(x => x.use.split(" · ")))].join(" · ");
+  document.getElementById("tqMode").textContent = "● " + (t.short || t.name).toUpperCase();
+  const text = t.analysis.trim();
+  const box = document.getElementById("tqAnalysis");
+  box.classList.toggle("empty", !text);
+  box.innerHTML = text ? paragraphs(text) : "Analysis coming soon";
+  tqShow();
+}
+
+function tqShow() {
+  const t = TECHNIQUES[tqSel], x = t.photos[tqPhoto], p = byFile[x.file];
+  const url = `photos/thumb/${p.file}`;
+  tqImg.classList.add("fading");
+  setTimeout(() => {
+    if (tqImg.getAttribute("src") === url) tqImg.classList.remove("fading");
+    else { tqImg.onload = () => tqImg.classList.remove("fading"); tqImg.src = url; }
+  }, 200);
+  tqImg.alt = p.title;
+  document.getElementById("tqCount").textContent = `${tqPhoto + 1} / ${t.photos.length}`;
+  document.getElementById("tqTitle").textContent = p.title;
+  document.getElementById("tqUse").textContent = x.use;
+  tqSchedule();
+}
+// 只有这一块在屏幕上、而且没有点开大图时，相机屏幕才自动换下一张
+const tqInView = () => {
+  const r = document.getElementById("techniques").getBoundingClientRect();
+  return r.bottom > 200 && r.top < innerHeight - 200;
+};
+function tqSchedule() {
+  clearTimeout(tqTimer);
+  tqTimer = setTimeout(() => {
+    if (!tqInView() || lb.classList.contains("open")) return tqSchedule();
+    tqPhoto = (tqPhoto + 1) % TECHNIQUES[tqSel].photos.length;
+    tqShow();
+  }, TQ_INTERVAL);
+}
+const tqStep = d => { const n = TECHNIQUES[tqSel].photos.length; tqPhoto = (tqPhoto + d + n) % n; tqShow(); };
+document.getElementById("tqPrev").onclick = () => tqStep(-1);
+document.getElementById("tqNext").onclick = () => tqStep(1);
+document.getElementById("tqScreen").onclick = () =>
+  openLb(tqPhoto, TECHNIQUES[tqSel].photos.map(x => byFile[x.file]));
+
+// 鼠标相对转盘中心的角度（0° = 正上方，顺时针为正）和距离
+function dialPoint(e) {
+  const r = dial.getBoundingClientRect();
+  const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+  return { a: Math.atan2(dx, -dy) * 180 / Math.PI, d: Math.hypot(dx, dy) };
+}
+dial.addEventListener("pointerdown", e => {
+  tqDrag = { a: dialPoint(e).a, rot: tqRot, moved: false };
+  dial.classList.add("dragging");
+  dial.setPointerCapture(e.pointerId);
+});
+dial.addEventListener("pointermove", e => {
+  if (!tqDrag) return;
+  const d = ((dialPoint(e).a - tqDrag.a + 540) % 360) - 180;
+  if (Math.abs(d) > 3) tqDrag.moved = true;
+  if (tqDrag.moved) { tqRot = tqDrag.rot + d; dial.style.transform = `rotate(${tqRot}deg)`; }
+});
+function dialRelease(e, click) {
+  if (!tqDrag) return;
+  const moved = tqDrag.moved;
+  tqDrag = null;
+  dial.classList.remove("dragging");
+  if (moved) return tqSelect(Math.round(-tqRot / TQ_STEP));   // 拖完：停在最近的技巧上
+  if (!click) return;
+  const pt = dialPoint(e);
+  if (pt.d > 70) tqSelect(Math.round((pt.a - tqRot) / TQ_STEP)); // 点了某个技巧：自动转过去
+}
+dial.addEventListener("pointerup", e => dialRelease(e, true));
+dial.addEventListener("pointercancel", e => dialRelease(e, false));
+dial.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    e.preventDefault(); e.stopPropagation();
+    tqSelect(tqSel + (e.key === "ArrowRight" ? 1 : -1));
+  }
+});
 
 function renderPairs() {
   const el = document.getElementById("pairs");
