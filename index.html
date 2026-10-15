@@ -924,9 +924,10 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
 };
 // 这个浏览器对某张照片的投票，例如 { v: "positive", x: "calm", f: "comfort" }
-// （v = 第 1 步正负，x = 第 2 步表达的情绪，f = 第 3 步自己的感受；旧版投票还可能有 a / e）
-const myPath = file => { try { return JSON.parse(store.get("path:" + file)) || {}; } catch { return {}; } };
-const savePath = (file, path) => store.set("path:" + file, JSON.stringify(path));
+// （v = 第 1 步正负，x = 第 2 步表达的情绪，f = 第 3 步自己的感受）
+// 存在 "vote:" 开头的键里；旧版投票用的是 "path:"，已经不再读取
+const myPath = file => { try { return JSON.parse(store.get("vote:" + file)) || {}; } catch { return {}; } };
+const savePath = (file, path) => store.set("vote:" + file, JSON.stringify(path));
 const UNSURE = "unsure", NONE = "none";
 const currentStep = p => !p.v ? 1 : !p.x ? 2 : !p.f ? 3 : 4;   // 4 = 投完了
 
@@ -982,8 +983,6 @@ function undoVote(file) {
   const p = myPath(file);
   const changes = {};
   if (p.v) changes[p.v] = -1;
-  if (p.a) changes[`${p.v}_${p.a}`] = -1;             // 旧版投票（唤醒度）
-  if (p.e) changes[`${p.v}_${p.a}_${p.e}`] = -1;      // 旧版投票（情绪词）
   if (p.x) changes[`express_${p.x}`] = -1;
   if (p.f) changes[`feel_${p.f}`] = -1;
   savePath(file, {});
