@@ -141,6 +141,7 @@
   .ex-card figcaption b { font-family: "Noto Serif SC", serif; font-size: 19px; display: block; }
   .lightbox.no-vote .lb-vote { display: none; }
   .lightbox.no-vote .lb-panel { bottom: 48px; }
+  .lightbox.no-vote .lb-heading, .lightbox.no-vote .lb-analysis { display: none; }
   section[id] { scroll-margin-top: 61px; } /* 跳到某个区域时，不被顶部导航栏挡住 */
 
   .section-title { font-family: "Noto Serif SC", serif; font-size: 28px; margin-bottom: 20px; }
@@ -489,9 +490,8 @@ const ANALYSIS = {
 /* ==========================================================
    🗑 排除的照片 —— 右上角垃圾桶打开的页面
    这里的照片不显示题目（// 后面的名字只是方便找照片）
-   照片分成三类，每一类写一段整体理由（EXCLUDE_GROUPS 里的 reason）
-   每张照片的 group 决定它属于哪一类；reason 可以留空，写了就是这张照片额外的说明
-   （写在两个 ` 之间；空一行 = 分段）
+   照片分成三类，每一类写一段整体理由（EXCLUDE_GROUPS 里的 reason，写在两个 ` 之间；空一行 = 分段）
+   每张照片的 group 决定它属于哪一类
    ========================================================== */
 const EXCLUDE_GROUPS = [
   { id: "record",  title: "No clear emotion",
@@ -503,49 +503,29 @@ const EXCLUDE_GROUPS = [
 ];
 
 const EXCLUDED = [
-  { file: "DSC_0049.jpg",  date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",   // Vine Bridge
-    group: "weak",    reason: `` },
-  { file: "DSC_0056.jpg",  date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",   // Rooster
-    group: "record",  reason: `` },
-  { file: "DSC_0138.jpg",  date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",   // Blue Sky Perch
-    group: "weak",    reason: `` },
-  { file: "DSC_0149.jpg",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",   // Castle in the Trees
-    group: "record",  reason: `` },
-  { file: "DSC_0181.jpg",  date: "Apr 8, 2026",  aperture: "f/13",  shutter: "1/640s",  iso: 320, focal: "46mm",   // Lake & Mountains
-    group: "record",  reason: `` },
-  { file: "DSC_0182.jpg",  date: "Apr 8, 2026",  aperture: "f/11",  shutter: "1/500s",  iso: 320, focal: "46mm",   // On Deck
-    group: "record",  reason: `` },
-  { file: "DSC_0184.jpg",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 320, focal: "58mm",   // Traveler
-    group: "record",  reason: `` },
-  { file: "DSC_0358.jpg",  date: "May 28, 2026", aperture: "f/4",   shutter: "1/100s",  iso: 200, focal: "120mm",   // Monitor Lizard
-    group: "record",  reason: `` },
-  { file: "DSC_0444.jpg",  date: "Jun 28, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 250, focal: "120mm",   // Incense
-    group: "record",  reason: `` },
-  { file: "DSC_0468.jpg",  date: "Jul 1, 2026",  aperture: "f/4",   shutter: "1/25s",   iso: 400, focal: "120mm",   // Afternoon Nap
-    group: "subject", reason: `` },
-  { file: "DSC_0499.jpg",  date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",   // Panda
-    group: "subject", reason: `` },
-  { file: "DSC_1269.jpg",  date: "Jul 25, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 400, focal: "120mm",   // Black Swan
-    group: "record",  reason: `` },
-  { file: "DSC_1544.jpg",  date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",   // Garden Walk
-    group: "weak",    reason: `` },
-  { file: "DSC_1546.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/125s",  iso: 100, focal: "120mm",   // Laughing Buddha
-    group: "subject", reason: `` },
-  { file: "DSC_1558.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",   // Mother Hen
-    group: "subject", reason: `` },
-  { file: "DSC_1564.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",   // Foraging
-    group: "record",  reason: `` },
-  { file: "DSC_1567.jpg",  date: "Oct 11, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 64,  focal: "59mm",   // Silhouette
-    group: "weak",    reason: `` },
-  { file: "DSC_1586.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/250s",  iso: 64,  focal: "81mm",   // Waiting
-    group: "subject", reason: `` },
-  { file: "DSC_1587.jpg",  date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",   // Down the Steps
-    group: "weak",    reason: `` },
+  { file: "DSC_0049.jpg",  date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",  group: "weak" },   // Vine Bridge
+  { file: "DSC_0056.jpg",  date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",  group: "record" },   // Rooster
+  { file: "DSC_0138.jpg",  date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",  group: "weak" },   // Blue Sky Perch
+  { file: "DSC_0149.jpg",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",  group: "record" },   // Castle in the Trees
+  { file: "DSC_0181.jpg",  date: "Apr 8, 2026",  aperture: "f/13",  shutter: "1/640s",  iso: 320, focal: "46mm",  group: "record" },   // Lake & Mountains
+  { file: "DSC_0182.jpg",  date: "Apr 8, 2026",  aperture: "f/11",  shutter: "1/500s",  iso: 320, focal: "46mm",  group: "record" },   // On Deck
+  { file: "DSC_0184.jpg",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 320, focal: "58mm",  group: "record" },   // Traveler
+  { file: "DSC_0358.jpg",  date: "May 28, 2026", aperture: "f/4",   shutter: "1/100s",  iso: 200, focal: "120mm",  group: "record" },   // Monitor Lizard
+  { file: "DSC_0444.jpg",  date: "Jun 28, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 250, focal: "120mm",  group: "record" },   // Incense
+  { file: "DSC_0468.jpg",  date: "Jul 1, 2026",  aperture: "f/4",   shutter: "1/25s",   iso: 400, focal: "120mm",  group: "subject" },   // Afternoon Nap
+  { file: "DSC_0499.jpg",  date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",  group: "subject" },   // Panda
+  { file: "DSC_1269.jpg",  date: "Jul 25, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 400, focal: "120mm",  group: "record" },   // Black Swan
+  { file: "DSC_1544.jpg",  date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",  group: "weak" },   // Garden Walk
+  { file: "DSC_1546.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/125s",  iso: 100, focal: "120mm",  group: "subject" },   // Laughing Buddha
+  { file: "DSC_1558.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",  group: "subject" },   // Mother Hen
+  { file: "DSC_1564.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",  group: "record" },   // Foraging
+  { file: "DSC_1567.jpg",  date: "Oct 11, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 64,  focal: "59mm",  group: "weak" },   // Silhouette
+  { file: "DSC_1586.jpg",  date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/250s",  iso: 64,  focal: "81mm",  group: "subject" },   // Waiting
+  { file: "DSC_1587.jpg",  date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",  group: "weak" },   // Down the Steps
 ];
 
 // 按三类的顺序排好，点开照片后左右翻页也按这个顺序
 const EX_ORDER = EXCLUDE_GROUPS.flatMap(g => EXCLUDED.filter(p => p.group === g.id));
-const exGroupNo = p => EXCLUDE_GROUPS.findIndex(g => g.id === p.group) + 1;
 const paragraphs = text => text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("");
 
 function renderExcluded() {
@@ -802,12 +782,9 @@ function fillPanel(p) {
   ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("");
   const isExcluded = "group" in p;             // 垃圾桶页面里的照片
   lb.classList.toggle("no-vote", isExcluded);
-  document.querySelector(".lb-heading").textContent = isExcluded ? "Why it was excluded" : "Analysis";
   document.getElementById("lbIntendedLabel").textContent = isExcluded ? "Category" : "Intended emotion";
-  const group = EXCLUDE_GROUPS.find(g => g.id === p.group);
   const info = isExcluded
-    ? { intended: `${exGroupNo(p)} · ${group.title}`,
-        analysis: [group.reason.trim(), (p.reason || "").trim()].filter(Boolean).join("\n\n") }
+    ? { intended: EXCLUDE_GROUPS.find(g => g.id === p.group).title }
     : ANALYSIS[p.file] || {};
   const intended = (info.intended || "").trim();
   const intendedEl = document.getElementById("lbIntended");
@@ -816,8 +793,7 @@ function fillPanel(p) {
   const text = (info.analysis || "").trim();
   const box = document.getElementById("lbAnalysis");
   box.classList.toggle("empty", !text);
-  box.innerHTML = text ? paragraphs(text)
-    : isExcluded ? "Reason coming soon" : "Analysis coming soon";
+  box.innerHTML = text ? paragraphs(text) : "Analysis coming soon";
   document.querySelector(".lb-panel").scrollTop = 0;
   if (isExcluded) stopResults();
   else watchResults(p.file);
