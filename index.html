@@ -95,6 +95,7 @@
   .vp-count { font-size: 12px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); }
   .vp-step { font-size: 12px; color: var(--muted); margin-top: 18px; }
   .vp-q { font-family: "Noto Serif SC", serif; font-size: 24px; line-height: 1.35; margin: 4px 0 22px; }
+  .vp-note { font-size: 14px; color: var(--muted); margin: -14px 0 20px; }
   .vp-btns { display: flex; flex-direction: column; gap: 12px; }
   .vp-btns .vote-btn { width: 100%; text-align: left; padding: 13px 22px; font-size: 16px; border-radius: 14px; }
   .vp-btns .vote-btn.unsure { padding: 9px 22px; font-size: 14px; border-width: 1.5px; }
@@ -374,7 +375,7 @@
   </section>
   <section class="vote-page" id="votePage" hidden>
     <h2 class="section-title">Vote</h2>
-    <p class="vp-intro">Look at each photo and choose the emotion you think it expresses.</p>
+    <p class="vp-intro">Look at each photo and answer three short questions about its emotion.</p>
     <div class="vp-main">
       <div class="vp-photo"><img id="vpImg" alt=""></div>
       <div class="vp-side">
@@ -869,25 +870,48 @@ lb.addEventListener("touchend", e => {
   touchX = null;
 });
 
-// ===================== 投票：正负 → 唤醒度 → 具体情绪 =====================
-/* 基于 Russell 的情绪二维模型（valence 正负 × arousal 唤醒度）
-   第 1 步：Positive / Negative     第 2 步：Low / High arousal     第 3 步：这个象限的 3 个情绪词
-   每一步都可以选 "I'm not sure"，选了就在这一步结束
+// ===================== 投票：正负 → 照片表达的情绪 → 观众自己的感受 =====================
+/* 第 1 步：Positive / Negative（照片表达的情绪是正面还是负面）
+   第 2 步：Which emotion does this photo express?   → perceived emotion（照片表达的情绪）
+   第 3 步：How does this photo make you feel?       → felt emotion（观众自己感受到的情绪）
+   第 2、3 步用同一组选项（每张照片不同，写在 VOTE_OPTIONS 里），方便比较"表达的"和"感受到的"
+   第 1、2 步可以选 "I'm not sure"，第 3 步可以选 "Nothing in particular"
    投票在 Vote 页面（?view=vote）进行；点开照片时只显示结果 */
-const EMOTIONS = {                         // 改情绪词时，Firebase 的规则也要一起改
-  positive_low:  ["Calm", "Peaceful", "Content"],
-  positive_high: ["Joy", "Excitement", "Awe"],
-  negative_low:  ["Sadness", "Loneliness", "Melancholy"],
-  negative_high: ["Fear", "Tension", "Anxiety"],
+const VOTE_OPTIONS = {                      // 每张照片的情绪选项（英文单词，可以随意改）
+  "DSC0211.jpg":       ["Calm", "Curiosity", "Comfort"],                    // Garden Path
+  "DSC_0085.jpg":      ["Awe", "Hope", "Joy"],                              // Rooftop Statue
+  "DSC_0135.jpg":      ["Awe", "Calm", "Loneliness", "Melancholy"],         // Snow Mountain（和 Misty Peaks 同一组选项）
+  "DSC_0141.jpg":      ["Freedom", "Joy", "Loneliness", "Tension"],         // Taking Off（对照组：和 Crow on the Rail 相同）
+  "DSC_0143.jpg":      ["Calm", "Freedom", "Loneliness", "Sadness"],        // Sailboat（对照组：和 Lone Boat 相同）
+  "DSC_0439.jpg":      ["Awe", "Calm", "Joy"],                              // Golden Eaves
+  "DSC_1522.jpg":      ["Calm", "Comfort", "Loneliness", "Curiosity"],      // Night Road
+  "DSC_1538_edit.jpg": ["Joy", "Hope", "Melancholy", "Loneliness"],         // Through the Ring（对照组：和 Fading Wheel 相同）
+  "DSC_1552_edit.jpg": ["Awe", "Joy", "Curiosity"],                         // Supertree
+  "DSC_1577.jpg":      ["Calm", "Comfort", "Loneliness", "Sadness"],        // Resting in the Circle（对照组：和 In the Frame 相同）
+
+  "DSC0249.jpg":       ["Loneliness", "Sadness", "Tension", "Calm"],        // Lone Bird
+  "DSC_0091.jpg":      ["Loneliness", "Calm", "Melancholy", "Anxiety"],     // Quiet Street
+  "DSC_0137.jpg":      ["Freedom", "Joy", "Loneliness", "Tension"],         // Crow on the Rail
+  "DSC_0153.jpg":      ["Awe", "Calm", "Loneliness", "Melancholy"],         // Misty Peaks
+  "DSC_0191.jpg":      ["Loneliness", "Calm", "Melancholy", "Hope"],        // By the Lake
+  "DSC_0397.jpg":      ["Sadness", "Melancholy", "Nostalgia", "Calm"],      // Fallen Leaves
+  "DSC_0456.jpg":      ["Calm", "Freedom", "Loneliness", "Sadness"],        // Lone Boat
+  "DSC_1541.jpg":      ["Tension", "Loneliness", "Sadness", "Calm"],        // Two Faces
+  "DSC_1573.jpg":      ["Calm", "Comfort", "Loneliness", "Sadness"],        // In the Frame
+  "DSC_1584.jpg":      ["Joy", "Hope", "Melancholy", "Loneliness"],         // Fading Wheel
 };
 const COLORS = {                           // 结果条和按钮的颜色
-  positive: "#e9a23b", negative: "#5a6d94", unsure: "#a39e95",
-  low: "#6f9e95", high: "#cc6a4c",
-  positive_low_0: "#e8b43c", positive_low_1: "#d98a2b", positive_low_2: "#b9651d",
-  positive_high_0: "#ef9a2e", positive_high_1: "#d4652a", positive_high_2: "#a9411d",
-  negative_low_0: "#8a9dc7", negative_low_1: "#6479a8", negative_low_2: "#45578a",
-  negative_high_0: "#5a6b96", negative_high_1: "#3b4970", negative_high_2: "#222b48",
+  positive: "#e9a23b", negative: "#5a6d94", unsure: "#a39e95", option: "#7c7468",
+  warm: ["#e9a23b", "#cc6a4c", "#b98a2e", "#d97f45"],    // 正面的情绪词
+  cool: ["#5a6d94", "#86a0c9", "#3f4d7a", "#6f9e95"],    // 负面的情绪词
 };
+const NEGATIVE_WORDS = ["loneliness", "sadness", "melancholy", "tension", "anxiety", "fear"];
+const optionWords = file => VOTE_OPTIONS[file] || [];
+// 结果条里每个情绪词的颜色：负面的用冷色，其他用暖色
+function optionColors(words) {
+  let w = 0, c = 0;
+  return words.map(x => NEGATIVE_WORDS.includes(x.toLowerCase()) ? COLORS.cool[c++ % 4] : COLORS.warm[w++ % 4]);
+}
 const FIREBASE_CONFIG = {                   // Firebase 项目 weiyu-photo-votes（数据库在新加坡）
   projectId: "weiyu-photo-votes",
   databaseURL: "https://weiyu-photo-votes-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -899,11 +923,12 @@ const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
 };
-// 这个浏览器对某张照片的投票路径，例如 { v: "positive", a: "low", e: "calm" }
+// 这个浏览器对某张照片的投票，例如 { v: "positive", x: "calm", f: "comfort" }
+// （v = 第 1 步正负，x = 第 2 步表达的情绪，f = 第 3 步自己的感受；旧版投票还可能有 a / e）
 const myPath = file => { try { return JSON.parse(store.get("path:" + file)) || {}; } catch { return {}; } };
 const savePath = (file, path) => store.set("path:" + file, JSON.stringify(path));
-const UNSURE = "unsure";                    // "I'm not sure"：选了就在这一步结束投票
-const currentStep = p => p.e || [p.v, p.a].includes(UNSURE) ? 4 : !p.v ? 1 : !p.a ? 2 : 3;   // 4 = 投完了
+const UNSURE = "unsure", NONE = "none";
+const currentStep = p => !p.v ? 1 : !p.x ? 2 : !p.f ? 3 : 4;   // 4 = 投完了
 
 const votesReady = (async () => {
   if (!FIREBASE_CONFIG) return;
@@ -916,31 +941,25 @@ const votesReady = (async () => {
 })().catch(err => console.error("Firebase:", err));
 
 // 某一步有哪些选项
-function stepOptions(step, path) {
-  const unsure = key => ({ id: UNSURE, label: "I'm not sure", key, color: COLORS.unsure });
+function stepOptions(step, file) {
   if (step === 1) return {
     q: "Does this photo express a positive or negative emotion?",
     opts: [
       { id: "positive", label: "☀ Positive", key: "positive", color: COLORS.positive },
       { id: "negative", label: "☾ Negative", key: "negative", color: COLORS.negative },
-      unsure("unsure"),
+      { id: UNSURE, label: "I'm not sure", key: UNSURE, color: COLORS.unsure, minor: true },
     ],
   };
+  const prefix = step === 2 ? "express" : "feel";
+  const opts = optionWords(file).map(w => ({ id: w.toLowerCase(), label: w, key: `${prefix}_${w.toLowerCase()}`, color: COLORS.option }));
   if (step === 2) return {
-    q: `How intense is this ${path.v} emotion?`,
-    opts: [
-      { id: "low", label: "Low arousal", sub: "calm, quiet", key: `${path.v}_low`, color: COLORS.low },
-      { id: "high", label: "High arousal", sub: "intense, energetic", key: `${path.v}_high`, color: COLORS.high },
-      unsure(`${path.v}_unsure`),
-    ],
+    q: "Which emotion does this photo express?",
+    opts: [...opts, { id: UNSURE, label: "I'm not sure", key: "express_unsure", color: COLORS.unsure, minor: true }],
   };
-  const quad = `${path.v}_${path.a}`;
   return {
-    q: "Which word fits best?",
-    opts: [
-      ...EMOTIONS[quad].map((w, i) => ({ id: w.toLowerCase(), label: w, key: `${quad}_${w.toLowerCase()}`, color: COLORS[`${quad}_${i}`] })),
-      unsure(`${quad}_unsure`),
-    ],
+    q: "How does this photo make you feel?",
+    note: "Your own feeling, which can be different from what the photo expresses.",
+    opts: [...opts, { id: NONE, label: "Nothing in particular", key: "feel_none", color: COLORS.unsure, minor: true }],
   };
 }
 
@@ -963,8 +982,10 @@ function undoVote(file) {
   const p = myPath(file);
   const changes = {};
   if (p.v) changes[p.v] = -1;
-  if (p.a) changes[`${p.v}_${p.a}`] = -1;
-  if (p.e) changes[`${p.v}_${p.a}_${p.e}`] = -1;
+  if (p.a) changes[`${p.v}_${p.a}`] = -1;             // 旧版投票（唤醒度）
+  if (p.e) changes[`${p.v}_${p.a}_${p.e}`] = -1;      // 旧版投票（情绪词）
+  if (p.x) changes[`express_${p.x}`] = -1;
+  if (p.f) changes[`feel_${p.f}`] = -1;
   savePath(file, {});
   if (Object.keys(changes).length) applyVotes(file, changes);
 }
@@ -1010,10 +1031,8 @@ function renderResults() {
   if (!resFile) { box.innerHTML = ""; return; }
   const c = k => resCounts[k] || 0;
   const voters = c("positive") + c("negative") + c(UNSURE);
-  const emotionSegs = [];
-  for (const quad of Object.keys(EMOTIONS))
-    EMOTIONS[quad].forEach((w, i) => emotionSegs.push({ label: w, n: c(`${quad}_${w.toLowerCase()}`), color: COLORS[`${quad}_${i}`] }));
-  emotionSegs.push({ label: "Not sure", n: Object.keys(EMOTIONS).reduce((x, q) => x + c(`${q}_unsure`), 0), color: COLORS.unsure });
+  const words = optionWords(resFile), colors = optionColors(words);
+  const segs = prefix => words.map((w, i) => ({ label: w, n: c(`${prefix}_${w.toLowerCase()}`), color: colors[i] }));
   box.innerHTML = `
     <div class="res-head"><span class="res-title">Audience votes · ${voters} voter${voters === 1 ? "" : "s"}</span><a href="?view=vote">Vote →</a></div>
     ${resultBar("Positive / Negative", [
@@ -1021,12 +1040,8 @@ function renderResults() {
       { label: "Not sure", n: c(UNSURE), color: COLORS.unsure },
       { label: "Negative", n: c("negative"), color: COLORS.negative },
     ])}
-    ${resultBar("Arousal", [
-      { label: "Low", n: c("positive_low") + c("negative_low"), color: COLORS.low },
-      { label: "Not sure", n: c("positive_unsure") + c("negative_unsure"), color: COLORS.unsure },
-      { label: "High", n: c("positive_high") + c("negative_high"), color: COLORS.high },
-    ])}
-    ${resultBar("Emotion", emotionSegs)}`;
+    ${resultBar("Expressed", [...segs("express"), { label: "Not sure", n: c("express_unsure"), color: COLORS.unsure }])}
+    ${resultBar("Felt", [...segs("feel"), { label: "Nothing", n: c("feel_none"), color: COLORS.unsure }])}`;
 }
 
 // ---------- Vote 页面：一张一张投 ----------
@@ -1097,9 +1112,9 @@ function vpRender() {
     : `${doneCount} of ${vpOrder.length} photos voted`;
 
   if (step === 4) {
-    const name = id => ({ positive: "☀ Positive", negative: "☾ Negative", low: "Low arousal", high: "High arousal", unsure: "Not sure" })[id]
+    const name = id => ({ positive: "☀ Positive", negative: "☾ Negative", unsure: "Not sure", none: "Nothing in particular" })[id]
       || id[0].toUpperCase() + id.slice(1);
-    const your = [path.v, path.a, path.e].filter(Boolean).map(name).join(" › ");
+    const your = `${name(path.v)} · Expresses: ${name(path.x)} · You feel: ${name(path.f)}`;
     const allDone = doneCount === vpOrder.length;
     box.innerHTML = `
       <div class="vp-done">${allDone ? "All done, thank you! 🎉" : "Thanks! ✓"}</div>
@@ -1111,11 +1126,12 @@ function vpRender() {
     document.getElementById("vpGoNext")?.addEventListener("click", () => vpShow(vpNextUndone(vpIndex)));
     document.getElementById("vpRedo").onclick = () => { undoVote(file); vpFadeRender(); };
   } else {
-    const { q, opts } = stepOptions(step, path);
+    const { q, note, opts } = stepOptions(step, file);
     box.innerHTML = `
       <div class="vp-step">Step ${step} of 3</div>
       <div class="vp-q">${q}</div>
-      <div class="vp-btns">${opts.map(o => `<button class="vote-btn${o.id === UNSURE ? " unsure" : ""}" data-id="${o.id}" style="--c:${o.color}">
+      ${note ? `<div class="vp-note">${note}</div>` : ""}
+      <div class="vp-btns">${opts.map(o => `<button class="vote-btn${o.minor ? " unsure" : ""}" data-id="${o.id}" style="--c:${o.color}">
         ${o.label}${o.sub ? `<small>${o.sub}</small>` : ""}</button>`).join("")}</div>`;
     box.querySelectorAll(".vote-btn").forEach(b => b.onclick = () => vpCast(step, b.dataset.id));
   }
@@ -1131,8 +1147,8 @@ function vpCast(step, id) {
   const file = vpOrder[vpIndex];
   const path = myPath(file);
   if (currentStep(path) !== step) return;
-  const opt = stepOptions(step, path).opts.find(o => o.id === id);
-  path[["v", "a", "e"][step - 1]] = id;
+  const opt = stepOptions(step, file).opts.find(o => o.id === id);
+  path[["v", "x", "f"][step - 1]] = id;
   savePath(file, path);
   applyVotes(file, { [opt.key]: 1 });
   vpFadeRender();
