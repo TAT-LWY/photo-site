@@ -1046,21 +1046,35 @@ function renderResults() {
 // ---------- Vote 页面：一张一张投 ----------
 let vpOrder = [], vpIndex = 0, vpTimer = null;
 
-// 每个投票者看到的照片顺序是随机的（存在浏览器里，刷新后顺序不变）
-function vpBuildOrder() {
-  const files = PHOTOS.map(p => p.file);
-  let order = [];
-  try { order = JSON.parse(store.get("voteOrder")) || []; } catch {}
-  order = order.filter(f => files.includes(f));
-  const missing = files.filter(f => !order.includes(f));
-  for (let i = missing.length - 1; i > 0; i--) {
+// 每个投票者一轮只投 10 张：随机挑 5 张白天 + 5 张黑夜（存在浏览器里，刷新后不变）
+// 投完一轮可以选择再投剩下的 10 张
+const shuffle = a => {
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [missing[i], missing[j]] = [missing[j], missing[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  order = order.concat(missing);
-  store.set("voteOrder", JSON.stringify(order));
-  return order;
+  return a;
+};
+function vpBuildBatches() {
+  const files = PHOTOS.map(p => p.file);
+  let batches = [];
+  try { batches = JSON.parse(store.get("voteBatches")) || []; } catch {}
+  const saved = batches.flat();
+  // 照片有增减时重新分组
+  if (saved.length !== files.length || !files.every(f => saved.includes(f))) {
+    const day = shuffle(PHOTOS.filter(p => p.mood === "day").map(p => p.file));
+    const night = shuffle(PHOTOS.filter(p => p.mood !== "day").map(p => p.file));
+    const half = n => Math.ceil(n / 2);
+    batches = [
+      shuffle([...day.slice(0, half(day.length)), ...night.slice(0, half(night.length))]),
+      shuffle([...day.slice(half(day.length)), ...night.slice(half(night.length))]),
+    ].filter(b => b.length);
+    store.set("voteBatches", JSON.stringify(batches));
+    store.set("voteRound", "0");
+  }
+  return batches;
 }
+let vpBatches = [], vpRound = 0;
 const vpDone = f => currentStep(myPath(f)) === 4;
 const vpNextUndone = from => {
   for (let k = 1; k <= vpOrder.length; k++) {
@@ -1070,10 +1084,17 @@ const vpNextUndone = from => {
   return -1;
 };
 
-function initVotePage() {
-  vpOrder = vpBuildOrder();
+function vpStartRound(round, fade = true) {
+  vpRound = round;
+  store.set("voteRound", String(round));
+  vpOrder = vpBatches[round];
   const first = vpOrder.findIndex(f => !vpDone(f));
-  vpShow(first === -1 ? 0 : first, false);
+  vpShow(first === -1 ? 0 : first, fade);
+}
+
+function initVotePage() {
+  vpBatches = vpBuildBatches();
+  vpStartRound(Math.min(+store.get("voteRound") || 0, vpBatches.length - 1), false);
   document.getElementById("vpPrev").onclick = () => vpShow((vpIndex - 1 + vpOrder.length) % vpOrder.length);
   document.getElementById("vpNext").onclick = () => vpShow((vpIndex + 1) % vpOrder.length);
 }
@@ -1107,7 +1128,7 @@ function vpRender() {
   document.getElementById("vpCount").textContent = `Photo ${vpIndex + 1} of ${vpOrder.length}`;
   document.getElementById("vpProgress").style.width = doneCount / vpOrder.length * 100 + "%";
   document.getElementById("vpProgressText").textContent = doneCount === vpOrder.length
-    ? `You've voted on all ${vpOrder.length} photos. Thank you!`
+    ? `You've voted on all ${vpOrder.length} photos${vpRound ? " in this round" : ""}. Thank you!`
     : `${doneCount} of ${vpOrder.length} photos voted`;
 
   if (step === 4) {
@@ -1120,9 +1141,11 @@ function vpRender() {
       <div class="vp-your">Your vote: ${your}</div>
       <div class="vp-actions">
         ${allDone ? `<a class="vp-link-btn primary" href="./">See the photos & results →</a>` : `<button class="vp-link-btn primary" id="vpGoNext">Next photo →</button>`}
+        ${allDone && vpRound + 1 < vpBatches.length ? `<button class="vp-link-btn" id="vpMore">Vote on ${vpBatches[vpRound + 1].length} more photos</button>` : ""}
         <button class="vp-link-btn" id="vpRedo">Change my vote</button>
       </div>`;
     document.getElementById("vpGoNext")?.addEventListener("click", () => vpShow(vpNextUndone(vpIndex)));
+    document.getElementById("vpMore")?.addEventListener("click", () => vpStartRound(vpRound + 1));
     document.getElementById("vpRedo").onclick = () => { undoVote(file); vpFadeRender(); };
   } else {
     const { q, note, opts } = stepOptions(step, file);
