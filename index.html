@@ -71,11 +71,7 @@
   body.view-excluded .nav-links > a[href^="#"] { display: none; }
   body.view-excluded .back-link { display: inline; }
   body.view-excluded .trash-btn { background: var(--text); color: var(--bg) !important; border-color: var(--text); }
-  body.view-excluded #gallery, body.view-excluded #compare, body.view-excluded #contact { display: none; }
-  body.view-techniques .nav-links > a[href^="#"] { display: none; }
-  body.view-techniques .back-link { display: inline; }
-  body.view-techniques .tech-link { color: var(--text); font-weight: 600; }
-  body.view-techniques #gallery, body.view-techniques #compare, body.view-techniques #contact { display: none; }
+  body.view-excluded #gallery, body.view-excluded #techniques, body.view-excluded #compare, body.view-excluded #contact { display: none; }
   .vote-nav-btn {
     padding: 6px 16px; border-radius: 999px; background: var(--accent); color: #fff !important; font-weight: 600;
   }
@@ -83,7 +79,7 @@
   body.view-vote .nav-links > a[href^="#"] { display: none; }
   body.view-vote .back-link { display: inline; }
   body.view-vote .vote-nav-btn { display: none; }
-  body.view-vote #gallery, body.view-vote #compare, body.view-vote #contact { display: none; }
+  body.view-vote #gallery, body.view-vote #techniques, body.view-vote #compare, body.view-vote #contact { display: none; }
 
   /* Vote 页面 */
   .vote-page { padding: 28px 0 60px; }
@@ -132,7 +128,7 @@
   .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
 
   /* Techniques 页面 */
-  .techniques { padding: 28px 0 90px; }
+  .techniques { border-top: 1px solid var(--line); padding: 70px 0 30px; }
   .tq-subs { color: var(--muted); font-size: 14px; margin-top: 6px; }
   .tq-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
   .tq-card { cursor: zoom-in; }
@@ -355,10 +351,10 @@
     <a href="#" class="logo">Weiyu · Photography · Personal Project</a>
     <div class="nav-links">
       <a href="#gallery">Work</a>
+      <a href="#techniques">Techniques</a>
       <a href="#compare">Compare</a>
       <a href="#contact">Contact</a>
       <a href="./" class="back-link">← Back to portfolio</a>
-      <a href="?view=techniques" class="tech-link">Techniques</a>
       <a href="?view=vote" class="vote-nav-btn">Vote</a>
       <a href="?view=excluded" class="trash-btn" id="trashBtn" title="Excluded photos" aria-label="Excluded photos">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -382,6 +378,12 @@
       </div>
       <button class="fan-btn" id="fanNext" title="Next">›</button>
     </div>
+  </section>
+
+  <section class="techniques" id="techniques">
+    <h2 class="section-title">Techniques</h2>
+    <p class="compare-intro">The seven groups of photography techniques in this project, the photos that use each one, and how each technique can affect the emotion of a photo.</p>
+    <div id="techGroups"></div>
   </section>
 
   <section class="compare" id="compare">
@@ -410,12 +412,6 @@
     </div>
     <div class="vp-progress"><div id="vpProgress"></div></div>
     <div class="vp-progress-text" id="vpProgressText"></div>
-  </section>
-
-  <section class="techniques" id="techniques" hidden>
-    <h2 class="section-title">Techniques</h2>
-    <p class="excluded-intro">The seven groups of photography techniques in this project, the photos that use each one, and how each technique can affect the emotion of a photo.</p>
-    <div id="techGroups"></div>
   </section>
 
   <section class="excluded" id="excluded" hidden>
@@ -596,7 +592,7 @@ const COMPARISONS = [
 
 const byFile = Object.fromEntries(PHOTOS.map(p => [p.file, p]));
 /* ==========================================================
-   🎛 技巧 —— Techniques 页面（?view=techniques）
+   🎛 技巧 —— 主页上 Portfolio 和 Comparisons 之间的 Techniques 区域
    7 类摄影技巧，每类列出用到它的照片（file + 这张照片具体用了什么）
    analysis：这一类技巧怎么影响情绪（写在两个 ` 之间；空一行 = 分段）
    ========================================================== */
@@ -1370,11 +1366,6 @@ if (VIEW === "excluded") {
   document.getElementById("excluded").hidden = false;
   document.title = "Excluded photos · Weiyu";
   renderExcluded();
-} else if (VIEW === "techniques") {
-  document.body.classList.add("view-techniques");
-  document.getElementById("techniques").hidden = false;
-  document.title = "Techniques · Weiyu";
-  renderTechniques();
 } else if (VIEW === "vote") {
   document.body.classList.add("view-vote");
   document.getElementById("votePage").hidden = false;
@@ -1382,6 +1373,7 @@ if (VIEW === "excluded") {
   initVotePage();
 } else {
   render();
+  renderTechniques();
   renderPairs();
   requestAnimationFrame(tick);
 }
