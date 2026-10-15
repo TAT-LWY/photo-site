@@ -116,6 +116,14 @@
 
   .excluded { padding: 28px 0 90px; }
   .excluded-intro { color: var(--muted); margin: -8px 0 36px; max-width: 720px; }
+  .ex-group { border-top: 1px solid var(--line); padding-top: 32px; margin-bottom: 72px; }
+  .ex-group-head { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: start; margin-bottom: 32px; }
+  .ex-num { font-family: "Noto Serif SC", serif; font-size: 44px; line-height: 1; color: var(--accent); }
+  .ex-group-head h3 { font-family: "Noto Serif SC", serif; font-size: 24px; line-height: 1.3; }
+  .ex-reason { color: var(--muted); line-height: 1.8; margin-top: 10px; max-width: 760px; }
+  .ex-reason p + p { margin-top: 12px; }
+  .ex-reason.empty { font-style: italic; font-size: 14px; }
+  .ex-count { color: var(--muted); font-size: 14px; white-space: nowrap; padding-top: 8px; }
   .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
   .ex-card { cursor: zoom-in; }
   .ex-img { position: relative; border-radius: 12px; overflow: hidden; background: var(--line); }
@@ -133,7 +141,6 @@
   .ex-card figcaption b { font-family: "Noto Serif SC", serif; font-size: 19px; display: block; }
   .lightbox.no-vote .lb-vote { display: none; }
   .lightbox.no-vote .lb-panel { bottom: 48px; }
-  .lightbox.no-vote .lb-intended { display: none; }
   section[id] { scroll-margin-top: 61px; } /* 跳到某个区域时，不被顶部导航栏挡住 */
 
   .section-title { font-family: "Noto Serif SC", serif; font-size: 28px; margin-bottom: 20px; }
@@ -381,7 +388,7 @@
   <section class="excluded" id="excluded" hidden>
     <h2 class="section-title">Excluded photos</h2>
     <p class="excluded-intro">Photos I took but decided not to use in this research, and why. This shows how the photos in the portfolio were selected.</p>
-    <div class="ex-grid" id="exGrid"></div>
+    <div id="exGroups"></div>
   </section>
 </main>
 
@@ -399,7 +406,7 @@
     <div class="lb-meta" id="lbMeta"></div>
     <div class="lb-exif" id="lbExif"></div>
     <div class="lb-intended">
-      <div class="lb-label">Intended emotion</div>
+      <div class="lb-label" id="lbIntendedLabel">Intended emotion</div>
       <div class="lb-intended-value" id="lbIntended"></div>
     </div>
     <h3 class="lb-heading">Analysis</h3>
@@ -482,54 +489,85 @@ const ANALYSIS = {
 
 /* ==========================================================
    🗑 排除的照片 —— 右上角垃圾桶打开的页面
-   reason：为什么这张照片没有用在研究里（写在两个 ` 之间；空一行 = 分段）
+   照片分成三类，每一类写一段整体理由（EXCLUDE_GROUPS 里的 reason）
+   每张照片的 group 决定它属于哪一类；reason 可以留空，写了就是这张照片额外的说明
+   （写在两个 ` 之间；空一行 = 分段）
    ========================================================== */
-const EXCLUDED = [
-  { file: "DSC_0049.jpg",  title: "Vine Bridge",           date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",
-    reason: `Although it uses leading lines, symmetrical composition, and natural framing to guide the viewer's attention, its ability to communicate a clear emotion is relatively weak. The handrails lead the viewer's sight towards the end, but the bushes at the end do not provide a strong focal point, making the image feel less engaging.` },
-  { file: "DSC_0056.jpg",  title: "Rooster",              date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",
+const EXCLUDE_GROUPS = [
+  { id: "record",  title: "No clear emotion",
     reason: `` },
-  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",       date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",
+  { id: "subject", title: "Emotion comes from the subject, not the technique",
     reason: `` },
-  { file: "DSC_0149.jpg",  title: "Castle in the Trees",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",
-    reason: `` },
-  { file: "DSC_0182.jpg",  title: "On Deck",              date: "Apr 8, 2026",  aperture: "f/11",  shutter: "1/500s",  iso: 320, focal: "46mm",
-    reason: `` },
-  { file: "DSC_0184.jpg",  title: "Traveler",             date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 320, focal: "58mm",
-    reason: `` },
-  { file: "DSC_0358.jpg",  title: "Monitor Lizard",       date: "May 28, 2026", aperture: "f/4",   shutter: "1/100s",  iso: 200, focal: "120mm",
-    reason: `` },
-  { file: "DSC_0444.jpg",  title: "Incense",              date: "Jun 28, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 250, focal: "120mm",
-    reason: `` },
-  { file: "DSC_0468.jpg",  title: "Afternoon Nap",        date: "Jul 1, 2026",  aperture: "f/4",   shutter: "1/25s",   iso: 400, focal: "120mm",
-    reason: `` },
-  { file: "DSC_0499.jpg",  title: "Panda",                date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",
-    reason: `` },
-  { file: "DSC_1269.jpg",  title: "Black Swan",           date: "Jul 25, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 400, focal: "120mm",
-    reason: `` },
-  { file: "DSC_1544.jpg",  title: "Garden Walk",          date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
-    reason: `` },
-  { file: "DSC_1546.jpg",  title: "Laughing Buddha",      date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/125s",  iso: 100, focal: "120mm",
-    reason: `` },
-  { file: "DSC_1558.jpg",  title: "Mother Hen",           date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
-    reason: `` },
-  { file: "DSC_1564.jpg",  title: "Foraging",             date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
-    reason: `` },
-  { file: "DSC_1567.jpg",  title: "Silhouette",           date: "Oct 11, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 64,  focal: "59mm",
-    reason: `` },
-  { file: "DSC_1586.jpg",  title: "Waiting",              date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/250s",  iso: 64,  focal: "81mm",
-    reason: `` },
-  { file: "DSC_1587.jpg",  title: "Down the Steps",       date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
+  { id: "weak",    title: "Technique without clear emotion",
     reason: `` },
 ];
 
+const EXCLUDED = [
+  { file: "DSC_0049.jpg",  title: "Vine Bridge",           date: "Feb 28, 2026", aperture: "f/7.1", shutter: "1/160s",  iso: 250, focal: "51mm",
+    group: "weak",    reason: `Although it uses leading lines, symmetrical composition, and natural framing to guide the viewer's attention, its ability to communicate a clear emotion is relatively weak. The handrails lead the viewer's sight towards the end, but the bushes at the end do not provide a strong focal point, making the image feel less engaging.` },
+  { file: "DSC_0056.jpg",  title: "Rooster",              date: "Feb 28, 2026", aperture: "f/4",   shutter: "1/160s",  iso: 250, focal: "120mm",
+    group: "record",  reason: `` },
+  { file: "DSC_0138.jpg",  title: "Blue Sky Perch",       date: "Apr 6, 2026",  aperture: "f/9",   shutter: "1/1250s", iso: 250, focal: "120mm",
+    group: "weak",    reason: `` },
+  { file: "DSC_0149.jpg",  title: "Castle in the Trees",  date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 250, focal: "120mm",
+    group: "record",  reason: `` },
+  { file: "DSC_0182.jpg",  title: "On Deck",              date: "Apr 8, 2026",  aperture: "f/11",  shutter: "1/500s",  iso: 320, focal: "46mm",
+    group: "record",  reason: `` },
+  { file: "DSC_0184.jpg",  title: "Traveler",             date: "Apr 8, 2026",  aperture: "f/7.1", shutter: "1/800s",  iso: 320, focal: "58mm",
+    group: "record",  reason: `` },
+  { file: "DSC_0358.jpg",  title: "Monitor Lizard",       date: "May 28, 2026", aperture: "f/4",   shutter: "1/100s",  iso: 200, focal: "120mm",
+    group: "record",  reason: `` },
+  { file: "DSC_0444.jpg",  title: "Incense",              date: "Jun 28, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 250, focal: "120mm",
+    group: "record",  reason: `` },
+  { file: "DSC_0468.jpg",  title: "Afternoon Nap",        date: "Jul 1, 2026",  aperture: "f/4",   shutter: "1/25s",   iso: 400, focal: "120mm",
+    group: "subject", reason: `` },
+  { file: "DSC_0499.jpg",  title: "Panda",                date: "Jul 7, 2026",  aperture: "f/5.6", shutter: "1/500s",  iso: 400, focal: "120mm",
+    group: "subject", reason: `` },
+  { file: "DSC_1269.jpg",  title: "Black Swan",           date: "Jul 25, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 400, focal: "120mm",
+    group: "record",  reason: `` },
+  { file: "DSC_1544.jpg",  title: "Garden Walk",          date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
+    group: "weak",    reason: `` },
+  { file: "DSC_1546.jpg",  title: "Laughing Buddha",      date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/125s",  iso: 100, focal: "120mm",
+    group: "subject", reason: `` },
+  { file: "DSC_1558.jpg",  title: "Mother Hen",           date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
+    group: "subject", reason: `` },
+  { file: "DSC_1564.jpg",  title: "Foraging",             date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/200s",  iso: 64,  focal: "120mm",
+    group: "record",  reason: `` },
+  { file: "DSC_1567.jpg",  title: "Silhouette",           date: "Oct 11, 2026", aperture: "f/5",   shutter: "1/400s",  iso: 64,  focal: "59mm",
+    group: "weak",    reason: `` },
+  { file: "DSC_1586.jpg",  title: "Waiting",              date: "Oct 11, 2026", aperture: "f/4",   shutter: "1/250s",  iso: 64,  focal: "81mm",
+    group: "subject", reason: `` },
+  { file: "DSC_1587.jpg",  title: "Down the Steps",       date: "Oct 11, 2026", aperture: "f/6.3", shutter: "1/160s",  iso: 64,  focal: "24mm",
+    group: "weak",    reason: `` },
+];
+
+// 按三类的顺序排好，点开照片后左右翻页也按这个顺序
+const EX_ORDER = EXCLUDE_GROUPS.flatMap(g => EXCLUDED.filter(p => p.group === g.id));
+const exGroupNo = p => EXCLUDE_GROUPS.findIndex(g => g.id === p.group) + 1;
+const paragraphs = text => text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("");
+
 function renderExcluded() {
-  const grid = document.getElementById("exGrid");
-  grid.innerHTML = EXCLUDED.map((p, i) => `<figure class="ex-card" data-i="${i}">
-      <div class="ex-img"><img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy"><span class="ex-stamp">Excluded</span></div>
-      <figcaption><b>${p.title}</b></figcaption>
-    </figure>`).join("");
-  grid.querySelectorAll(".ex-card").forEach(c => c.onclick = () => openLb(+c.dataset.i, EXCLUDED));
+  const box = document.getElementById("exGroups");
+  box.innerHTML = EXCLUDE_GROUPS.map((g, gi) => {
+    const reason = g.reason.trim();
+    const cards = EX_ORDER.map((p, i) => p.group !== g.id ? "" : `<figure class="ex-card" data-i="${i}">
+        <div class="ex-img"><img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy"><span class="ex-stamp">Excluded</span></div>
+        <figcaption><b>${p.title}</b></figcaption>
+      </figure>`).join("");
+    const count = EX_ORDER.filter(p => p.group === g.id).length;
+    return `<section class="ex-group">
+      <div class="ex-group-head">
+        <span class="ex-num">${String(gi + 1).padStart(2, "0")}</span>
+        <div>
+          <h3>${g.title}</h3>
+          <div class="ex-reason${reason ? "" : " empty"}">${reason ? paragraphs(reason) : "Reason coming soon"}</div>
+        </div>
+        <span class="ex-count">${count} photo${count === 1 ? "" : "s"}</span>
+      </div>
+      <div class="ex-grid">${cards}</div>
+    </section>`;
+  }).join("");
+  box.querySelectorAll(".ex-card").forEach(c => c.onclick = () => openLb(+c.dataset.i, EX_ORDER));
 }
 
 const fan = document.getElementById("fan");
@@ -761,10 +799,15 @@ function fillPanel(p) {
   document.getElementById("lbExif").innerHTML = [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
   ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("");
-  const isExcluded = "reason" in p;            // 垃圾桶页面里的照片
+  const isExcluded = "group" in p;             // 垃圾桶页面里的照片
   lb.classList.toggle("no-vote", isExcluded);
   document.querySelector(".lb-heading").textContent = isExcluded ? "Why it was excluded" : "Analysis";
-  const info = isExcluded ? { analysis: p.reason } : ANALYSIS[p.file] || {};
+  document.getElementById("lbIntendedLabel").textContent = isExcluded ? "Category" : "Intended emotion";
+  const group = EXCLUDE_GROUPS.find(g => g.id === p.group);
+  const info = isExcluded
+    ? { intended: `${exGroupNo(p)} · ${group.title}`,
+        analysis: [group.reason.trim(), (p.reason || "").trim()].filter(Boolean).join("\n\n") }
+    : ANALYSIS[p.file] || {};
   const intended = (info.intended || "").trim();
   const intendedEl = document.getElementById("lbIntended");
   intendedEl.classList.toggle("empty", !intended);
@@ -772,7 +815,7 @@ function fillPanel(p) {
   const text = (info.analysis || "").trim();
   const box = document.getElementById("lbAnalysis");
   box.classList.toggle("empty", !text);
-  box.innerHTML = text ? text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("")
+  box.innerHTML = text ? paragraphs(text)
     : isExcluded ? "Reason coming soon" : "Analysis coming soon";
   document.querySelector(".lb-panel").scrollTop = 0;
   if (isExcluded) stopResults();
