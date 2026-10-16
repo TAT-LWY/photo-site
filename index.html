@@ -143,7 +143,11 @@
   .ex-track:hover .ex-film { animation-play-state: paused; }
   @keyframes ex-run { from { transform: translateY(0); } to { transform: translateY(calc(var(--shift) * -1)); } }
   .ex-frame { position: relative; flex: none; cursor: zoom-in; transition: transform .35s; }
-  .ex-frame img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
+  .ex-frame img {                      /* 平时是褪色的灰色，鼠标移上去恢复原来的颜色 */
+    width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block;
+    filter: grayscale(1) contrast(.85) brightness(1.08); transition: filter .45s;
+  }
+  .ex-frame:hover img { filter: none; }
   .ex-frame:hover { transform: scale(1.04); z-index: 2; }
 
   /* Techniques 页面 */
