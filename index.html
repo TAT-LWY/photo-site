@@ -144,10 +144,7 @@
   @keyframes ex-run { from { transform: translateY(0); } to { transform: translateY(calc(var(--shift) * -1)); } }
   .ex-frame { position: relative; flex: none; cursor: zoom-in; transition: transform .35s; }
   .ex-frame img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
-  .ex-frame svg { position: absolute; inset: -6px; width: calc(100% + 12px); height: calc(100% + 12px); overflow: visible; transition: opacity .3s; }
-  .ex-frame svg path { fill: none; stroke: #d8331f; stroke-width: 4.5; stroke-linecap: round; opacity: .9; }
   .ex-frame:hover { transform: scale(1.04); z-index: 2; }
-  .ex-frame:hover svg { opacity: .12; }
 
   /* Techniques 页面 */
   .techniques { border-top: 1px solid var(--line); padding: 70px 0 30px; }
@@ -609,7 +606,6 @@ const EXCLUDED = [
 
 const paragraphs = text => text.split(/\n\s*\n/).map(t => `<p>${t}</p>`).join("");
 const EX_SPEED = [34, 26, 30];             // 三列胶片的速度（像素/秒）
-const EX_X = `<svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M6 8 Q48 46 95 93"/><path d="M94 6 Q55 52 5 94"/></svg>`;
 
 // 三类各一列，胶片竖着一直走（中间那列反方向），鼠标移上去就停
 function renderExcluded() {
@@ -633,7 +629,7 @@ function renderExcluded() {
 function exFillFilms(lists) {
   document.querySelectorAll(".ex-film").forEach(film => {
     const gi = +film.dataset.g, list = lists[gi];
-    const frame = (p, k) => `<div class="ex-frame" data-k="${k}"><img src="photos/thumb/${p.file}" alt="Excluded photo">${EX_X}</div>`;
+    const frame = (p, k) => `<div class="ex-frame" data-k="${k}"><img src="photos/thumb/${p.file}" alt="Excluded photo"></div>`;
     film.innerHTML = list.map(frame).join("").repeat(2);
     const frames = film.children;
     const one = frames[list.length].offsetTop - frames[0].offsetTop;   // 一份照片的长度（含间距）
