@@ -116,7 +116,6 @@
   .vp-progress-text { font-size: 13px; color: var(--muted); margin-top: 8px; text-align: center; }
 
   .excluded { padding: 28px 0 90px; }
-  .excluded-intro { color: var(--muted); margin: -8px 0 36px; max-width: 720px; }
   /* 三列竖着走的胶片：上面一行是三类的标题和理由，下面一行是胶片 */
   .ex-reels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 40px; border-top: 1px solid var(--line); padding-top: 32px; }
   .ex-head { padding-bottom: 26px; }
@@ -312,8 +311,6 @@
   .res { width: min(980px, 100%); }
   .res-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
   .res-title { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-  .res-head a { font-size: 13px; color: var(--accent); text-decoration: none; }
-  .res-head a:hover { text-decoration: underline; }
   .res-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 14px; margin-top: 7px; }
   .res-label { font-size: 13px; color: var(--muted); text-align: right; }
   .res-bar { position: relative; display: flex; height: 24px; border-radius: 999px; overflow: hidden; background: var(--line); }
@@ -476,7 +473,6 @@
 
   <section class="excluded" id="excluded" hidden>
     <h2 class="section-title">Excluded photos</h2>
-    <p class="excluded-intro">Photos I took but decided not to use in this research, and why. This shows how the photos in the portfolio were selected.</p>
     <div id="exGroups"></div>
   </section>
 </main>
@@ -1318,7 +1314,7 @@ function renderResults() {
   const words = optionWords(resFile), colors = optionColors(words);
   const segs = prefix => words.map((w, i) => ({ label: w, n: c(`${prefix}_${w.toLowerCase()}`), color: colors[i] }));
   box.innerHTML = `
-    <div class="res-head"><span class="res-title">Audience votes · ${voters} voter${voters === 1 ? "" : "s"}</span><a href="?view=vote">Vote →</a></div>
+    <div class="res-head"><span class="res-title">Audience votes · ${voters} voter${voters === 1 ? "" : "s"}</span></div>
     ${resultBar("Positive / Negative", [
       { label: "Positive", n: c("positive"), color: COLORS.positive },
       { label: "Not sure", n: c(UNSURE), color: COLORS.unsure },
