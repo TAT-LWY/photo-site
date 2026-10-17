@@ -229,7 +229,6 @@
 
   .fan-info { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: -60px; padding-bottom: 80px; position: relative; }
   .fan-info .text { text-align: center; min-width: 280px; }
-  .fan-info h3 { font-family: "Noto Serif SC", serif; font-size: 26px; font-weight: 700; }
   .fan-info .count { color: var(--accent); font-size: 13px; letter-spacing: .15em; margin-top: 6px; }
   .fan-btn {
     width: 52px; height: 52px; border-radius: 50%; font-size: 22px; cursor: pointer;
@@ -280,8 +279,6 @@
   }
   .lb-btn:hover { background: var(--text); color: var(--bg); }
   .lb-close { position: fixed; top: 20px; right: 20px; z-index: 2; }
-  .lb-panel h2:empty { display: none; }
-  .lb-panel h2 { font-family: "Noto Serif SC", serif; font-size: 40px; line-height: 1.2; }
   .lb-meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
   .lb-exif { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
   .lb-exif .chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; font-size: 13px; }
@@ -346,7 +343,6 @@
     background: var(--bg); border-radius: 10px; transition: transform .4s;
   }
   .pair figure:hover img { transform: scale(1.015); }
-  .pair figcaption { font-family: "Noto Serif SC", serif; font-size: 20px; font-weight: 700; margin-top: 12px; }
   .mood-tag { display: inline-block; font-size: 12px; letter-spacing: .08em; padding: 3px 12px; border-radius: 999px; margin-bottom: 10px; }
   .mood-tag.day { background: #f6e3b4; color: #7a5200; }
   .mood-tag.night { background: #2b2f3a; color: #c9d1e6; }
@@ -395,7 +391,6 @@
     <div class="fan-info">
       <button class="fan-btn" id="fanPrev" title="Previous">‹</button>
       <div class="text">
-        <h3 id="fanTitle"></h3>
         <div class="count" id="fanCount"></div>
         <button class="fan-auto" id="fanAuto">❚❚ Pause</button>
       </div>
@@ -466,7 +461,6 @@
       <span id="lbCount"></span>
       <button class="lb-btn" id="lbNext" title="Next">›</button>
     </div>
-    <h2 id="lbTitle"></h2>
     <div class="lb-meta" id="lbMeta"></div>
     <div class="lb-exif" id="lbExif"></div>
     <div class="lb-intended">
@@ -486,32 +480,33 @@
 /* ==========================================================
    📷 照片列表 —— 在这里添加/修改你的照片
    每张照片有两个版本：photos/thumb/（扇子上的小图）和 photos/full/（点开的大图）
+   照片不显示题目（// 后面的名字只是方便找照片）
    file 填文件名；place（地点）可以留空 ""，留空就不显示
    mood: "day" = 白天模式显示（偏正面情绪），"night" = 黑夜模式显示（偏负面情绪）
    aperture 光圈 / shutter 快门 / iso 感光度 / focal 焦距 —— 从原图的拍摄数据里读出来的，点开大图时显示
    所有照片都以同样大小的竖版卡片展示（会自动裁剪填满卡片）
    ========================================================== */
 const PHOTOS = [
-  { file: "DSC0211.jpg",   title: "Garden Path",           place: "", date: "Feb 3, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 6400, focal: "120mm" },
-  { file: "DSC0249.jpg",   title: "Lone Bird",             place: "", date: "Feb 6, 2026", mood: "night",   aperture: "f/22",  shutter: "1/13000s",iso: 65535,focal: "120mm" },
-  { file: "DSC_0085.jpg",  title: "Rooftop Statue",        place: "", date: "Mar 29, 2026", mood: "day",     aperture: "f/8",   shutter: "1/1000s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0091.jpg",  title: "Quiet Street",          place: "", date: "Mar 29, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 250,  focal: "44mm" },
-  { file: "DSC_0135.jpg",  title: "Snow Mountain",               place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/10",  shutter: "1/1600s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0137.jpg",  title: "Crow on the Rail",      place: "", date: "Apr 6, 2026", mood: "night",   aperture: "f/11",  shutter: "1/2000s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0141.jpg",  title: "Taking Off",            place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0143.jpg",  title: "Sailboat",              place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 250,  focal: "120mm" },
-  { file: "DSC_0153.jpg",  title: "Misty Peaks",           place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_0191.jpg",  title: "By the Lake",           place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "24mm" },
-  { file: "DSC_0397.jpg",  title: "Fallen Leaves",         place: "", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },
-  { file: "DSC_0439.jpg",  title: "Golden Eaves",          place: "", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },
-  { file: "DSC_0456.jpg",  title: "Lone Boat",             place: "", date: "Jul 1, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },
-  { file: "DSC_1522.jpg",  title: "Night Road",            place: "", date: "Sep 1, 2026", mood: "day",     aperture: "f/4",   shutter: "1/5s",    iso: 2000, focal: "120mm" },
-  { file: "DSC_1538_edit.jpg",  title: "Through the Ring",      place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },
-  { file: "DSC_1541.jpg",  title: "Two Faces",             place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },
-  { file: "DSC_1552_edit.jpg",  title: "Supertree",             place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },
-  { file: "DSC_1573.jpg",  title: "In the Frame",          place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },
-  { file: "DSC_1577.jpg",  title: "Resting in the Circle", place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },
-  { file: "DSC_1584.jpg",  title: "Fading Wheel",          place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },
+  { file: "DSC0211.jpg",  place: "", date: "Feb 3, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 6400, focal: "120mm" },   // Garden Path
+  { file: "DSC0249.jpg",  place: "", date: "Feb 6, 2026", mood: "night",   aperture: "f/22",  shutter: "1/13000s",iso: 65535,focal: "120mm" },   // Lone Bird
+  { file: "DSC_0085.jpg",  place: "", date: "Mar 29, 2026", mood: "day",     aperture: "f/8",   shutter: "1/1000s", iso: 250,  focal: "120mm" },   // Rooftop Statue
+  { file: "DSC_0091.jpg",  place: "", date: "Mar 29, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 250,  focal: "44mm" },   // Quiet Street
+  { file: "DSC_0135.jpg",  place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/10",  shutter: "1/1600s", iso: 250,  focal: "120mm" },   // Snow Mountain
+  { file: "DSC_0137.jpg",  place: "", date: "Apr 6, 2026", mood: "night",   aperture: "f/11",  shutter: "1/2000s", iso: 250,  focal: "120mm" },   // Crow on the Rail
+  { file: "DSC_0141.jpg",  place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Taking Off
+  { file: "DSC_0143.jpg",  place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 250,  focal: "120mm" },   // Sailboat
+  { file: "DSC_0153.jpg",  place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Misty Peaks
+  { file: "DSC_0191.jpg",  place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "24mm" },   // By the Lake
+  { file: "DSC_0397.jpg",  place: "", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },   // Fallen Leaves
+  { file: "DSC_0439.jpg",  place: "", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },   // Golden Eaves
+  { file: "DSC_0456.jpg",  place: "", date: "Jul 1, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Lone Boat
+  { file: "DSC_1522.jpg",  place: "", date: "Sep 1, 2026", mood: "day",     aperture: "f/4",   shutter: "1/5s",    iso: 2000, focal: "120mm" },   // Night Road
+  { file: "DSC_1538_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },   // Through the Ring
+  { file: "DSC_1541.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },   // Two Faces
+  { file: "DSC_1552_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },   // Supertree
+  { file: "DSC_1573.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },   // In the Frame
+  { file: "DSC_1577.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },   // Resting in the Circle
+  { file: "DSC_1584.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },   // Fading Wheel
 ];
 
 /* ==========================================================
@@ -760,7 +755,7 @@ function tqShow() {
     if (tqImg.getAttribute("src") === url) tqImg.classList.remove("fading");
     else { tqImg.onload = () => tqImg.classList.remove("fading"); tqImg.src = url; }
   }, 200);
-  tqImg.alt = p.title;
+  tqImg.alt = "Photo";
   document.getElementById("tqUse").textContent = x.use;
   tqSchedule();
 }
@@ -830,8 +825,7 @@ function renderPairs() {
       }).join("");
     const fig = (p, j) => `<figure data-pair="${n}" data-side="${j}">
         <span class="mood-tag ${p.mood}">${p.mood === "day" ? "☀ Positive" : "☾ Negative"}</span>
-        <img src="photos/thumb/${p.file}" alt="${p.title}" loading="lazy">
-        <figcaption>${p.title}</figcaption>
+        <img src="photos/thumb/${p.file}" alt="Photo" loading="lazy">
       </figure>`;
     return `<article class="pair">
       <div class="pair-num">PAIR ${String(n + 1).padStart(2, "0")}</div>
@@ -882,8 +876,8 @@ function render() {
     card.className = "fan-card";
     card.dataset.k = k;
     const media = p.file
-      ? `<img src="photos/thumb/${p.file}" alt="${p.title}" draggable="false">`
-      : `<div class="placeholder">${p.title}</div>`;
+      ? `<img src="photos/thumb/${p.file}" alt="Photo" draggable="false">`
+      : `<div class="placeholder"></div>`;
     card.innerHTML = `<div class="inner">${media}</div>`;
     fan.appendChild(card);
   }
@@ -908,7 +902,6 @@ function layout() {
   if (idx === shownIndex) return;
   shownIndex = idx;
   const p = visible[idx];
-  document.getElementById("fanTitle").textContent = p.title;
   document.getElementById("fanCount").textContent =
     `${String(idx + 1).padStart(2, "0")} / ${String(visible.length).padStart(2, "0")}`;
 }
@@ -1015,7 +1008,7 @@ function loadPhoto(p) {
   const probe = new Image();
   probe.src = `photos/thumb/${p.file}`;
   lbImg.src = probe.src;
-  lbImg.alt = p.title || "Excluded photo";
+  lbImg.alt = "Photo";
   return probe.decode().catch(() => {}).then(() => {
     if (probe.naturalWidth) lbRatio = probe.naturalWidth / probe.naturalHeight;
     const hi = new Image();
@@ -1027,7 +1020,6 @@ function loadPhoto(p) {
 function fillPanel(p) {
   document.getElementById("lbCount").textContent =
     `${String(lbIndex + 1).padStart(2, "0")} / ${String(lbList.length).padStart(2, "0")}`;
-  document.getElementById("lbTitle").textContent = p.title || "";
   document.getElementById("lbMeta").textContent = [p.place, p.date].filter(Boolean).join(" · ");
   document.getElementById("lbExif").innerHTML = [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
