@@ -1181,6 +1181,12 @@ const store = {
 // 存在 "vote:" 开头的键里；旧版投票用的是 "path:"，已经不再读取
 const myPath = file => { try { return JSON.parse(store.get("vote:" + file)) || {}; } catch { return {}; } };
 const savePath = (file, path) => store.set("vote:" + file, JSON.stringify(path));
+// 换过新图（文件名变了）的照片：旧文件名 → 新文件名。投过旧图的人，记录会转到新图上，不会重复投票
+const RENAMED = { "DSC_1573.jpg": "DSC_1573_edit.jpg" };
+for (const [from, to] of Object.entries(RENAMED)) {
+  const old = store.get("vote:" + from);
+  if (old && !store.get("vote:" + to)) store.set("vote:" + to, old);
+}
 const UNSURE = "unsure", NONE = "none";
 const currentStep = p => !p.v ? 1 : !p.x ? 2 : !p.f ? 3 : 4;   // 4 = 投完了
 
@@ -1312,6 +1318,9 @@ function vpBuildBatches() {
   const files = PHOTOS.map(p => p.file);
   let batches = [];
   try { batches = JSON.parse(store.get("voteBatches")) || []; } catch {}
+  const renamed = batches.map(b => b.map(f => RENAMED[f] || f));
+  if (JSON.stringify(renamed) !== JSON.stringify(batches)) store.set("voteBatches", JSON.stringify(renamed));
+  batches = renamed;
   const saved = batches.flat();
   // 照片有增减时重新分组
   if (saved.length !== files.length || !files.every(f => saved.includes(f))) {
