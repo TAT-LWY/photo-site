@@ -504,7 +504,7 @@ const PHOTOS = [
   { file: "DSC_1538_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },   // Through the Ring
   { file: "DSC_1541.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },   // Two Faces
   { file: "DSC_1552_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },   // Supertree
-  { file: "DSC_1573.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },   // In the Frame
+  { file: "DSC_1573_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },   // In the Frame
   { file: "DSC_1577.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },   // Resting in the Circle
   { file: "DSC_1584.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },   // Fading Wheel
 ];
@@ -542,7 +542,7 @@ const ANALYSIS = {
   "DSC_1541.jpg":   { intended: "", analysis: `` },   // Two Faces
   "DSC_1552_edit.jpg":   { intended: "Awe",   // Supertree
     analysis: `The strong scale contrast between the people on the bridge and the enormous architecture emphasises its size, helping viewers recognise how huge it is compared to the surrounding environment. The low-angle perspective also emphasises its height, letting viewers look upwards and making the sense of awe more intense. The bright blue sky and trees create a comfortable atmosphere, making the scene feel striking but not threatening. The brighter sky influences the overall mood and may enhance the positive feelings. Overall, these techniques emphasise the size of the buildings and encourage viewers to look upwards and feel the sense of awe.` },
-  "DSC_1573.jpg":   { intended: "", analysis: `` },   // In the Frame
+  "DSC_1573_edit.jpg":   { intended: "", analysis: `` },   // In the Frame
   "DSC_1577.jpg":   { intended: "Calm and Comfort",   // Resting in the Circle
     analysis: `The circular window acts as a frame around the resting person, creating a sense of comfort. By putting the subject in the centre, the composition suggests a sense of security. The wide aperture also lets the leaves at the front become vague, providing the feeling of being wrapped in a private space. In addition, the soft light produces few shadows, creating a warm atmosphere for relaxation. The use of green colour also strengthens the association with nature. The circular framing, blur, and soft lighting all help to suggest the feeling of comfort and relaxation in a quiet atmosphere.` },
   "DSC_1584.jpg":   { intended: "Melancholy", analysis: `` },   // Fading Wheel
@@ -630,7 +630,7 @@ let lbIndex = 0;
 const COMPARISONS = [
   { a: "DSC_0141.jpg", b: "DSC_0137.jpg", analysis: "" },  // Taking Off vs Crow on the Rail
   { a: "DSC_0143.jpg", b: "DSC_0456.jpg", analysis: "" },  // Sailboat vs Lone Boat
-  { a: "DSC_1577.jpg", b: "DSC_1573.jpg", analysis: "" },  // Resting in the Circle vs In the Frame
+  { a: "DSC_1577.jpg", b: "DSC_1573_edit.jpg", analysis: "" },  // Resting in the Circle vs In the Frame
   { a: "DSC_1538_edit.jpg", b: "DSC_1584.jpg", analysis: "" },  // Through the Ring vs Fading Wheel
 ];
 
@@ -653,7 +653,7 @@ const TECHNIQUES = [
       { file: "DSC_0085.jpg",      use: "Negative space · Symmetry" },      // Rooftop Statue
       { file: "DSC_1538_edit.jpg", use: "Frame within a frame" },           // Through the Ring
       { file: "DSC_1577.jpg",      use: "Framing" },                        // Resting in the Circle
-      { file: "DSC_1573.jpg",      use: "Framing · Negative space" },       // In the Frame
+      { file: "DSC_1573_edit.jpg",      use: "Framing · Negative space" },       // In the Frame
       { file: "DSC_0191.jpg",      use: "Framing · Symmetry" },             // By the Lake
       { file: "DSC_1552_edit.jpg", use: "Natural framing · Layering" },     // Supertree
       { file: "DSC_0439.jpg",      use: "Diagonal lines · Repetition" },    // Golden Eaves
@@ -705,7 +705,7 @@ const TECHNIQUES = [
     analysis: `` },
   { name: "Depth of Field", photos: [
       { file: "DSC_1577.jpg",      use: "Shallow · Foreground blur" },      // Resting in the Circle
-      { file: "DSC_1573.jpg",      use: "Shallow" },                        // In the Frame
+      { file: "DSC_1573_edit.jpg",      use: "Shallow" },                        // In the Frame
       { file: "DSC_0135.jpg",      use: "Deep" },                           // Snow Mountain
     ],
     analysis: `` },
@@ -1150,7 +1150,7 @@ const VOTE_OPTIONS = {                      // 每张照片的情绪选项（英
   "DSC_0397.jpg":      ["Sadness", "Melancholy", "Nostalgia", "Calm"],      // Fallen Leaves
   "DSC_0456.jpg":      ["Calm", "Freedom", "Loneliness", "Sadness"],        // Lone Boat
   "DSC_1541.jpg":      ["Tension", "Sadness", "Calm", "Hope"],              // Two Faces
-  "DSC_1573.jpg":      ["Calm", "Comfort", "Loneliness", "Sadness"],        // In the Frame
+  "DSC_1573_edit.jpg":      ["Calm", "Comfort", "Loneliness", "Sadness"],        // In the Frame
   "DSC_1584.jpg":      ["Joy", "Hope", "Melancholy", "Loneliness"],         // Fading Wheel
 };
 const COLORS = {                           // 结果条和按钮的颜色
