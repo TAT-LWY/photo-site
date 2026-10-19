@@ -71,7 +71,7 @@
   body.view-excluded .nav-links > a[href^="#"] { display: none; }
   body.view-excluded .back-link { display: inline; }
   body.view-excluded .trash-btn { background: var(--text); color: var(--bg) !important; border-color: var(--text); }
-  body.view-excluded #gallery, body.view-excluded #techniques, body.view-excluded #compare { display: none; }
+  body.view-excluded #gallery, body.view-excluded #techniques { display: none; }
   .vote-nav-btn {
     padding: 6px 16px; border-radius: 999px; background: var(--accent); color: #fff !important; font-weight: 600;
   }
@@ -79,7 +79,7 @@
   body.view-vote .nav-links > a[href^="#"] { display: none; }
   body.view-vote .back-link { display: inline; }
   body.view-vote .vote-nav-btn { display: none; }
-  body.view-vote #gallery, body.view-vote #techniques, body.view-vote #compare { display: none; }
+  body.view-vote #gallery, body.view-vote #techniques { display: none; }
 
   /* Vote 页面 */
   .vote-page { padding: 28px 0 60px; }
@@ -336,37 +336,6 @@
     text-align: center; color: var(--muted); font-size: 14px;
   }
 
-  /* ===================== 对照组 ===================== */
-  .compare { border-top: 1px solid var(--line); padding: 70px 0 30px; }
-  .compare-intro { color: var(--muted); margin: -8px 0 36px; }
-  .pair {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
-    padding: 28px 32px 32px; margin-bottom: 40px; position: relative;
-  }
-  .pair-num { font-family: "Noto Serif SC", serif; font-size: 14px; color: var(--accent); letter-spacing: .15em; margin-bottom: 14px; }
-  .pair-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .pair figure { cursor: zoom-in; }
-  .pair figure img {
-    width: 100%; height: 460px; object-fit: contain; display: block;
-    background: var(--bg); border-radius: 10px; transition: transform .4s;
-  }
-  .pair figure:hover img { transform: scale(1.015); }
-  .mood-tag { display: inline-block; font-size: 12px; letter-spacing: .08em; padding: 3px 12px; border-radius: 999px; margin-bottom: 10px; }
-  .mood-tag.day { background: #f6e3b4; color: #7a5200; }
-  .mood-tag.night { background: #2b2f3a; color: #c9d1e6; }
-  .pair-table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 14px; }
-  .pair-table td, .pair-table th { padding: 9px 0; border-top: 1px solid var(--line); }
-  .pair-table td { width: 40%; }
-  .pair-table td:last-child { text-align: right; }
-  .pair-table th { font-weight: 400; color: var(--muted); text-align: center; font-size: 13px; }
-  .pair-table th em { font-style: normal; font-size: 11px; margin-left: 2px; opacity: .7; }
-  .pair-table tr.diff td { font-weight: 600; color: var(--accent); }
-  .pair-table tr.same td { color: var(--muted); }
-  .pair-analysis { margin-top: 22px; line-height: 1.8; }
-  .pair-analysis.empty {
-    border: 2px dashed var(--line); border-radius: 10px; padding: 22px;
-    color: var(--muted); text-align: center; font-size: 14px;
-  }
 
   footer { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0 40px; }
 
@@ -380,7 +349,6 @@
     <div class="nav-links">
       <a href="#gallery">Work</a>
       <a href="#techniques">Techniques</a>
-      <a href="#compare">Compare</a>
       <a href="./" class="back-link">← Back to portfolio</a>
       <a href="?view=vote" class="vote-nav-btn">Vote</a>
       <a href="?view=excluded" class="trash-btn" id="trashBtn" title="Excluded photos" aria-label="Excluded photos">
@@ -431,11 +399,6 @@
     </div>
   </section>
 
-  <section class="compare" id="compare">
-    <h2 class="section-title">Comparisons</h2>
-    <p class="compare-intro">Pairs of photos taken in similar conditions that express opposite emotions.</p>
-    <div id="pairs"></div>
-  </section>
 
   <section class="vote-page" id="votePage" hidden>
     <h2 class="section-title">Vote</h2>
@@ -640,20 +603,9 @@ const fan = document.getElementById("fan");
 let visible = [];
 let lbIndex = 0;
 
-/* ==========================================================
-   🔍 对照组 —— 拍摄条件相近、但情绪相反的两张照片
-   a / b 填 PHOTOS 里的文件名；analysis 填你的分析（留空 "" 会显示 "Analysis coming soon"）
-   ========================================================== */
-const COMPARISONS = [
-  { a: "DSC_0141.jpg", b: "DSC_0137.jpg", analysis: "" },  // Taking Off vs Crow on the Rail
-  { a: "DSC_0143.jpg", b: "DSC_0456.jpg", analysis: "" },  // Sailboat vs Lone Boat
-  { a: "DSC_1577.jpg", b: "DSC_1573_edit.jpg", analysis: "" },  // Resting in the Circle vs In the Frame
-  { a: "DSC_1538_edit.jpg", b: "DSC_1584.jpg", analysis: "" },  // Through the Ring vs Fading Wheel
-];
-
 const byFile = Object.fromEntries(PHOTOS.map(p => [p.file, p]));
 /* ==========================================================
-   🎛 技巧 —— 主页上 Portfolio 和 Comparisons 之间的 Techniques 区域（相机转盘）
+   🎛 技巧 —— 主页上 Portfolio 下面的 Techniques 区域（相机转盘）
    7 类摄影技巧，每类列出用到它的照片（file + 这张照片具体用了什么）
    short：转盘上显示的短名字（不写就用 name）
    level：对情绪影响的强弱，3 = Strong，2 = Medium，1 = Low（显示成转盘上的圆点）
@@ -840,32 +792,6 @@ dial.addEventListener("keydown", e => {
     tqSelect(tqSel + (e.key === "ArrowRight" ? 1 : -1));
   }
 });
-
-function renderPairs() {
-  const el = document.getElementById("pairs");
-  el.innerHTML = COMPARISONS.map((c, n) => {
-    const A = byFile[c.a], B = byFile[c.b];
-    const rows = [["Aperture", "aperture"], ["Shutter", "shutter"], ["ISO", "iso"], ["Focal length", "focal"]]
-      .map(([label, k]) => {
-        const same = String(A[k]) === String(B[k]);
-        return `<tr class="${same ? "same" : "diff"}"><td>${A[k]}</td><th>${label}${same ? " <em>(same)</em>" : ""}</th><td>${B[k]}</td></tr>`;
-      }).join("");
-    const fig = (p, j) => `<figure data-pair="${n}" data-side="${j}">
-        <span class="mood-tag ${p.mood}">${p.mood === "day" ? "☀ Positive" : "☾ Negative"}</span>
-        <img src="photos/thumb/${p.file}" alt="Photo" loading="lazy">
-      </figure>`;
-    return `<article class="pair">
-      <div class="pair-num">PAIR ${String(n + 1).padStart(2, "0")}</div>
-      <div class="pair-photos">${fig(A, 0)}${fig(B, 1)}</div>
-      <table class="pair-table">${rows}</table>
-      <div class="pair-analysis${c.analysis ? "" : " empty"}">${c.analysis || "Analysis coming soon"}</div>
-    </article>`;
-  }).join("");
-  el.querySelectorAll("figure").forEach(f => {
-    const c = COMPARISONS[+f.dataset.pair];
-    f.onclick = () => openLb(+f.dataset.side, [byFile[c.a], byFile[c.b]]);
-  });
-}
 
 // 白天 / 黑夜模式
 const isDark = () => document.documentElement.dataset.theme
@@ -1154,13 +1080,13 @@ const VOTE_OPTIONS = {                      // 每张照片的情绪选项（英
   "DSC0211.jpg":       ["Calm", "Curiosity", "Comfort"],                    // Garden Path
   "DSC_0085.jpg":      ["Awe", "Hope", "Joy"],                              // Rooftop Statue
   "DSC_0135.jpg":      ["Awe", "Freedom", "Loneliness", "Melancholy"],      // Snow Mountain
-  "DSC_0141.jpg":      ["Freedom", "Joy", "Loneliness", "Tension"],         // Taking Off（对照组：和 Crow on the Rail 相同）
-  "DSC_0143.jpg":      ["Calm", "Freedom", "Loneliness", "Sadness"],        // Sailboat（对照组：和 Lone Boat 相同）
+  "DSC_0141.jpg":      ["Freedom", "Joy", "Loneliness", "Tension"],         // Taking Off
+  "DSC_0143.jpg":      ["Calm", "Freedom", "Loneliness", "Sadness"],        // Sailboat
   "DSC_0439.jpg":      ["Awe", "Calm", "Joy"],                              // Golden Eaves
   "DSC_1522.jpg":      ["Calm", "Comfort", "Loneliness", "Curiosity"],      // Night Road
-  "DSC_1538_edit.jpg": ["Joy", "Hope", "Melancholy", "Loneliness"],         // Through the Ring（对照组：和 Fading Wheel 相同）
+  "DSC_1538_edit.jpg": ["Joy", "Hope", "Melancholy", "Loneliness"],         // Through the Ring
   "DSC_1552_edit.jpg": ["Awe", "Joy", "Curiosity"],                         // Supertree
-  "DSC_1577.jpg":      ["Calm", "Comfort", "Loneliness", "Sadness"],        // Resting in the Circle（对照组：和 In the Frame 相同）
+  "DSC_1577.jpg":      ["Calm", "Comfort", "Loneliness", "Sadness"],        // Resting in the Circle
 
   "DSC0249.jpg":       ["Loneliness", "Sadness", "Tension", "Calm"],        // Lone Bird
   "DSC_0091.jpg":      ["Loneliness", "Calm", "Melancholy", "Anxiety"],     // Quiet Street
@@ -1513,7 +1439,6 @@ if (VIEW === "excluded") {
 } else {
   render();
   renderTechniques();
-  renderPairs();
   requestAnimationFrame(tick);
 }
 
