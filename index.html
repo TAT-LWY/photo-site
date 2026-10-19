@@ -451,32 +451,32 @@
    📷 照片列表 —— 在这里添加/修改你的照片
    每张照片有两个版本：photos/thumb/（扇子上的小图）和 photos/full/（点开的大图）
    照片不显示题目（// 后面的名字只是方便找照片）
-   file 填文件名；place（地点）可以留空 ""，留空就不显示
+   file 填文件名
    mood: "day" = 白天模式显示（偏正面情绪），"night" = 黑夜模式显示（偏负面情绪）
    aperture 光圈 / shutter 快门 / iso 感光度 / focal 焦距 —— 从原图的拍摄数据里读出来的，点开大图时显示
    所有照片都以同样大小的竖版卡片展示（会自动裁剪填满卡片）
    ========================================================== */
 const PHOTOS = [
-  { file: "DSC0211.jpg",  place: "", date: "Feb 3, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 6400, focal: "120mm" },   // Garden Path
-  { file: "DSC0249.jpg",  place: "", date: "Feb 6, 2026", mood: "night",   aperture: "f/22",  shutter: "1/13000s",iso: 65535,focal: "120mm" },   // Lone Bird
-  { file: "DSC_0085.jpg",  place: "", date: "Mar 29, 2026", mood: "day",     aperture: "f/8",   shutter: "1/1000s", iso: 250,  focal: "120mm" },   // Rooftop Statue
-  { file: "DSC_0091.jpg",  place: "", date: "Mar 29, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 250,  focal: "44mm" },   // Quiet Street
-  { file: "DSC_0135.jpg",  place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/10",  shutter: "1/1600s", iso: 250,  focal: "120mm" },   // Snow Mountain
-  { file: "DSC_0137.jpg",  place: "", date: "Apr 6, 2026", mood: "night",   aperture: "f/11",  shutter: "1/2000s", iso: 250,  focal: "120mm" },   // Crow on the Rail
-  { file: "DSC_0141.jpg",  place: "", date: "Apr 6, 2026", mood: "day",     aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Taking Off
-  { file: "DSC_0143.jpg",  place: "", date: "Apr 8, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 250,  focal: "120mm" },   // Sailboat
-  { file: "DSC_0153.jpg",  place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Misty Peaks
-  { file: "DSC_0191.jpg",  place: "", date: "Apr 8, 2026", mood: "night",   aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "24mm" },   // By the Lake
-  { file: "DSC_0397.jpg",  place: "", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },   // Fallen Leaves
-  { file: "DSC_0439.jpg",  place: "", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },   // Golden Eaves
-  { file: "DSC_0456.jpg",  place: "", date: "Jul 1, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Lone Boat
-  { file: "DSC_1522.jpg",  place: "", date: "Sep 1, 2026", mood: "day",     aperture: "f/4",   shutter: "1/5s",    iso: 2000, focal: "120mm" },   // Night Road
-  { file: "DSC_1538_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },   // Through the Ring
-  { file: "DSC_1541.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },   // Two Faces
-  { file: "DSC_1552_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },   // Supertree
-  { file: "DSC_1573_edit.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },   // In the Frame
-  { file: "DSC_1577.jpg",  place: "", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },   // Resting in the Circle
-  { file: "DSC_1584.jpg",  place: "", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },   // Fading Wheel
+  { file: "DSC0211.jpg", date: "Feb 3, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 6400, focal: "120mm" },   // Garden Path
+  { file: "DSC0249.jpg", date: "Feb 6, 2026", mood: "night",   aperture: "f/22",  shutter: "1/13000s",iso: 65535,focal: "120mm" },   // Lone Bird
+  { file: "DSC_0085.jpg", date: "Mar 29, 2026", mood: "day",     aperture: "f/8",   shutter: "1/1000s", iso: 250,  focal: "120mm" },   // Rooftop Statue
+  { file: "DSC_0091.jpg", date: "Mar 29, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 250,  focal: "44mm" },   // Quiet Street
+  { file: "DSC_0135.jpg", date: "Apr 6, 2026", mood: "day",     aperture: "f/10",  shutter: "1/1600s", iso: 250,  focal: "120mm" },   // Snow Mountain
+  { file: "DSC_0137.jpg", date: "Apr 6, 2026", mood: "night",   aperture: "f/11",  shutter: "1/2000s", iso: 250,  focal: "120mm" },   // Crow on the Rail
+  { file: "DSC_0141.jpg", date: "Apr 6, 2026", mood: "day",     aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Taking Off
+  { file: "DSC_0143.jpg", date: "Apr 8, 2026", mood: "day",     aperture: "f/6.3", shutter: "1/640s",  iso: 250,  focal: "120mm" },   // Sailboat
+  { file: "DSC_0153.jpg", date: "Apr 8, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Misty Peaks
+  { file: "DSC_0191.jpg", date: "Apr 8, 2026", mood: "night",   aperture: "f/13",  shutter: "1/640s",  iso: 320,  focal: "24mm" },   // By the Lake
+  { file: "DSC_0397.jpg", date: "May 28, 2026", mood: "night",   aperture: "f/5",   shutter: "1/400s",  iso: 200,  focal: "120mm" },   // Fallen Leaves
+  { file: "DSC_0439.jpg", date: "Jun 28, 2026", mood: "day",     aperture: "f/7.1", shutter: "1/800s",  iso: 250,  focal: "120mm" },   // Golden Eaves
+  { file: "DSC_0456.jpg", date: "Jul 1, 2026", mood: "night",   aperture: "f/9",   shutter: "1/1250s", iso: 250,  focal: "120mm" },   // Lone Boat
+  { file: "DSC_1522.jpg", date: "Sep 1, 2026", mood: "day",     aperture: "f/4",   shutter: "1/5s",    iso: 2000, focal: "120mm" },   // Night Road
+  { file: "DSC_1538_edit.jpg", date: "Oct 11, 2026", mood: "day",     aperture: "f/9",   shutter: "1/320s",  iso: 64,   focal: "26mm" },   // Through the Ring
+  { file: "DSC_1541.jpg", date: "Oct 11, 2026", mood: "night",   aperture: "f/8",   shutter: "1/250s",  iso: 64,   focal: "37mm" },   // Two Faces
+  { file: "DSC_1552_edit.jpg", date: "Oct 11, 2026", mood: "day",     aperture: "f/5.6", shutter: "1/500s",  iso: 64,   focal: "66mm" },   // Supertree
+  { file: "DSC_1573_edit.jpg", date: "Oct 11, 2026", mood: "night",   aperture: "f/4",   shutter: "1/125s",  iso: 140,  focal: "120mm" },   // In the Frame
+  { file: "DSC_1577.jpg", date: "Oct 11, 2026", mood: "day",     aperture: "f/4",   shutter: "1/125s",  iso: 280,  focal: "120mm" },   // Resting in the Circle
+  { file: "DSC_1584.jpg", date: "Oct 11, 2026", mood: "night",   aperture: "f/6.3", shutter: "1/640s",  iso: 64,   focal: "120mm" },   // Fading Wheel
 ];
 
 /* ==========================================================
@@ -973,7 +973,7 @@ function loadPhoto(p) {
 function fillPanel(p) {
   document.getElementById("lbCount").textContent =
     `${String(lbIndex + 1).padStart(2, "0")} / ${String(lbList.length).padStart(2, "0")}`;
-  document.getElementById("lbMeta").textContent = [p.place, p.date].filter(Boolean).join(" · ");
+  document.getElementById("lbMeta").textContent = p.date;
   document.getElementById("lbExif").innerHTML = [
     ["Aperture", p.aperture], ["Shutter", p.shutter], ["ISO", p.iso], ["Focal length", p.focal],
   ].map(([k, v]) => `<span class="chip"><b>${k}</b>${v}</span>`).join("");
