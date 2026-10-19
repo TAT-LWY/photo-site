@@ -173,8 +173,7 @@
     display: flex; align-items: center; justify-content: center; color: #8f897f; font-size: 11px; letter-spacing: .2em;
   }
   .tq-num { color: var(--accent); font-size: 13px; letter-spacing: .14em; }
-  .tq-name { font-family: "Noto Serif SC", serif; font-size: 30px; line-height: 1.25; }
-  .tq-subs { color: var(--muted); font-size: 14px; margin: 4px 0 18px; }
+  .tq-name { font-family: "Noto Serif SC", serif; font-size: 30px; line-height: 1.25; margin-bottom: 18px; }
   .camera { background: #1b1a18; border-radius: 22px; padding: 16px 16px 12px; box-shadow: 0 16px 40px rgba(0,0,0,.18); max-width: 820px; }
   .screen { position: relative; aspect-ratio: 16 / 10; background: #000; border-radius: 8px; overflow: hidden; cursor: zoom-in; }
   .screen img { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .35s; }
@@ -410,7 +409,6 @@
       <div class="tq-main">
         <div class="tq-num" id="tqNum"></div>
         <h3 class="tq-name" id="tqName"></h3>
-        <div class="tq-subs" id="tqSubs"></div>
         <div class="camera">
           <div class="screen" id="tqScreen" title="Click to enlarge">
             <img id="tqImg" alt="">
@@ -757,7 +755,6 @@ function tqSelect(i) {
   dial.querySelectorAll(".dial-label").forEach((l, k) => l.classList.toggle("on", k === tqSel));
   document.getElementById("tqNum").textContent = `${String(tqSel + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
   document.getElementById("tqName").textContent = t.name;
-  document.getElementById("tqSubs").textContent = [...new Set(t.photos.flatMap(x => x.use.split(" · ")))].join(" · ");
   const text = t.analysis.trim();
   const box = document.getElementById("tqAnalysis");
   box.classList.toggle("empty", !text);
