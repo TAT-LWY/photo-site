@@ -163,9 +163,18 @@
   .dial.dragging { transition: none; cursor: grabbing; }
   .dial-face { position: absolute; inset: 64px; border-radius: 50%; background: #1d1c1a; box-shadow: inset 0 0 0 1px #3d3a36; }
   .dial-label {
-    position: absolute; left: 50%; top: 50%; width: 150px; height: 20px; margin: -10px 0 0 -75px; pointer-events: none;
+    position: absolute; left: 50%; top: 50%; width: 150px; height: 34px; margin: -17px 0 0 -75px; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
     text-align: center; font-size: 13px; font-weight: 500; letter-spacing: .04em; color: #cfc9be; transition: color .3s;
   }
+  /* 强弱圆点：●●● 强 / ●●○ 中 / ●○○ 弱 */
+  .dial-dots { display: inline-flex; gap: 4px; }
+  .dial-dots i { width: 6px; height: 6px; border-radius: 50%; box-shadow: inset 0 0 0 1.2px #7c766d; }
+  .dial-dots i.on { background: #e08a5f; box-shadow: none; }
+  .dial-legend .dial-dots i { box-shadow: inset 0 0 0 1.2px var(--muted); }
+  .dial-legend .dial-dots i.on { box-shadow: none; }
+  .dial-legend { position: absolute; bottom: -26px; left: 0; right: 0; display: flex; justify-content: center; gap: 18px; font-size: 12px; color: var(--muted); }
+  .dial-legend > span { display: inline-flex; align-items: center; gap: 6px; }
   .dial-label.on { color: #ffb38a; }
   .dial-center {
     position: absolute; left: 50%; top: 50%; width: 100px; height: 100px; margin: -50px 0 0 -50px; border-radius: 50%; pointer-events: none;
@@ -173,7 +182,20 @@
     display: flex; align-items: center; justify-content: center; color: #8f897f; font-size: 11px; letter-spacing: .2em;
   }
   .tq-num { color: var(--accent); font-size: 13px; letter-spacing: .14em; }
-  .tq-name { font-family: "Noto Serif SC", serif; font-size: 30px; line-height: 1.25; margin-bottom: 18px; }
+  .tq-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 18px; }
+  .tq-name { font-family: "Noto Serif SC", serif; font-size: 30px; line-height: 1.25; }
+  /* 技巧名旁边的强弱标签（像相机的信号格） */
+  .tq-level {
+    display: inline-flex; align-items: center; gap: 9px; padding: 5px 13px 5px 11px; border-radius: 999px;
+    border: 1.5px solid currentColor; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .tq-level.l3 { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .tq-level.l2 { color: #b98a2e; }
+  .tq-level.l1 { color: var(--muted); }
+  .tq-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+  .tq-bars i { width: 4px; border-radius: 1px; background: currentColor; opacity: .25; }
+  .tq-bars i:nth-child(1) { height: 5px; } .tq-bars i:nth-child(2) { height: 8px; } .tq-bars i:nth-child(3) { height: 12px; }
+  .tq-bars i.on { opacity: 1; }
   .camera { background: #1b1a18; border-radius: 22px; padding: 16px 16px 12px; box-shadow: 0 16px 40px rgba(0,0,0,.18); max-width: 820px; }
   .screen { position: relative; aspect-ratio: 16 / 10; background: #000; border-radius: 8px; overflow: hidden; cursor: zoom-in; }
   .screen img { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .35s; }
@@ -404,10 +426,14 @@
         <div class="dial-pointer"></div>
         <div class="dial" id="dial" tabindex="0" aria-label="Choose a technique (drag, click, or use the arrow keys)"><div class="dial-face"></div></div>
         <div class="dial-center">MODE</div>
+        <div class="dial-legend"><span><span class="dial-dots"><i class="on"></i><i class="on"></i><i class="on"></i></span>Strong</span><span><span class="dial-dots"><i class="on"></i><i class="on"></i><i></i></span>Medium</span><span><span class="dial-dots"><i class="on"></i><i></i><i></i></span>Low</span></div>
       </div>
       <div class="tq-main">
         <div class="tq-num" id="tqNum"></div>
-        <h3 class="tq-name" id="tqName"></h3>
+        <div class="tq-head">
+          <h3 class="tq-name" id="tqName"></h3>
+          <span class="tq-level" id="tqLevel"></span>
+        </div>
         <div class="camera">
           <div class="screen" id="tqScreen" title="Click to enlarge">
             <img id="tqImg" alt="">
@@ -646,10 +672,11 @@ const byFile = Object.fromEntries(PHOTOS.map(p => [p.file, p]));
    🎛 技巧 —— 主页上 Portfolio 和 Comparisons 之间的 Techniques 区域（相机转盘）
    7 类摄影技巧，每类列出用到它的照片（file + 这张照片具体用了什么）
    short：转盘上显示的短名字（不写就用 name）
+   level：对情绪影响的强弱，3 = Strong，2 = Medium，1 = Low（显示在技巧名旁边和转盘上）
    analysis：这一类技巧怎么影响情绪（写在两个 ` 之间；空一行 = 分段）
    ========================================================== */
 const TECHNIQUES = [
-  { name: "Composition", photos: [
+  { name: "Composition", level: 2, photos: [
       { file: "DSC0211.jpg",       use: "Leading lines" },                  // Garden Path
       { file: "DSC_1522.jpg",      use: "Leading lines" },                  // Night Road
       { file: "DSC_0091.jpg",      use: "Leading lines · Symmetry" },       // Quiet Street
@@ -666,7 +693,7 @@ const TECHNIQUES = [
       { file: "DSC_0439.jpg",      use: "Diagonal lines · Repetition" },    // Golden Eaves
     ],
     analysis: `` },
-  { name: "Lighting", photos: [
+  { name: "Lighting", level: 3, photos: [
       { file: "DSC_0397.jpg",      use: "Hard light" },                     // Fallen Leaves
       { file: "DSC0249.jpg",       use: "Silhouette" },                     // Lone Bird
       { file: "DSC_0137.jpg",      use: "Backlighting · Silhouette" },      // Crow on the Rail
@@ -675,7 +702,7 @@ const TECHNIQUES = [
       { file: "DSC_1522.jpg",      use: "Street lights at night" },         // Night Road
     ],
     analysis: `` },
-  { name: "Colour", photos: [
+  { name: "Colour", level: 3, photos: [
       { file: "DSC0211.jpg",       use: "Warm colours" },                   // Garden Path
       { file: "DSC_1522.jpg",      use: "Warm colours" },                   // Night Road
       { file: "DSC_0143.jpg",      use: "Saturated colours" },              // Sailboat
@@ -688,7 +715,7 @@ const TECHNIQUES = [
       { file: "DSC_1584.jpg",      use: "Low saturation" },                 // Fading Wheel
     ],
     analysis: `` },
-  { name: "Exposure & Contrast", short: "Exposure", photos: [
+  { name: "Exposure & Contrast", level: 3, short: "Exposure", photos: [
       { file: "DSC_0397.jpg",      use: "Low-key · High contrast" },        // Fallen Leaves
       { file: "DSC_1522.jpg",      use: "Dark exposure" },                  // Night Road
       { file: "DSC0211.jpg",       use: "Dark exposure" },                  // Garden Path
@@ -699,7 +726,7 @@ const TECHNIQUES = [
       { file: "DSC_1584.jpg",      use: "Low contrast" },                   // Fading Wheel
     ],
     analysis: `Exposure refers to the overall brightness of a photograph, while contrast shows the difference between its bright and dark areas. These techniques strongly influence the emotional atmosphere by making an image look positive or negative. High-key exposure often creates a bright, warm feeling, yet low-key exposure can suggest mystery or sadness. High contrast usually delivers a high-arousal emotion, while low contrast often creates a softer and calmer mood. Deliberately increasing the ISO to create grain can also affect emotion by making an image seem rough, unclear, and unsettling. In my photographs, when I used bright exposure, I mostly received positive responses, while heavy grain and a gloomy atmosphere may communicate isolation and sadness. Therefore, exposure and contrast have a strong influence on the overall mood, but their effects still depend on how they work together with lighting, colour, and subjects.` },
-  { name: "Perspective & Camera Angle", short: "Angle", photos: [
+  { name: "Perspective & Camera Angle", level: 2, short: "Angle", photos: [
       { file: "DSC_0085.jpg",      use: "Low angle" },                      // Rooftop Statue
       { file: "DSC_0439.jpg",      use: "Low angle" },                      // Golden Eaves
       { file: "DSC_1541.jpg",      use: "Low angle" },                      // Two Faces
@@ -711,13 +738,13 @@ const TECHNIQUES = [
       { file: "DSC_0091.jpg",      use: "Eye level" },                      // Quiet Street
     ],
     analysis: `` },
-  { name: "Depth of Field", photos: [
+  { name: "Depth of Field", level: 1, photos: [
       { file: "DSC_1577.jpg",      use: "Shallow · Foreground blur" },      // Resting in the Circle
       { file: "DSC_1573_edit.jpg",      use: "Shallow" },                        // In the Frame
       { file: "DSC_0135.jpg",      use: "Deep" },                           // Snow Mountain
     ],
     analysis: `` },
-  { name: "Scale, Distance & Focal Length", short: "Scale", photos: [
+  { name: "Scale, Distance & Focal Length", level: 2, short: "Scale", photos: [
       { file: "DSC_0135.jpg",      use: "Scale contrast · Telephoto compression" },  // Snow Mountain
       { file: "DSC_1552_edit.jpg", use: "Scale contrast" },                 // Supertree
       { file: "DSC_1541.jpg",      use: "Scale contrast" },                 // Two Faces
@@ -735,9 +762,12 @@ const TQ_INTERVAL = 3000;                   // 相机屏幕自动换下一张照
 let tqSel = 0, tqRot = 0, tqPhoto = 0, tqTimer = null, tqDrag = null;
 const tqImg = document.getElementById("tqImg");
 
+const LEVELS = { 3: "Strong influence", 2: "Medium influence", 1: "Low influence" };
+const levelDots = lv => [1, 2, 3].map(k => `<i class="${k <= lv ? "on" : ""}"></i>`).join("");
+
 function renderTechniques() {
   dial.insertAdjacentHTML("beforeend", TECHNIQUES.map((t, i) =>
-    `<div class="dial-label" style="transform: rotate(${i * TQ_STEP}deg) translateY(-158px)">${t.short || t.name}</div>`).join(""));
+    `<div class="dial-label" style="transform: rotate(${i * TQ_STEP}deg) translateY(-158px)">${t.short || t.name}<span class="dial-dots">${levelDots(t.level)}</span></div>`).join(""));
   tqSelect(0);
 }
 
@@ -754,6 +784,9 @@ function tqSelect(i) {
   dial.querySelectorAll(".dial-label").forEach((l, k) => l.classList.toggle("on", k === tqSel));
   document.getElementById("tqNum").textContent = `${String(tqSel + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}`;
   document.getElementById("tqName").textContent = t.name;
+  const lvEl = document.getElementById("tqLevel");
+  lvEl.className = "tq-level l" + t.level;
+  lvEl.innerHTML = `<span class="tq-bars">${levelDots(t.level)}</span>${LEVELS[t.level]}`;
   const text = t.analysis.trim();
   const box = document.getElementById("tqAnalysis");
   box.classList.toggle("empty", !text);
